@@ -7,14 +7,22 @@ import org.koin.core.qualifier.Qualifier
 object GlobalInjector {
 
     inline fun <reified T : Any> inject(
-        qualifier: Qualifier? = null
-    ): Lazy<T> = GlobalContext.get().inject(qualifier)
+        qualifier: Qualifier? = null,
+        params: ParametersHolder? = null
+    ): Lazy<T> = GlobalContext.get().inject(
+        qualifier = qualifier,
+        parameters = if (params != null) {
+            { params }
+        } else {
+            null
+        }
+    )
 
     inline fun <reified T : Any> get(
         qualifier: Qualifier? = null,
         params: ParametersHolder? = null
     ): T = GlobalContext.get().get(
-        qualifier,
+        qualifier = qualifier,
         parameters = if (params != null) {
             { params }
         } else {

@@ -1,8 +1,8 @@
 package com.github.aivanovski.testwithme.flow.commands
 
 import arrow.core.Either
-import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
 
 class Launch(
     private val packageName: String
@@ -13,8 +13,8 @@ class Launch(
     }
 
     override suspend fun <NodeType> execute(
-        driver: Driver<NodeType>
+        context: ExecutionContext<NodeType>
     ): Either<FlowExecutionException, Unit> {
-        return driver.launchApp(packageName)
+        return context.driver.launchApp(packageName)
     }
 }

@@ -3,7 +3,8 @@ package com.github.aivanovski.testwithme.android.entity
 enum class JobStatus {
     PENDING,
     RUNNING,
-    CANCELLED;
+    CANCELLED,
+    FINISHED;
 
     companion object {
         fun fromName(name: String): JobStatus? {

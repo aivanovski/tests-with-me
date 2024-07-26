@@ -1,0 +1,14 @@
+- name: Feedback url should be shown
+
+- sendBroadcast: com.ivanovsky.passnotes/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+  data:
+    - key: isResetAppData
+      value: true
+
+- launch: com.ivanovsky.passnotes
+- assertVisible: KeePassVault
+- tapOn:
+    contentDescription: Navigate up
+- tapOn: About
+- assertVisible:
+    hasText: https://github.com/aivanovski/passnotes/issues

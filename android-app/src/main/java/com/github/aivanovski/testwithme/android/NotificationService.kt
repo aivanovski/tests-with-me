@@ -17,6 +17,8 @@ import timber.log.Timber
 
 class NotificationService : Service() {
 
+    // TODO: refactor
+
     private val binder = LocalBinder()
 
     override fun onBind(intent: Intent?): IBinder {
@@ -111,14 +113,7 @@ class NotificationService : Service() {
         }
     }
 
-    inner class LocalBinder : Binder() {
-
-        fun connect() {
-        }
-
-        fun disconnect() {
-        }
-    }
+    inner class LocalBinder : Binder()
 
     sealed interface Command : Parcelable {
 

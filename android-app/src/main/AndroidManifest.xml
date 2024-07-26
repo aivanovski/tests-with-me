@@ -39,7 +39,7 @@
 
 
         <service
-            android:name=".AccessibilityDriverService"
+            android:name=".domain.driver.DriverService"
             android:exported="true"
             android:label="@string/accessibility_service_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

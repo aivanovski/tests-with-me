@@ -1,36 +1,199 @@
 package com.github.aivanovski.testwithme.android.data.repository
 
-import arrow.core.Either
+import arrow.core.raise.either
+import com.github.aivanovski.testwithme.android.data.api.ApiClient
+import com.github.aivanovski.testwithme.android.data.db.dao.FlowEntryDao
+import com.github.aivanovski.testwithme.android.data.db.dao.StepEntryDao
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testwithme.android.entity.db.StepEntry
+import com.github.aivanovski.testwithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testwithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testwithme.android.entity.exception.AppException
+import com.github.aivanovski.testwithme.android.entity.SourceType
+import com.github.aivanovski.testwithme.android.domain.dataconverters.convertToStepEntries
+import arrow.core.Either
+import com.github.aivanovski.testwithme.android.data.db.dao.JobHistoryDao
+import com.github.aivanovski.testwithme.android.data.file.FileCache
+import com.github.aivanovski.testwithme.android.entity.exception.FailedToFindEntityByUidException
+import com.github.aivanovski.testwithme.web.api.request.PostFlowRequest
+import com.github.aivanovski.testwithme.web.api.response.PostFlowResponse
 
-interface FlowRepository {
+class FlowRepository(
+    private val stepDao: StepEntryDao,
+    private val flowDao: FlowEntryDao,
+    private val jobHistoryDao: JobHistoryDao,
+    private val api: ApiClient,
+    private val parseFlowUseCase: ParseFlowFileUseCase,
+    private val fileCache: FileCache
+) {
 
-    suspend fun findStepByUid(uid: String): Either<AppException, StepEntry?>
+    suspend fun uploadFlowContent(
+        request: PostFlowRequest
+    ): Either<AppException, PostFlowResponse> = either {
+        api.postFlow(request).bind()
+    }
+
+    fun updateCachedFlow(
+        flow: FlowEntry
+    ) {
+        flowDao.update(flow)
+    }
+
+    fun saveFlowContent(
+        flowUid: String,
+        content: String
+    ): Either<AppException, Unit> = either {
+        fileCache.put(flowUid, content).bind()
+    }
+
+    fun getCachedFlowContent(
+        flowUid: String
+    ): Either<AppException, String?> = either {
+        fileCache.getOrNull(flowUid).bind()
+    }
+
+    fun getCachedFlowByUid(
+        flowUid: String
+    ): Either<AppException, FlowWithSteps> = either {
+        flowDao.getByUidWithSteps(flowUid)
+            ?: raise(FailedToFindEntityByUidException(FlowEntry::class, flowUid))
+    }
+
+    suspend fun getFlowContent(
+        flowUid: String
+    ): Either<AppException, String> = either {
+        api.getFlow(flowUid)
+            .bind()
+            .flow
+            .base64Content
+    }
 
     suspend fun getFlowByUid(
         flowUid: String
-    ): Either<AppException, FlowWithSteps>
+    ): Either<AppException, FlowWithSteps> = either {
+        val flow = flowDao.getByUidWithSteps(flowUid)
+            ?: raise(FailedToFindEntityByUidException(FlowEntry::class, flowUid))
 
-    suspend fun getStepByUid(
+        if (flow.entry.sourceType == SourceType.REMOTE) {
+            val response = api.getFlow(flowUid).bind()
+
+            val yamlFlow = parseFlowUseCase.parseBase64File(
+                base64content = response.flow.base64Content
+            ).bind()
+
+            val stepEntries = yamlFlow.steps.convertToStepEntries(
+                flowUid = flowUid
+            )
+
+            stepDao.removeByFlowUid(flowUid)
+            stepDao.insert(stepEntries)
+
+            flowDao.getByUidWithSteps(flowUid)
+                ?: raise(FailedToFindEntityByUidException(FlowEntry::class, flowUid))
+        } else {
+            flow
+        }
+    }
+
+    fun getStepByUid(
         stepUid: String
-    ): Either<AppException, StepEntry>
+    ): Either<AppException, StepEntry> = either {
+        val step = stepDao.getByUid(stepUid)
+            ?: raise(FailedToFindEntityByUidException(StepEntry::class, stepUid))
 
-    suspend fun removeFlowData(flowUid: String): Either<AppException, Unit>
+        step
+    }
 
-    suspend fun save(flow: FlowWithSteps): Either<AppException, Unit>
+    fun removeFlowData(
+        flowUid: String
+    ): Either<AppException, Unit> = either {
+        // TODO: make a transaction
+        flowDao.removeByUid(flowUid)
+        stepDao.removeByFlowUid(flowUid)
+    }
 
-    suspend fun updateFlow(
-        flowEntry: FlowEntry
-    ): Either<AppException, Unit>
+    fun save(
+        flow: FlowWithSteps
+    ): Either<AppException, Unit> = either {
+        val flowUid = flow.entry.uid
 
-    suspend fun updateStep(
-        stepEntry: StepEntry
-    ): Either<AppException, Unit>
+        removeFlowData(flowUid).bind()
+
+        flowDao.insert(flow.entry)
+        stepDao.insert(flow.steps)
+    }
+
+    suspend fun getFlows(): Either<AppException, List<FlowEntry>> = either {
+        val remoteFlows = api.getFlows().bind()
+
+        val uidToLocalFlowMap = flowDao.getAll()
+            .associateBy { flow -> flow.uid }
+
+        for (remote in remoteFlows) {
+            val local = uidToLocalFlowMap[remote.uid]
+            if (local == null) {
+                flowDao.insert(remote)
+            } else {
+                flowDao.update(remote.copy(id = local.id))
+            }
+        }
+
+        return Either.Right(remoteFlows)
+    }
+
+    suspend fun getFlowsByProjectUid(
+        projectUid: String
+    ): Either<AppException, List<FlowEntry>> = either {
+        getFlows()
+            .bind()
+            .filter { flow -> flow.projectUid == projectUid }
+    }
 
     suspend fun getNextStep(
         stepUid: String?
-    ): Either<AppException, StepEntry?>
+    ): Either<AppException, StepEntry?> = either {
+        val flowUid = stepUid?.let { getFlowUidByStepUid(stepUid) }
+        val existingFlowEntry = flowUid?.let { flowDao.getByUid(flowUid) }
+
+        val flow = if (existingFlowEntry == null) {
+            // TODO: fix
+//            if (flowUid == null) {
+//                raise(AppException("Flow uid is null"))
+//            }
+//
+//            val response = api.getFlow(flowUid).bind()
+//
+//            val yamlFlow = parseFlowUseCase.parseBase64File(
+//                base64content = response.flow.base64Content
+//            ).bind()
+//
+//            stepDao.removeByFlowUid(flowUid)
+//
+//            flowDao.insert(yamlFlow.entry)
+//            stepDao.insert(yamlFlow.steps)
+
+            raise(AppException("Not implemented"))
+        } else {
+            flowDao.getByUidWithSteps(existingFlowEntry.uid)
+                ?: raise(FailedToFindEntityByUidException(FlowEntry::class, existingFlowEntry.uid))
+        }
+
+        val currentStepEntry = stepDao.getByUid(stepUid)
+            ?: raise(FailedToFindEntityByUidException(StepEntry::class, stepUid))
+
+        val nextStepUid = currentStepEntry.nextUid
+
+        if (nextStepUid != null) {
+            val nextEntry = stepDao.getByUid(nextStepUid)
+                ?: raise(FailedToFindEntityByUidException(StepEntry::class, nextStepUid))
+
+            nextEntry
+        } else {
+            null
+        }
+    }
+
+    private fun getFlowUidByStepUid(stepUid: String): String? {
+        return stepDao.getByUid(stepUid)?.flowUid
+    }
 }

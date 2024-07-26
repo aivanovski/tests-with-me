@@ -9,18 +9,19 @@ import android.view.accessibility.AccessibilityNodeInfo
 import arrow.core.Either
 import com.github.aivanovski.testwithme.entity.UiNode
 import com.github.aivanovski.testwithme.android.extensions.convertToUiNode
-import com.github.aivanovski.testwithme.extensions.dumpToString
 import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.entity.KeyCode
 import com.github.aivanovski.testwithme.entity.exception.DriverException
 import com.github.aivanovski.testwithme.entity.exception.FailedToGetUiNodesException
 import com.github.aivanovski.testwithme.entity.exception.FailedToPerformActionException
-import timber.log.Timber
+import java.util.concurrent.atomic.AtomicReference
 
 class AccessibilityDriverImpl(
     private val context: Context,
     private val service: AccessibilityService
 ) : Driver<AccessibilityNodeInfo> {
+
+    private val lastUiTree = AtomicReference<UiNode<AccessibilityNodeInfo>>()
 
     override fun sendBroadcast(
         packageName: String,
@@ -53,7 +54,9 @@ class AccessibilityDriverImpl(
             )
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
 
         context.startActivity(intent)
 
@@ -65,8 +68,6 @@ class AccessibilityDriverImpl(
             ?: return Either.Left(FailedToGetUiNodesException())
 
         val uiNode = accessibilityNode.convertToUiNode()
-
-        Timber.d(uiNode.dumpToString())
 
         return Either.Right(uiNode)
     }

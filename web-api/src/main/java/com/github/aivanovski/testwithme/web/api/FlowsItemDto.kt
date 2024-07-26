@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FlowsItemDto(
-    val uid: String,
-    val projectUid: String,
+    val id: String,
+    val projectId: String,
+    val groupId: String?,
     val name: String
 )

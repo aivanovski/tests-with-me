@@ -2,13 +2,13 @@ package com.github.aivanovski.testwithme.flow.commands
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.extensions.findNode
 import com.github.aivanovski.testwithme.extensions.matches
 import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.entity.exception.FailedToFindNodeException
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testwithme.extensions.toReadableFormat
+import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
 
 class InputText(
     private val text: String,
@@ -24,15 +24,15 @@ class InputText(
     }
 
     override suspend fun <NodeType> execute(
-        driver: Driver<NodeType>
+        context: ExecutionContext<NodeType>
     ): Either<FlowExecutionException, Unit> = either {
-        val uiRoot = driver.getUiTree().bind()
+        val uiRoot = context.driver.getUiTree().bind()
         val selector = element ?: FOCUSED_ELEMENT
 
         val targetNode = uiRoot.findNode { node -> node.matches(selector) }
             ?: raise(FailedToFindNodeException(selector))
 
-        driver.inputText(text, targetNode).bind()
+        context.driver.inputText(text, targetNode).bind()
     }
 
     companion object {

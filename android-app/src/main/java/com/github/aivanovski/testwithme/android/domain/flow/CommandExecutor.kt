@@ -2,8 +2,6 @@ package com.github.aivanovski.testwithme.android.domain.flow
 
 import android.view.accessibility.AccessibilityNodeInfo
 import arrow.core.raise.either
-import com.github.aivanovski.testwithme.android.domain.FlowInteractor
-import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.flow.commands.CompositeStepCommand
 import com.github.aivanovski.testwithme.flow.commands.ExecutableStepCommand
 import com.github.aivanovski.testwithme.flow.commands.RunFlow
@@ -13,39 +11,63 @@ import com.github.aivanovski.testwithme.android.entity.db.JobEntry
 import com.github.aivanovski.testwithme.android.entity.db.StepEntry
 import com.github.aivanovski.testwithme.android.entity.exception.AppException
 import com.github.aivanovski.testwithme.android.entity.exception.FlowException
-import com.github.aivanovski.testwithme.android.extensions.unwrap
-import com.github.aivanovski.testwithme.android.extensions.unwrapError
 import com.github.aivanovski.testwithme.flow.commands.StepCommand
 import kotlinx.coroutines.delay
 import arrow.core.Either
+import com.github.aivanovski.testwithme.android.entity.ExecutionResult
+import com.github.aivanovski.testwithme.entity.exception.ExternalException
+import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testwithme.entity.exception.StepVerificationException
+import com.github.aivanovski.testwithme.extensions.unwrapError
+import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
+import com.github.aivanovski.testwithme.flow.runner.listener.FlowLifecycleListener
 
 class CommandExecutor(
-    private val interactor: FlowInteractor,
-    private val driver: Driver<AccessibilityNodeInfo>
+    private val interactor: FlowRunnerInteractor,
+    private val context: ExecutionContext<AccessibilityNodeInfo>,
+    private val lifecycleListener: FlowLifecycleListener
 ) {
 
+    suspend fun executeStandalone(
+        command: StepCommand
+    ): Either<AppException, Any> = either {
+        val result = when {
+            command is ExecutableStepCommand<*> -> {
+                command.execute(context)
+                    .mapLeft { exception -> FlowException(exception) }
+                    .bind()
+            }
+
+            else -> throw IllegalArgumentException()
+        }
+
+        result
+    }
+
     suspend fun execute(
+        isFirstStep: Boolean,
         job: JobEntry,
         flow: FlowEntry,
         stepEntry: StepEntry,
         command: StepCommand,
         stepIndex: Int,
-        attemptIndex: Int,
-        lifecycleListener: FlowLifecycleListener,
+        attemptIndex: Int
     ): Either<AppException, OnStepFinishedAction> = either {
+        if (isFirstStep) {
+            lifecycleListener.onFlowStarted(flow)
+        }
+
         lifecycleListener.onStepStarted(flow, command, stepIndex, attemptIndex)
 
         val result = when {
             command is ExecutableStepCommand<*> -> {
-                command.execute(driver)
-                    .mapLeft { exception -> FlowException(exception) }
+                command.execute(context)
             }
 
             command is CompositeStepCommand -> {
                 executeCompositeCommand(
                     job,
-                    command,
-                    lifecycleListener
+                    command
                 )
             }
 
@@ -67,6 +89,12 @@ class CommandExecutor(
             is OnStepFinishedAction.Complete -> {
                 lifecycleListener.onFlowFinished(flow, result)
 
+                val updatedJob = job.copy(
+                    finishedTimestamp = System.currentTimeMillis(),
+                    executionResult = ExecutionResult.SUCCESS,
+                )
+                interactor.updateJob(updatedJob).bind()
+
                 nextAction
             }
 
@@ -74,7 +102,13 @@ class CommandExecutor(
                 lifecycleListener.onFlowFinished(flow, result)
 
                 if (result.isLeft()) {
-                    raise(result.unwrapError())
+                    val updatedJob = job.copy(
+                        finishedTimestamp = System.currentTimeMillis(),
+                        executionResult = ExecutionResult.FAILED
+                    )
+                    interactor.updateJob(updatedJob).bind()
+
+                    raise(AppException(cause = result.unwrapError()))
                 } else {
                     nextAction
                 }
@@ -88,16 +122,17 @@ class CommandExecutor(
 
     private suspend fun executeCompositeCommand(
         job: JobEntry,
-        compositeCommand: CompositeStepCommand,
-        lifecycleListener: FlowLifecycleListener
-    ): Either<AppException, Any> = either {
-        var lastResult: Either<AppException, Any>? = null
+        compositeCommand: CompositeStepCommand
+    ): Either<FlowExecutionException, Any> = either {
+        var lastResult: Either<FlowExecutionException, Any>? = null
 
         if (compositeCommand !is RunFlow) {
             throw IllegalStateException() // TODO: check
         }
 
-        val flow = interactor.getFlowByUid(compositeCommand.flowUid).bind()
+        var flow = interactor.getCachedFlowByUid(compositeCommand.flowUid)
+            .mapLeft { exception -> ExternalException(exception) }
+            .bind()
 
         lifecycleListener.onFlowStarted(flow.entry)
 
@@ -106,22 +141,21 @@ class CommandExecutor(
         while (commandIndex < commands.size) {
             delay(FlowRunner.DELAY_BETWEEN_STEPS)
 
+            flow = interactor.getCachedFlowByUid(compositeCommand.flowUid)
+                .mapLeft { exception -> ExternalException(exception) }
+                .bind()
             val command = commands[commandIndex]
 
             val stepUid = flow.steps[commandIndex].uid
-            val getStepResult = interactor.getStepByUid(stepUid)
-            if (getStepResult.isLeft()) {
-                lifecycleListener.onFlowFinished(flow.entry, getStepResult)
-                raise(getStepResult.unwrapError())
-            }
+            val stepEntry = flow.steps[commandIndex]
 
             val executionData = interactor.getExecutionData(
                 jobUid = job.uid,
                 flowUid = flow.entry.uid,
                 stepUid = stepUid
-            ).bind()
-
-            val stepEntry = getStepResult.unwrap()
+            )
+                .mapLeft { exception -> ExternalException(exception) }
+                .bind()
 
             lifecycleListener.onStepStarted(
                 flow.entry,
@@ -130,10 +164,10 @@ class CommandExecutor(
                 executionData.attemptCount
             )
 
-            val commandResult = command.execute(driver)
-                .mapLeft { exception -> FlowException(exception) }
+            val commandResult = command.execute(context)
 
             val nextAction = interactor.onStepFinished(job.uid, stepEntry, commandResult)
+                .mapLeft { exception -> StepVerificationException(exception) }
                 .bind()
 
             lifecycleListener.onStepFinished(
@@ -155,7 +189,7 @@ class CommandExecutor(
                     if (commandResult.isLeft()) {
                         raise(commandResult.unwrapError())
                     } else {
-                        raise(AppException("Child flow was sopped"))
+                        raise(FlowExecutionException("Child flow was sopped"))
                     }
                 }
 
@@ -169,6 +203,6 @@ class CommandExecutor(
             }
         }
 
-        return lastResult ?: raise(AppException("No steps were executed"))
+        return lastResult ?: raise(FlowExecutionException("No steps were executed"))
     }
 }

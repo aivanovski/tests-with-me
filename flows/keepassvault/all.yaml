@@ -1,0 +1,8 @@
+- name: All
+
+- runFlow: Screens / About / Open about screen
+- runFlow: Screens / About / Navigate back from about screen
+- runFlow: Screens / About / Feedback url should be shown
+- runFlow: Screens / New Database / Create new database
+- runFlow: Screens / Unlock / Unlock database
+- runFlow: Screens / Unlock / Remove selected database file

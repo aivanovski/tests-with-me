@@ -1,7 +1,7 @@
 package com.github.aivanovski.testwithme.domain.yaml
 
 import arrow.core.Either
-import com.github.aivanovski.testwithme.entity.Flow
+import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.entity.FlowStep
 import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.flow.yaml.YamlParser
@@ -18,7 +18,7 @@ class YamlParserTest {
     @Test
     fun parse() {
         val result = YamlParser().parse(YAML_CONTENT)
-        val expected = Flow(
+        val expected = YamlFlow(
             name = NAME,
             steps = ALL_STEPS
         )

@@ -31,3 +31,11 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+app-db/
+app-data/
+
+# Clojure files
+.clj-kondo/
+.lsp
+.nrepl-port

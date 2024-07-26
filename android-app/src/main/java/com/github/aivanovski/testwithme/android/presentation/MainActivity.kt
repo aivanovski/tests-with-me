@@ -1,134 +1,65 @@
 package com.github.aivanovski.testwithme.android.presentation
 
+import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import com.arkivanov.decompose.defaultComponentContext
 import com.github.aivanovski.testwithme.android.di.GlobalInjector.inject
-import com.github.aivanovski.testwithme.android.domain.FlowInteractor
-import com.github.aivanovski.testwithme.android.presentation.core.theme.AppTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.github.aivanovski.testwithme.android.extensions.getParcelableCompat
+import com.github.aivanovski.testwithme.android.presentation.core.ThemeProviderImpl
+import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.AppTheme
+import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ThemeProvider
+import com.github.aivanovski.testwithme.android.presentation.screens.root.RootScreenComponent
+import com.github.aivanovski.testwithme.android.presentation.screens.root.RootScreen
 
 class MainActivity : ComponentActivity() {
 
-    private val interactor: FlowInteractor by inject()
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.Main + job)
+    private val themeProvider: ThemeProvider by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        themeProvider.onThemedContextCreated(this)
+
+        val component = RootScreenComponent(
+            componentContext = defaultComponentContext(),
+            onExitNavigation = {
+                finish()
+            },
+            args = getArguments()
+        )
+
         setContent {
-            AppTheme {
-                TestScreen(
-                    onFirstButtonClicked = { },
-                    onStartTestClicked = { startTest() },
-                    onStopTestClicked = { stopTest() },
-                    onPermissionClicked = { checkPermission() }
+            val themeProvider = ThemeProviderImpl(LocalContext.current)
+
+            AppTheme(theme = themeProvider.getCurrentTheme()) {
+                RootScreen(
+                    rootComponent = component
                 )
             }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
+    private fun getArguments(): StartArgs {
+        return intent.getParcelableCompat(ARGUMENTS, StartArgs::class.java)
+            ?: StartArgs.EMPTY
     }
 
-    private fun checkPermission() {
-        if (!Settings.canDrawOverlays(this)) {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
-            )
-            startActivityForResult(intent, 123)
-        }
-    }
+    companion object {
 
-    private fun stopTest() {
-    }
+        private const val ARGUMENTS = "arguments"
 
-    private fun startTest() {
-        scope.launch {
-            // interactor.parseAndAddToJobQueue()
-        }
-    }
-}
-
-@Composable
-fun TestScreen(
-    onFirstButtonClicked: () -> Unit,
-    onStartTestClicked: () -> Unit,
-    onStopTestClicked: () -> Unit,
-    onPermissionClicked: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 16.dp,
-                vertical = 16.dp
-            )
-    ) {
-        Button(
-            onClick = onFirstButtonClicked,
-        ) {
-            Text(text = "Start local test")
-        }
-
-        Button(
-            onClick = onStartTestClicked,
-        ) {
-            Text(text = "Start test")
-        }
-
-        Button(
-            onClick = onStopTestClicked,
-        ) {
-            Text(text = "Stop test")
-        }
-
-        Spacer(modifier = Modifier.height(100.dp))
-
-        Button(
-            onClick = onPermissionClicked,
-        ) {
-            Text(text = "Window permission")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TestScreenPreview() {
-    AppTheme {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            TestScreen(
-                onFirstButtonClicked = {},
-                onStopTestClicked = {},
-                onStartTestClicked = {},
-                onPermissionClicked = {}
-            )
+        fun createStartIntent(
+            context: Context,
+            args: StartArgs
+        ): Intent {
+            return Intent(context, MainActivity::class.java)
+                .apply {
+                    putExtra(ARGUMENTS, args)
+                }
         }
     }
 }

@@ -1,0 +1,13 @@
+- name: Wikipedia Search
+
+- launch: org.wikipedia
+
+- assertVisible: Search Wikipedia
+- tapOn: Search Wikipedia
+
+- inputText: Blackbox test
+
+- assertVisible: Black-box testing
+- tapOn: Black-box testing
+- assertVisible:
+    hasText: method of software testing

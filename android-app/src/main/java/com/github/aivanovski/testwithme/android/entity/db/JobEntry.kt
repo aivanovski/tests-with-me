@@ -3,6 +3,7 @@ package com.github.aivanovski.testwithme.android.entity.db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.github.aivanovski.testwithme.android.entity.ExecutionResult
 import com.github.aivanovski.testwithme.android.entity.OnFinishAction
 import com.github.aivanovski.testwithme.android.entity.JobStatus
 
@@ -24,6 +25,15 @@ data class JobEntry(
 
     @ColumnInfo("added_timestamp")
     val addedTimestamp: Long,
+
+    @ColumnInfo("finished_timestamp")
+    val finishedTimestamp: Long?,
+
+    @ColumnInfo("execution_time")
+    val executionTime: Long?,
+
+    @ColumnInfo("execution_result")
+    val executionResult: ExecutionResult,
 
     @ColumnInfo("status")
     val status: JobStatus,

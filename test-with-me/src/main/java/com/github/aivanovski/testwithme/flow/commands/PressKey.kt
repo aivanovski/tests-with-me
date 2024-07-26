@@ -1,9 +1,9 @@
 package com.github.aivanovski.testwithme.flow.commands
 
 import arrow.core.Either
-import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.entity.KeyCode
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
 
 class PressKey(
     private val key: KeyCode
@@ -19,8 +19,8 @@ class PressKey(
     }
 
     override suspend fun <NodeType> execute(
-        driver: Driver<NodeType>
+        context: ExecutionContext<NodeType>
     ): Either<FlowExecutionException, Unit> {
-        return driver.pressKey(key)
+        return context.driver.pressKey(key)
     }
 }

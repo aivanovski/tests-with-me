@@ -1,7 +1,6 @@
 package com.github.aivanovski.testwithme.android.domain.flow
 
 import arrow.core.raise.either
-import com.github.aivanovski.testwithme.android.domain.FlowInteractor
 import com.github.aivanovski.testwithme.flow.commands.Assert
 import com.github.aivanovski.testwithme.flow.commands.Broadcast
 import com.github.aivanovski.testwithme.flow.commands.InputText
@@ -17,12 +16,15 @@ import com.github.aivanovski.testwithme.flow.commands.ExecutableStepCommand
 import com.github.aivanovski.testwithme.flow.commands.StepCommand
 import com.github.aivanovski.testwithme.entity.FlowStep
 import arrow.core.Either
+import com.github.aivanovski.testwithme.android.entity.FlowWithSteps
+import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 
 class StepCommandFactory(
-    private val interactor: FlowInteractor
+    private val interactor: FlowRunnerInteractor
 ) {
 
     suspend fun createCommand(
+        flow: FlowEntry,
         step: FlowStep
     ): Either<AppException, StepCommand> = either {
         when (step) {
@@ -76,20 +78,30 @@ class StepCommandFactory(
                     timeout = step.timeout
                 )
 
-            is FlowStep.RunFlow -> createRunFlowCommand(step).bind()
+            is FlowStep.RunFlow -> createRunFlowCommand(
+                parent = flow,
+                step = step
+            ).bind()
         }
     }
 
     private suspend fun createRunFlowCommand(
+        parent: FlowEntry,
         step: FlowStep.RunFlow
     ): Either<AppException, StepCommand> = either {
-        val flowUid = step.flowUid
+        val nameOrUid = step.name
 
-        val flow = interactor.getFlowByUid(flowUid).bind()
+        val flow = findFlowByNameOrUid(
+            parent = parent,
+            nameOrUid = nameOrUid
+        ).bind()
 
         val commands = mutableListOf<ExecutableStepCommand<Any>>()
         for (innerStep in flow.steps) {
-            val innerCommand = createCommand(innerStep.command).bind()
+            val innerCommand = createCommand(
+                flow = parent,
+                step = innerStep.command
+            ).bind()
             if (innerCommand !is ExecutableStepCommand<*>) {
                 raise(AppException("Unsupported command: ${innerStep.command}"))
             }
@@ -102,5 +114,38 @@ class StepCommandFactory(
             name = flow.entry.name,
             commands = commands
         )
+    }
+
+    private suspend fun findFlowByNameOrUid(
+        parent: FlowEntry,
+        nameOrUid: String
+    ): Either<AppException, FlowWithSteps> = either {
+        val getByUidResult = interactor.getFlowByUid(nameOrUid)
+        if (getByUidResult.isRight()) {
+            return@either getByUidResult.bind()
+        }
+
+        val values = nameOrUid
+            .split("/")
+            .map { value -> value.trim() }
+            .filter { value -> value.isNotEmpty() }
+
+        if (values.isEmpty()) {
+            raise(AppException("Unable to find flow: $nameOrUid"))
+        }
+
+        val flowName = values.last()
+        val groupName = if (values.size > 1) {
+            values[values.size - 2]
+        } else {
+            null
+        }
+
+        interactor.findFlowByName(
+            projectUid = parent.projectUid,
+            groupName = groupName,
+            name = flowName
+        ).bind()
+            ?: raise(AppException("Unable to find flow: $nameOrUid"))
     }
 }

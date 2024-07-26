@@ -2,7 +2,6 @@ package com.github.aivanovski.testwithme.flow.commands
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.extensions.findNode
 import com.github.aivanovski.testwithme.extensions.getNodeParents
 import com.github.aivanovski.testwithme.extensions.matches
@@ -10,6 +9,7 @@ import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.entity.exception.FailedToFindNodeException
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testwithme.extensions.toReadableFormat
+import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
 
 class Tap(
     private val element: UiElementSelector,
@@ -24,9 +24,9 @@ class Tap(
     }
 
     override suspend fun <NodeType> execute(
-        driver: Driver<NodeType>
+        context: ExecutionContext<NodeType>
     ): Either<FlowExecutionException, Unit> = either {
-        val uiRoot = driver.getUiTree().bind()
+        val uiRoot = context.driver.getUiTree().bind()
 
         val node = uiRoot.findNode { node -> node.matches(element) }
             ?: raise(FailedToFindNodeException(element))
@@ -45,9 +45,9 @@ class Tap(
         }
 
         if (isLongTap) {
-            driver.longTapOn(tappableNode).bind()
+            context.driver.longTapOn(tappableNode).bind()
         } else {
-            driver.tapOn(tappableNode).bind()
+            context.driver.tapOn(tappableNode).bind()
         }
     }
 

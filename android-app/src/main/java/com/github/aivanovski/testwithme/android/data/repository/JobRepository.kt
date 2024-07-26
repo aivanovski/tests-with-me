@@ -3,25 +3,33 @@ package com.github.aivanovski.testwithme.android.data.repository
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testwithme.android.data.db.dao.JobDao
+import com.github.aivanovski.testwithme.android.data.db.dao.JobHistoryDao
 import com.github.aivanovski.testwithme.android.entity.db.JobEntry
 import com.github.aivanovski.testwithme.android.entity.exception.AppException
 import com.github.aivanovski.testwithme.android.entity.exception.FailedToFindEntityException
+import com.github.aivanovski.testwithme.android.utils.toEntry
+import com.github.aivanovski.testwithme.android.utils.toHistoryEntry
 
 class JobRepository(
-    private val dao: JobDao
+    private val jobDao: JobDao,
+    private val jobHistoryDao: JobHistoryDao
 ) {
 
     fun add(entry: JobEntry) {
-        dao.insert(entry)
+        jobDao.insert(entry)
     }
 
     fun getAll(): List<JobEntry> {
-        return dao.getAll()
-            .sortedByDescending { entry -> entry.addedTimestamp }
+        return jobDao.getAll()
+    }
+
+    fun getAllHistory(): List<JobEntry> {
+        return jobHistoryDao.getAll()
+            .map { it.toEntry() }
     }
 
     fun getJobByUid(uid: String): Either<AppException, JobEntry> = either {
-        val entry = dao.getByUid(uid) ?: raise(newFailedToFindEntityError(uid))
+        val entry = jobDao.getByUid(uid) ?: raise(newFailedToFindEntityError(uid))
 
         entry
     }
@@ -29,7 +37,7 @@ class JobRepository(
     fun update(job: JobEntry): Either<AppException, Unit> = either {
         val existingJob = getJobByUid(job.uid).bind()
 
-        dao.update(
+        jobDao.update(
             job.copy(
                 id = existingJob.id
             )
@@ -37,7 +45,17 @@ class JobRepository(
     }
 
     fun removeByUid(uid: String) {
-        dao.removeByUid(uid)
+        jobDao.removeByUid(uid)
+    }
+
+    fun moveToHistory(uid: String): Either<AppException, Unit> = either {
+        val job = getJobByUid(uid).bind()
+        jobDao.removeByUid(uid)
+        jobHistoryDao.insert(job.toHistoryEntry(id = null))
+    }
+
+    fun updateHistory(entry: JobEntry) {
+        jobHistoryDao.update(entry.toHistoryEntry())
     }
 
     private fun newFailedToFindEntityError(
@@ -45,7 +63,7 @@ class JobRepository(
     ): FailedToFindEntityException {
         return FailedToFindEntityException(
             entityName = JobEntry::class.java.simpleName,
-            entityField = "uid",
+            fieldName = "uid",
             fieldValue = uid
         )
     }

@@ -3,18 +3,24 @@ package com.github.aivanovski.testwithme.android.data.db.converters
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import com.github.aivanovski.testwithme.entity.FlowStep
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @ProvidedTypeConverter
 class FlowStepConverter {
 
+    @OptIn(ExperimentalSerializationApi::class)
+    private val json = Json {
+        explicitNulls = false
+    }
+
     @TypeConverter
     fun fromDatabaseValue(value: String?): FlowStep? {
         if (value.isNullOrEmpty()) {
             return null
         }
-        return Json.decodeFromString(value)
+        return json.decodeFromString(value)
     }
 
     @TypeConverter
@@ -22,6 +28,6 @@ class FlowStepConverter {
         if (step == null) {
             return null
         }
-        return Json.encodeToString(step)
+        return json.encodeToString(step)
     }
 }

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.aivanovski.testwithme.entity.Duration
 import com.github.aivanovski.testwithme.entity.KeyCode
-import com.github.aivanovski.testwithme.entity.Flow
+import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.entity.FlowStep
 import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.entity.exception.ParsingException
@@ -21,7 +21,7 @@ class YamlParser {
 
     fun parse(
         data: String
-    ): Either<ParsingException, Flow> = either {
+    ): Either<ParsingException, YamlFlow> = either {
         val mapper = ObjectMapper(YAMLFactory())
             .registerModule(KotlinModule.Builder().build())
 
@@ -36,7 +36,7 @@ class YamlParser {
 
         val steps = convertItems(filteredItems).bind()
 
-        Flow(
+        YamlFlow(
             name = name?.name ?: EMPTY,
             steps = steps
         )
@@ -233,7 +233,7 @@ class YamlParser {
         item: Item
     ): Either<ParsingException, FlowStep> = either {
         FlowStep.RunFlow(
-            flowUid = item.runFlow ?: EMPTY
+            name = item.runFlow ?: EMPTY
         )
     }
 

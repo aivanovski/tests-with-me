@@ -5,4 +5,7 @@ object StringUtils {
     const val SPACE = " "
     const val NEW_LINE = "\n"
     const val TAB = "\t"
+    const val DOTS = "…"
+    const val SLASH = "/"
+    const val DASH = "-"
 }

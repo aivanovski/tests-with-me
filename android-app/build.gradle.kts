@@ -67,7 +67,6 @@ android {
 dependencies {
     testImplementation(libs.junit4)
 
-    androidTestImplementation(libs.androidx.uiautomator)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -80,12 +79,15 @@ dependencies {
     implementation(libs.androidx.multidex)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.vm)
+    implementation(libs.androidx.lifecycle.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.icons)
 
     // Timber
     implementation(libs.timber)
@@ -104,6 +106,9 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.logging)
 
+    // Image loading
+    implementation(libs.coil)
+
     // Json
     implementation(libs.kotlinx.json)
 
@@ -111,7 +116,11 @@ dependencies {
     implementation(libs.arrow.core)
     implementation(libs.arrow.coroutines)
 
-    // Testing API
+    // Navigation
+    implementation(libs.decompose)
+    implementation(libs.decompose.extensions)
+
+    // TestWithMe API
     implementation(project(":test-with-me"))
     implementation(project(":web-api"))
 }

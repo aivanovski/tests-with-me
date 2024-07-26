@@ -11,5 +11,6 @@ rootProject.name = "test-with-me"
 include(
     ":test-with-me",
     ":android-app",
-    ":web-api"
+    ":web-api",
+    ":web-backend"
 )

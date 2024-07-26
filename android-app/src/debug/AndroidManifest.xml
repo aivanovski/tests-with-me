@@ -5,7 +5,7 @@
     <application>
 
         <receiver
-            android:name=".test.TestFlowBroadcastReceiver"
+            android:name=".debug.DebugBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
 

@@ -3,7 +3,8 @@ package com.github.aivanovski.testwithme.android.entity.db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.github.aivanovski.testwithme.android.entity.FlowSourceType
+import com.github.aivanovski.testwithme.android.entity.SourceType
+import com.github.aivanovski.testwithme.entity.Flow
 
 @Entity("flow_entry")
 data class FlowEntry(
@@ -14,9 +15,15 @@ data class FlowEntry(
     @ColumnInfo("uid")
     val uid: String,
 
+    @ColumnInfo("project_uid")
+    val projectUid: String,
+
+    @ColumnInfo("group_uid")
+    val groupUid: String?,
+
     @ColumnInfo("name")
-    val name: String,
+    override val name: String,
 
     @ColumnInfo("source_type")
-    val sourceType: FlowSourceType,
-)
+    val sourceType: SourceType,
+) : Flow

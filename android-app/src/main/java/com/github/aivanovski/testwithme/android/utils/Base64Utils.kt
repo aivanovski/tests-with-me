@@ -3,6 +3,7 @@ package com.github.aivanovski.testwithme.android.utils
 import java.util.Base64
 import timber.log.Timber
 
+// TODO: remove
 object Base64Utils {
 
     fun decode(base64: String): String? {
