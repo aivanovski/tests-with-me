@@ -6,16 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.github.aivanovski.testwithme.android.data.db.converters.FlowStepConverter
-import com.github.aivanovski.testwithme.android.data.db.dao.LocalStepRunDao
 import com.github.aivanovski.testwithme.android.data.db.dao.FlowEntryDao
 import com.github.aivanovski.testwithme.android.data.db.dao.JobDao
 import com.github.aivanovski.testwithme.android.data.db.dao.JobHistoryDao
+import com.github.aivanovski.testwithme.android.data.db.dao.LocalStepRunDao
 import com.github.aivanovski.testwithme.android.data.db.dao.ProjectEntryDao
 import com.github.aivanovski.testwithme.android.data.db.dao.StepEntryDao
-import com.github.aivanovski.testwithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testwithme.android.entity.db.JobEntry
 import com.github.aivanovski.testwithme.android.entity.db.JobHistoryEntry
+import com.github.aivanovski.testwithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testwithme.android.entity.db.StepEntry
 
@@ -31,7 +31,7 @@ import com.github.aivanovski.testwithme.android.entity.db.StepEntry
     version = 1
 )
 @TypeConverters(
-    FlowStepConverter::class,
+    FlowStepConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -44,9 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
 
-        fun buildDatabase(
-            context: Context
-        ): AppDatabase {
+        fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(
                 context,
                 AppDatabase::class.java,

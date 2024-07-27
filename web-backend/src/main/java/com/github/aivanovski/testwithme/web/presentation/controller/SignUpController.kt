@@ -20,66 +20,64 @@ class SignUpController(
     private val validateEmailUseCase: ValidateEmailUseCase
 ) {
 
-    fun createNewUser(
-        request: SignUpRequest
-    ): Either<AppException, SignUpResponse> = either {
-        validaData(request).bind()
+    fun createNewUser(request: SignUpRequest): Either<AppException, SignUpResponse> =
+        either {
+            validaData(request).bind()
 
-        val user = User(
-            uid = Uid.generate(),
-            name = request.username.trim(),
-            email = request.email.trim(),
-            password = request.password.trim()
-        )
-
-        userRepository.add(user).bind()
-
-        val token = authService.getOrCreateToken(
-            credentials = Credentials(
-                username = user.name,
-                password = user.password
+            val user = User(
+                uid = Uid.generate(),
+                name = request.username.trim(),
+                email = request.email.trim(),
+                password = request.password.trim()
             )
-        )
 
-        SignUpResponse(
-            userId = user.uid.toString(),
-            token = token
-        )
-    }
+            userRepository.add(user).bind()
 
-    private fun validaData(
-        request: SignUpRequest
-    ): Either<AppException, Unit> = either {
-        val name = request.username.trim()
-        val email = request.email.trim()
-        val password = request.password.trim()
+            val token = authService.getOrCreateToken(
+                credentials = Credentials(
+                    username = user.name,
+                    password = user.password
+                )
+            )
 
-        if (name.isEmpty()) {
-            raise(EmptyRequestFieldException(FIELD_USER_NAME))
-        }
-        if (email.isEmpty()) {
-            raise(EmptyRequestFieldException(FIELD_EMAIL))
-        }
-        if (password.isEmpty()) {
-            raise(EmptyRequestFieldException(FIELD_PASSWORD))
+            SignUpResponse(
+                userId = user.uid.toString(),
+                token = token
+            )
         }
 
-        val sameNameUsers = userRepository.getUsers()
-            .bind()
-            .filter { user -> user.name.equals(name, ignoreCase = true) }
-        if (sameNameUsers.isNotEmpty()) {
-            raise(EntityAlreadyExistsException(name))
-        }
+    private fun validaData(request: SignUpRequest): Either<AppException, Unit> =
+        either {
+            val name = request.username.trim()
+            val email = request.email.trim()
+            val password = request.password.trim()
 
-        val sameEmailUsers = userRepository.getUsers()
-            .bind()
-            .filter { user -> user.email.equals(email, ignoreCase = true) }
-        if (sameEmailUsers.isNotEmpty()) {
-            raise(EntityAlreadyExistsException(email))
-        }
+            if (name.isEmpty()) {
+                raise(EmptyRequestFieldException(FIELD_USER_NAME))
+            }
+            if (email.isEmpty()) {
+                raise(EmptyRequestFieldException(FIELD_EMAIL))
+            }
+            if (password.isEmpty()) {
+                raise(EmptyRequestFieldException(FIELD_PASSWORD))
+            }
 
-        validateEmailUseCase.validateEmail(email).bind()
-    }
+            val sameNameUsers = userRepository.getUsers()
+                .bind()
+                .filter { user -> user.name.equals(name, ignoreCase = true) }
+            if (sameNameUsers.isNotEmpty()) {
+                raise(EntityAlreadyExistsException(name))
+            }
+
+            val sameEmailUsers = userRepository.getUsers()
+                .bind()
+                .filter { user -> user.email.equals(email, ignoreCase = true) }
+            if (sameEmailUsers.isNotEmpty()) {
+                raise(EntityAlreadyExistsException(email))
+            }
+
+            validateEmailUseCase.validateEmail(email).bind()
+        }
 
     companion object {
         private const val FIELD_USER_NAME = "username"

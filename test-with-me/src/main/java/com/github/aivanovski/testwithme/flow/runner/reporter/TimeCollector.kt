@@ -1,12 +1,12 @@
 package com.github.aivanovski.testwithme.flow.runner.reporter
 
 import arrow.core.Either
-import kotlin.time.Duration
 import com.github.aivanovski.testwithme.entity.Flow
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testwithme.flow.commands.StepCommand
 import com.github.aivanovski.testwithme.flow.runner.listener.FlowLifecycleListener
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
@@ -21,7 +21,10 @@ class TimeCollector : FlowLifecycleListener {
         }
     }
 
-    override fun onFlowFinished(flow: Flow, result: Either<FlowExecutionException, Any>) {
+    override fun onFlowFinished(
+        flow: Flow,
+        result: Either<FlowExecutionException, Any>
+    ) {
         end.set(System.currentTimeMillis())
     }
 

@@ -17,61 +17,61 @@ class FileCacheImpl(
     override fun put(
         uid: String,
         content: String
-    ): Either<AppException, Unit> = either {
-        val cacheDir = getCacheDir().bind()
+    ): Either<AppException, Unit> =
+        either {
+            val cacheDir = getCacheDir().bind()
 
-        try {
-            val file = File(cacheDir, uid)
-            val out = FileOutputStream(file)
-            out.bufferedWriter().use { writer ->
-                writer.write(content)
-                writer.flush()
+            try {
+                val file = File(cacheDir, uid)
+                val out = FileOutputStream(file)
+                out.bufferedWriter().use { writer ->
+                    writer.write(content)
+                    writer.flush()
+                }
+            } catch (exception: IOException) {
+                raise(AppIOException(cause = exception))
             }
-        } catch (exception: IOException) {
-            raise(AppIOException(cause = exception))
-        }
-    }
-
-    override fun get(
-        uid: String
-    ): Either<AppException, String> = either {
-        val cacheDir = getCacheDir().bind()
-
-        val file = File(cacheDir, uid)
-        if (!file.exists()) {
-            raise(FileNotFoundException(file))
         }
 
-        try {
-            file.readText()
-        } catch (exception: IOException) {
-            raise(AppIOException(cause = exception))
-        }
-    }
+    override fun get(uid: String): Either<AppException, String> =
+        either {
+            val cacheDir = getCacheDir().bind()
 
-    override fun getOrNull(
-        uid: String
-    ): Either<AppException, String?> = either {
-        val cacheDir = getCacheDir().bind()
+            val file = File(cacheDir, uid)
+            if (!file.exists()) {
+                raise(FileNotFoundException(file))
+            }
 
-        val file = File(cacheDir, uid)
-        if (!file.exists()) {
-            return@either null
+            try {
+                file.readText()
+            } catch (exception: IOException) {
+                raise(AppIOException(cause = exception))
+            }
         }
 
-        try {
-            file.readText()
-        } catch (exception: IOException) {
-            raise(AppIOException(cause = exception))
-        }
-    }
+    override fun getOrNull(uid: String): Either<AppException, String?> =
+        either {
+            val cacheDir = getCacheDir().bind()
 
-    private fun getCacheDir(): Either<AppException, File> = either {
-        val dir = context.cacheDir
-        if (dir.exists()) {
-            dir
-        } else {
-            raise(FileNotFoundException(dir))
+            val file = File(cacheDir, uid)
+            if (!file.exists()) {
+                return@either null
+            }
+
+            try {
+                file.readText()
+            } catch (exception: IOException) {
+                raise(AppIOException(cause = exception))
+            }
         }
-    }
+
+    private fun getCacheDir(): Either<AppException, File> =
+        either {
+            val dir = context.cacheDir
+            if (dir.exists()) {
+                dir
+            } else {
+                raise(FileNotFoundException(dir))
+            }
+        }
 }

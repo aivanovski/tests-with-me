@@ -8,12 +8,12 @@ import com.github.aivanovski.testwithme.android.data.repository.GroupRepository
 import com.github.aivanovski.testwithme.android.data.repository.ProjectRepository
 import com.github.aivanovski.testwithme.android.data.repository.UserRepository
 import com.github.aivanovski.testwithme.android.domain.buildGroupTree
-import com.github.aivanovski.testwithme.android.entity.DriverServiceState
 import com.github.aivanovski.testwithme.android.domain.findNodeByUid
 import com.github.aivanovski.testwithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testwithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testwithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testwithme.android.entity.AppVersion
+import com.github.aivanovski.testwithme.android.entity.DriverServiceState
 import com.github.aivanovski.testwithme.android.entity.FlowRun
 import com.github.aivanovski.testwithme.android.entity.Group
 import com.github.aivanovski.testwithme.android.entity.JobStatus
@@ -43,292 +43,210 @@ class FlowInteractor(
         return FlowRunnerManager.getDriverState() == DriverServiceState.RUNNING
     }
 
-    suspend fun loadData(
-        mode: FlowScreenMode
-    ): Either<AppException, FlowData> = withContext(Dispatchers.IO) {
-        either {
-            val projectUid = resolveProjectUid(mode).bind()
-            val project = projectRepository.getProjectByUid(projectUid).bind()
+    suspend fun loadData(mode: FlowScreenMode): Either<AppException, FlowData> =
+        withContext(Dispatchers.IO) {
+            either {
+                val projectUid = resolveProjectUid(mode).bind()
+                val project = projectRepository.getProjectByUid(projectUid).bind()
 
-            val allGroups = groupRepository.getGroupsByProjectUid(projectUid).bind()
-            val allFlows = flowRepository.getFlowsByProjectUid(projectUid).bind()
+                val allGroups = groupRepository.getGroupsByProjectUid(projectUid).bind()
+                val allFlows = flowRepository.getFlowsByProjectUid(projectUid).bind()
 
-            val flowUids = allFlows.map { flow -> flow.uid }
-            val allRuns = flowRunRepository.getRuns()
-                .bind()
-                .filter { run -> run.flowUid in flowUids }
+                val flowUids = allFlows.map { flow -> flow.uid }
+                val allRuns = flowRunRepository.getRuns()
+                    .bind()
+                    .filter { run -> run.flowUid in flowUids }
 
-            val group = if (mode is FlowScreenMode.Group) {
-                allGroups
-                    .firstOrNull { group -> group.uid == mode.groupUid }
-                    ?: raise(FailedToFindEntityByUidException(Group::class, mode.groupUid))
-
-            } else {
-                null
-            }
-
-            val visibleFlows = when (mode) {
-                is FlowScreenMode.Flow -> {
-                    val flow = flowRepository.getCachedFlowByUid(mode.flowUid).bind()
-                    listOf(flow.entry)
+                val group = if (mode is FlowScreenMode.Group) {
+                    allGroups
+                        .firstOrNull { group -> group.uid == mode.groupUid }
+                        ?: raise(FailedToFindEntityByUidException(Group::class, mode.groupUid))
+                } else {
+                    null
                 }
 
-                is FlowScreenMode.Group -> {
-                    getGroupFlows(
-                        allGroups = allGroups,
-                        allFlows = allFlows,
-                        groupUid = mode.groupUid
-                    ).bind()
-                }
+                val visibleFlows = when (mode) {
+                    is FlowScreenMode.Flow -> {
+                        val flow = flowRepository.getCachedFlowByUid(mode.flowUid).bind()
+                        listOf(flow.entry)
+                    }
 
-                is FlowScreenMode.RemainedFlows -> {
-                    getRemainedFlows(
-                        allFlows = allFlows,
-                        allRuns = allRuns,
-                        version = mode.version
-                    ).bind()
-                }
-            }
+                    is FlowScreenMode.Group -> {
+                        getGroupFlows(
+                            allGroups = allGroups,
+                            allFlows = allFlows,
+                            groupUid = mode.groupUid
+                        ).bind()
+                    }
 
-            val visibleFlowUids = visibleFlows
-                .map { flow -> flow.uid }
-                .toSet()
-
-            val visibleRuns = when (mode) {
-                is FlowScreenMode.Flow -> {
-                    if (mode.requiredVersion != null) {
-                        allRuns.filter { run ->
-                            run.flowUid in visibleFlowUids && run.appVersionName == mode.requiredVersion.name
-                        }
-                    } else {
-                        allRuns.filter { run ->
-                            run.flowUid in visibleFlowUids
-                        }
+                    is FlowScreenMode.RemainedFlows -> {
+                        getRemainedFlows(
+                            allFlows = allFlows,
+                            allRuns = allRuns,
+                            version = mode.version
+                        ).bind()
                     }
                 }
 
-                is FlowScreenMode.Group -> {
-                    allRuns.filter { run -> run.flowUid in visibleFlowUids }
+                val visibleFlowUids = visibleFlows
+                    .map { flow -> flow.uid }
+                    .toSet()
+
+                val visibleRuns = when (mode) {
+                    is FlowScreenMode.Flow -> {
+                        if (mode.requiredVersion != null) {
+                            allRuns.filter { run ->
+                                run.flowUid in visibleFlowUids &&
+                                    run.appVersionName == mode.requiredVersion.name
+                            }
+                        } else {
+                            allRuns.filter { run ->
+                                run.flowUid in visibleFlowUids
+                            }
+                        }
+                    }
+
+                    is FlowScreenMode.Group -> {
+                        allRuns.filter { run -> run.flowUid in visibleFlowUids }
+                    }
+
+                    else -> emptyList()
                 }
 
-                else -> emptyList()
+                val allUsers = userRepository.getUsers().bind()
+
+                FlowData(
+                    project = project,
+                    allGroups = allGroups,
+                    allRuns = allRuns,
+                    group = group,
+                    visibleFlows = visibleFlows,
+                    visibleRuns = visibleRuns,
+                    allUsers = allUsers
+                )
             }
-
-            val allUsers = userRepository.getUsers().bind()
-
-            FlowData(
-                project = project,
-                allGroups = allGroups,
-                allRuns = allRuns,
-                group = group,
-                visibleFlows = visibleFlows,
-                visibleRuns = visibleRuns,
-                allUsers = allUsers
-            )
         }
-    }
 
     private fun getGroupFlows(
         allGroups: List<Group>,
         allFlows: List<FlowEntry>,
         groupUid: String
-    ): Either<AppException, List<FlowEntry>> = either {
-        val tree = allGroups.buildGroupTree()
-        val groupNode = tree.findNodeByUid(groupUid)
-            ?: raise(FailedToFindEntityByUidException(Group::class, groupUid))
+    ): Either<AppException, List<FlowEntry>> =
+        either {
+            val tree = allGroups.buildGroupTree()
+            val groupNode = tree.findNodeByUid(groupUid)
+                ?: raise(FailedToFindEntityByUidException(Group::class, groupUid))
 
-        groupNode.aggregateDescendantFlows(allFlows)
-    }
+            groupNode.aggregateDescendantFlows(allFlows)
+        }
 
     private fun getRemainedFlows(
         allFlows: List<FlowEntry>,
         allRuns: List<FlowRun>,
-        version: AppVersion?,
-    ): Either<AppException, List<FlowEntry>> = either {
-        val filteredRuns = if (version != null) {
-            allRuns.filter { run -> run.appVersionName == version.name }
-        } else {
-            allRuns
-        }
-
-        val flowUidToRunCount = filteredRuns.aggregateRunCountByFlowUid()
-
-        allFlows.filter { flow ->
-            val runs = flowUidToRunCount[flow.uid] ?: 0
-
-            runs == 0
-        }
-    }
-
-    private suspend fun resolveProjectUid(
-        data: FlowScreenMode
-    ): Either<AppException, String> = either {
-        when (data) {
-            is FlowScreenMode.Flow -> {
-                flowRepository.getFlowByUid(data.flowUid)
-                    .bind()
-                    .entry
-                    .projectUid
+        version: AppVersion?
+    ): Either<AppException, List<FlowEntry>> =
+        either {
+            val filteredRuns = if (version != null) {
+                allRuns.filter { run -> run.appVersionName == version.name }
+            } else {
+                allRuns
             }
 
-            is FlowScreenMode.Group -> {
-                groupRepository.getGroupByUid(data.groupUid)
-                    .bind()
-                    .projectUid
-            }
+            val flowUidToRunCount = filteredRuns.aggregateRunCountByFlowUid()
 
-            is FlowScreenMode.RemainedFlows -> {
-                data.projectUid
+            allFlows.filter { flow ->
+                val runs = flowUidToRunCount[flow.uid] ?: 0
+
+                runs == 0
             }
         }
-    }
 
-//    suspend fun loadGroupData(
-//        groupUid: String
-//    ): Either<AppException, GroupData> = withContext(Dispatchers.IO) {
-//        either {
-//            val allGroups = groupRepository.getGroups().bind()
-//
-//            val group = allGroups
-//                .firstOrNull { group -> group.uid == groupUid }
-//                ?: raise(FailedToFindEntityByUidException(Group::class, groupUid))
-//
-//            val projectUid = group.projectUid
-//            val project = projectRepository.getProjectByUid(projectUid).bind()
-//
-//            val tree = allGroups.buildGroupTree()
-//
-//            val groupNode = tree.findNodeByUid(groupUid)
-//
-//            val descendantGroupNodes = if (groupNode != null) {
-//                mutableListOf<TreeNode>()
-//                    .apply {
-//                        add(groupNode)
-//                        addAll(groupNode.getDescendantNodes())
-//                    }
-//            } else {
-//                emptyList()
-//            }
-//
-//            val descendantGroups = descendantGroupNodes
-//                .mapNotNull { node -> (node.entity as? Group) }
-//
-//            val groupUids = descendantGroups.map { group -> group.uid }
-//
-//            val flows = flowRepository.getFlows()
-//                .bind()
-//                .filter { flow -> flow.groupUid != null && flow.groupUid in groupUids }
-//
-//            val flowUids = flows.map { flow -> flow.uid }
-//
-//            val runs = flowRunRepository.getRuns()
-//                .bind()
-//                .filter { run -> run.flowUid in flowUids }
-//
-//            GroupData(
-//                project = project,
-//                allGroups = allGroups,
-//                group = group,
-//                flows = flows,
-//                runs = runs
-//            )
-//        }
-//    }
+    private suspend fun resolveProjectUid(data: FlowScreenMode): Either<AppException, String> =
+        either {
+            when (data) {
+                is FlowScreenMode.Flow -> {
+                    flowRepository.getFlowByUid(data.flowUid)
+                        .bind()
+                        .entry
+                        .projectUid
+                }
 
-//    suspend fun loadFlowData(
-//        flowUid: String
-//    ): Either<AppException, FlowData> = withContext(Dispatchers.IO) {
-//        either {
-//            val allGroups = groupRepository.getGroups().bind()
-//            val flow = flowRepository.getFlowByUid(flowUid).bind()
-//
-//            val group = allGroups.firstOrNull { group -> group.uid == flow.entry.groupUid }
-//
-//            val projectUid = flow.entry.projectUid
-//            val project = projectRepository.getProjectByUid(projectUid).bind()
-//                ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, projectUid))
-//
-//            val runs = flowRunRepository.getRuns()
-//                .bind()
-//                .filter { run -> run.flowUid == flowUid }
-//
-//            val users = userRepository.getUsers().bind()
-//
-//            FlowData(
-//                allGroups = allGroups,
-//                group = group,
-//                flow = flow,
-//                project = project,
-//                runs = runs,
-//                allUsers = users
-//            )
-//        }
-//    }
+                is FlowScreenMode.Group -> {
+                    groupRepository.getGroupByUid(data.groupUid)
+                        .bind()
+                        .projectUid
+                }
 
-    fun getApplicationData(
-        packageName: String
-    ): Either<AppException, ExternalAppData> = either {
-        getAppDataUseCase.getApplicationData(packageName).bind()
-    }
+                is FlowScreenMode.RemainedFlows -> {
+                    data.projectUid
+                }
+            }
+        }
+
+    fun getApplicationData(packageName: String): Either<AppException, ExternalAppData> =
+        either {
+            getAppDataUseCase.getApplicationData(packageName).bind()
+        }
 
     suspend fun startFlows(
         flowUids: List<String>,
         jobUids: List<String>
-    ): Either<AppException, List<String>> = withContext(Dispatchers.IO) {
-        either {
-            val currentJobs = testInteractor.getJobs().bind()
+    ): Either<AppException, List<String>> =
+        withContext(Dispatchers.IO) {
+            either {
+                val currentJobs = testInteractor.getJobs().bind()
 
-            currentJobs
-                .filter { job -> job.status == JobStatus.PENDING }
-                .onEach { job -> testInteractor.removeJob(job.uid) }
+                currentJobs
+                    .filter { job -> job.status == JobStatus.PENDING }
+                    .onEach { job -> testInteractor.removeJob(job.uid) }
 
-            for (index in flowUids.indices.reversed()) {
-                val flowUid = flowUids[index]
-                val jobUid = jobUids[index]
+                for (index in flowUids.indices.reversed()) {
+                    val flowUid = flowUids[index]
+                    val jobUid = jobUids[index]
 
-                val onFinishAction = if (flowUids.size > 1 && index < flowUids.lastIndex) {
-                    OnFinishAction.RUN_NEXT
-                } else {
-                    OnFinishAction.SHOW_DETAILS
+                    val onFinishAction = if (flowUids.size > 1 && index < flowUids.lastIndex) {
+                        OnFinishAction.RUN_NEXT
+                    } else {
+                        OnFinishAction.SHOW_DETAILS
+                    }
+
+                    testInteractor.addFlowToJobQueue(
+                        flowUid = flowUid,
+                        jobUid = jobUid,
+                        onFinishAction = onFinishAction
+                    ).bind()
                 }
 
-                testInteractor.addFlowToJobQueue(
-                    flowUid = flowUid,
-                    jobUid = jobUid,
-                    onFinishAction = onFinishAction
-                ).bind()
+                jobUids
             }
-
-            jobUids
         }
-    }
 
     suspend fun startFlow(
         flowUid: String,
         jobUid: String
-    ): Either<AppException, String> = either {
-        startFlows(
-            flowUids = listOf(flowUid),
-            jobUids = listOf(jobUid)
-        ).bind()
-            .first()
-    }
-
-    suspend fun cancelJob(
-        jobUid: String
-    ): Either<AppException, Unit> = withContext(Dispatchers.IO) {
+    ): Either<AppException, String> =
         either {
-            val getJobResult = testInteractor.getJobByUid(jobUid)
-            if (getJobResult.isLeft()) {
-                return@either
-            }
-
-            val job = getJobResult.bind()
-            testInteractor.updateJob(
-                job.copy(
-                    status = JobStatus.CANCELLED
-                )
+            startFlows(
+                flowUids = listOf(flowUid),
+                jobUids = listOf(jobUid)
             ).bind()
+                .first()
         }
-    }
+
+    suspend fun cancelJob(jobUid: String): Either<AppException, Unit> =
+        withContext(Dispatchers.IO) {
+            either {
+                val getJobResult = testInteractor.getJobByUid(jobUid)
+                if (getJobResult.isLeft()) {
+                    return@either
+                }
+
+                val job = getJobResult.bind()
+                testInteractor.updateJob(
+                    job.copy(
+                        status = JobStatus.CANCELLED
+                    )
+                ).bind()
+            }
+        }
 }

@@ -5,8 +5,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testwithme.android.entity.FlowWithSteps
+import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 
 @Dao
 interface FlowEntryDao {

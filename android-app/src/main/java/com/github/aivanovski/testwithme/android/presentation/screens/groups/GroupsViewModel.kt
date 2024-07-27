@@ -9,8 +9,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testwithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testwithme.android.presentation.screens.Screen
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenArgs
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.GroupsCellModelFactory
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.GroupsCellViewModelFactory
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.FlowCellIntent

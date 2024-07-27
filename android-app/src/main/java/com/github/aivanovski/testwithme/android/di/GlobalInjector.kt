@@ -9,24 +9,26 @@ object GlobalInjector {
     inline fun <reified T : Any> inject(
         qualifier: Qualifier? = null,
         params: ParametersHolder? = null
-    ): Lazy<T> = GlobalContext.get().inject(
-        qualifier = qualifier,
-        parameters = if (params != null) {
-            { params }
-        } else {
-            null
-        }
-    )
+    ): Lazy<T> =
+        GlobalContext.get().inject(
+            qualifier = qualifier,
+            parameters = if (params != null) {
+                { params }
+            } else {
+                null
+            }
+        )
 
     inline fun <reified T : Any> get(
         qualifier: Qualifier? = null,
         params: ParametersHolder? = null
-    ): T = GlobalContext.get().get(
-        qualifier = qualifier,
-        parameters = if (params != null) {
-            { params }
-        } else {
-            null
-        }
-    )
+    ): T =
+        GlobalContext.get().get(
+            qualifier = qualifier,
+            parameters = if (params != null) {
+                { params }
+            } else {
+                null
+            }
+        )
 }

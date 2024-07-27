@@ -37,9 +37,7 @@ class TestRunsCellFactory(
         }
     }
 
-    private fun createModels(
-        data: TestRunsData
-    ): List<BaseCellModel> {
+    private fun createModels(data: TestRunsData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         models.add(SpaceCellModel(ElementMargin))

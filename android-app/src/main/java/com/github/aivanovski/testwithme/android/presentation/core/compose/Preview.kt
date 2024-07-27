@@ -51,7 +51,10 @@ fun ThemedScreenPreview(
 }
 
 object PreviewIntentProvider : CellIntentProvider {
-    override fun subscribe(subscriber: Any, listener: (intent: BaseCellIntent) -> Unit) {
+    override fun subscribe(
+        subscriber: Any,
+        listener: (intent: BaseCellIntent) -> Unit
+    ) {
     }
 
     override fun unsubscribe(subscriber: Any) {

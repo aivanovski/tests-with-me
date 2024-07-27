@@ -21,7 +21,11 @@ class DriverService : AccessibilityService() {
         params = parametersOf(driver)
     )
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int
+    ): Int {
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -30,7 +34,10 @@ class DriverService : AccessibilityService() {
         runnerManager.init()
 
         val serviceConnection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            override fun onServiceConnected(
+                name: ComponentName?,
+                service: IBinder?
+            ) {
                 runnerManager.onConnectedToNotificationService()
             }
 
@@ -45,7 +52,6 @@ class DriverService : AccessibilityService() {
 
         this.serviceConnection = serviceConnection
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

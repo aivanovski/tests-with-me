@@ -38,7 +38,11 @@ class NotificationService : Service() {
         Timber.d("onCreate:")
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int
+    ): Int {
         val command = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent?.extras?.getParcelable(EXTRA_COMMAND, Command::class.java)
         } else {

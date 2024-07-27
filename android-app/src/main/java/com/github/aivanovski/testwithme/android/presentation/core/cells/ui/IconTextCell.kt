@@ -86,12 +86,13 @@ fun IconTextCellPreview() {
     }
 }
 
-fun newIconTextCellViewModel() = IconTextCellViewModel(
-    model = IconTextCellModel(
-        id = "id",
-        title = "Title",
-        icon = AppIcons.CheckCircle,
-        iconTint = IconTint.GREEN
-    ),
-    intentProvider = PreviewIntentProvider
-)
+fun newIconTextCellViewModel() =
+    IconTextCellViewModel(
+        model = IconTextCellModel(
+            id = "id",
+            title = "Title",
+            icon = AppIcons.CheckCircle,
+            iconTint = IconTint.GREEN
+        ),
+        intentProvider = PreviewIntentProvider
+    )

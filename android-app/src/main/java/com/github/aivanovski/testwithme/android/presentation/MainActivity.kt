@@ -12,8 +12,8 @@ import com.github.aivanovski.testwithme.android.extensions.getParcelableCompat
 import com.github.aivanovski.testwithme.android.presentation.core.ThemeProviderImpl
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ThemeProvider
-import com.github.aivanovski.testwithme.android.presentation.screens.root.RootScreenComponent
 import com.github.aivanovski.testwithme.android.presentation.screens.root.RootScreen
+import com.github.aivanovski.testwithme.android.presentation.screens.root.RootScreenComponent
 
 class MainActivity : ComponentActivity() {
 

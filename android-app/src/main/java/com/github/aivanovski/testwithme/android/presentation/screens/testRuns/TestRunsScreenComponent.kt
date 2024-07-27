@@ -14,7 +14,7 @@ import com.github.aivanovski.testwithme.android.presentation.screens.root.RootVi
 class TestRunsScreenComponent(
     context: ComponentContext,
     rootViewModel: RootViewModel,
-    router: Router,
+    router: Router
 ) : ScreenComponent,
     ComponentContext by context,
     ViewModelStoreOwner by ViewModelStoreOwnerImpl() {

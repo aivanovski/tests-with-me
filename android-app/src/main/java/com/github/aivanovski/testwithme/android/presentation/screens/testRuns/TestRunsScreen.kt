@@ -32,9 +32,7 @@ fun TestRunsScreen(viewModel: TestRunsViewModel) {
 }
 
 @Composable
-private fun TestRunsScreen(
-    state: TestRunsState
-) {
+private fun TestRunsScreen(state: TestRunsState) {
     Surface(
         color = AppTheme.theme.colors.secondaryBackground
     ) {
@@ -95,7 +93,7 @@ private fun newDataState(): TestRunsState =
             newSpaceCellViewModel(ElementMargin),
             newIconThreeCellViewModel(),
             newSpaceCellViewModel(SmallMargin),
-            newIconThreeCellViewModel(),
+            newIconThreeCellViewModel()
         )
     )
 

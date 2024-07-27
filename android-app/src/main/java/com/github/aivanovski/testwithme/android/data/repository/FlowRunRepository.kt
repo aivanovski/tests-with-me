@@ -12,18 +12,18 @@ class FlowRunRepository(
     private val api: ApiClient
 ) {
 
-    suspend fun getRuns(): Either<AppException, List<FlowRun>> = either {
-        api.getFlowRuns().bind()
-    }
+    suspend fun getRuns(): Either<AppException, List<FlowRun>> =
+        either {
+            api.getFlowRuns().bind()
+        }
 
-    suspend fun uploadRun(
-        run: PostFlowRunRequest
-    ): Either<AppException, FlowRunUploadResult> = either {
-        val response = api.postFlowRun(run).bind()
+    suspend fun uploadRun(run: PostFlowRunRequest): Either<AppException, FlowRunUploadResult> =
+        either {
+            val response = api.postFlowRun(run).bind()
 
-        FlowRunUploadResult(
-            uid = response.id,
-            isAccepted = response.isAccepted
-        )
-    }
+            FlowRunUploadResult(
+                uid = response.id,
+                isAccepted = response.isAccepted
+            )
+        }
 }

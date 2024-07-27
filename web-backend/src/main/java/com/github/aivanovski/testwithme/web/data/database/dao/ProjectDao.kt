@@ -1,8 +1,8 @@
 package com.github.aivanovski.testwithme.web.data.database.dao
 
 import com.github.aivanovski.testwithme.web.data.database.AppDatabase
-import com.github.aivanovski.testwithme.web.entity.Uid
 import com.github.aivanovski.testwithme.web.entity.Project
+import com.github.aivanovski.testwithme.web.entity.Uid
 
 class ProjectDao(
     db: AppDatabase

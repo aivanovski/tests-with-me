@@ -82,43 +82,40 @@ fun ButtonCellPreview() {
 }
 
 @Composable
-fun newPrimaryButtonCell(
-    shape: CornersShape = CornersShape.ALL
-) = ButtonCellViewModel(
-    model = ButtonCellModel(
-        id = "id",
-        text = "RUN",
-        isButtonEnabled = true,
-        buttonColor = LightTheme.colors.primaryButton,
-        shape = shape
-    ),
-    intentProvider = PreviewIntentProvider
-)
+fun newPrimaryButtonCell(shape: CornersShape = CornersShape.ALL) =
+    ButtonCellViewModel(
+        model = ButtonCellModel(
+            id = "id",
+            text = "RUN",
+            isButtonEnabled = true,
+            buttonColor = LightTheme.colors.primaryButton,
+            shape = shape
+        ),
+        intentProvider = PreviewIntentProvider
+    )
 
 @Composable
-fun newPrimaryDisabledButtonCell(
-    shape: CornersShape = CornersShape.ALL
-) = ButtonCellViewModel(
-    model = ButtonCellModel(
-        id = "id",
-        text = "RUN",
-        isButtonEnabled = false,
-        buttonColor = LightTheme.colors.primaryButton,
-        shape = shape
-    ),
-    intentProvider = PreviewIntentProvider
-)
+fun newPrimaryDisabledButtonCell(shape: CornersShape = CornersShape.ALL) =
+    ButtonCellViewModel(
+        model = ButtonCellModel(
+            id = "id",
+            text = "RUN",
+            isButtonEnabled = false,
+            buttonColor = LightTheme.colors.primaryButton,
+            shape = shape
+        ),
+        intentProvider = PreviewIntentProvider
+    )
 
 @Composable
-fun newGreenButtonCell(
-    shape: CornersShape = CornersShape.ALL
-) = ButtonCellViewModel(
-    model = ButtonCellModel(
-        id = "id",
-        text = "RUN",
-        isButtonEnabled = true,
-        buttonColor = LightTheme.colors.greenButton,
-        shape = shape
-    ),
-    intentProvider = PreviewIntentProvider
-)
+fun newGreenButtonCell(shape: CornersShape = CornersShape.ALL) =
+    ButtonCellViewModel(
+        model = ButtonCellModel(
+            id = "id",
+            text = "RUN",
+            isButtonEnabled = true,
+            buttonColor = LightTheme.colors.greenButton,
+            shape = shape
+        ),
+        intentProvider = PreviewIntentProvider
+    )

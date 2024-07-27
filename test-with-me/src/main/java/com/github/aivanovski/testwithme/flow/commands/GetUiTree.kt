@@ -14,7 +14,8 @@ class GetUiTree<T> : ExecutableStepCommand<UiNode<T>> {
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, UiNode<T>> = either {
-        context.driver.getUiTree().bind() as UiNode<T>
-    }
+    ): Either<FlowExecutionException, UiNode<T>> =
+        either {
+            context.driver.getUiTree().bind() as UiNode<T>
+        }
 }

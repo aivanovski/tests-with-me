@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.github.aivanovski.testwithme.android.entity.ExecutionResult
-import com.github.aivanovski.testwithme.android.entity.OnFinishAction
 import com.github.aivanovski.testwithme.android.entity.JobStatus
+import com.github.aivanovski.testwithme.android.entity.OnFinishAction
 
 @Entity("job_entry")
 data class JobEntry(

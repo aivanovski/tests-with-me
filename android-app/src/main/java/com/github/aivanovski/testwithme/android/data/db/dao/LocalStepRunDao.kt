@@ -12,9 +12,15 @@ interface LocalStepRunDao {
     @Query("SELECT * FROM local_step_run")
     fun getAll(): List<LocalStepRun>
 
-    @Query("SELECT * FROM local_step_run WHERE " +
-        "job_uid = :jobUid AND flow_uid = :flowUid AND step_uid = :stepUid")
-    fun get(jobUid: String, flowUid: String, stepUid: String?): LocalStepRun?
+    @Query(
+        "SELECT * FROM local_step_run WHERE " +
+            "job_uid = :jobUid AND flow_uid = :flowUid AND step_uid = :stepUid"
+    )
+    fun get(
+        jobUid: String,
+        flowUid: String,
+        stepUid: String?
+    ): LocalStepRun?
 
     @Query("SELECT * FROM local_step_run WHERE job_uid = :jobUid")
     fun getByJobUid(jobUid: String): List<LocalStepRun>

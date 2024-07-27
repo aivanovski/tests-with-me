@@ -22,7 +22,7 @@ data class AppColors(
     val redCard: Color,
     val primaryButton: Color,
     val greenButton: Color,
-    val primaryIcon: Color,
+    val primaryIcon: Color
 )
 
 val LightAppColors = AppColors(

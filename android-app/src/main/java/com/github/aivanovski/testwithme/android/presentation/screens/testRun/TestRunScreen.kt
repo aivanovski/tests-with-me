@@ -52,7 +52,7 @@ private fun TestRunScreen(
     }
 
     Surface(
-        color = AppTheme.theme.colors.secondaryBackground,
+        color = AppTheme.theme.colors.secondaryBackground
     ) {
         CellsScreen(
             state = state,

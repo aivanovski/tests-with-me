@@ -28,39 +28,40 @@ class JobRepository(
             .map { it.toEntry() }
     }
 
-    fun getJobByUid(uid: String): Either<AppException, JobEntry> = either {
-        val entry = jobDao.getByUid(uid) ?: raise(newFailedToFindEntityError(uid))
+    fun getJobByUid(uid: String): Either<AppException, JobEntry> =
+        either {
+            val entry = jobDao.getByUid(uid) ?: raise(newFailedToFindEntityError(uid))
 
-        entry
-    }
+            entry
+        }
 
-    fun update(job: JobEntry): Either<AppException, Unit> = either {
-        val existingJob = getJobByUid(job.uid).bind()
+    fun update(job: JobEntry): Either<AppException, Unit> =
+        either {
+            val existingJob = getJobByUid(job.uid).bind()
 
-        jobDao.update(
-            job.copy(
-                id = existingJob.id
+            jobDao.update(
+                job.copy(
+                    id = existingJob.id
+                )
             )
-        )
-    }
+        }
 
     fun removeByUid(uid: String) {
         jobDao.removeByUid(uid)
     }
 
-    fun moveToHistory(uid: String): Either<AppException, Unit> = either {
-        val job = getJobByUid(uid).bind()
-        jobDao.removeByUid(uid)
-        jobHistoryDao.insert(job.toHistoryEntry(id = null))
-    }
+    fun moveToHistory(uid: String): Either<AppException, Unit> =
+        either {
+            val job = getJobByUid(uid).bind()
+            jobDao.removeByUid(uid)
+            jobHistoryDao.insert(job.toHistoryEntry(id = null))
+        }
 
     fun updateHistory(entry: JobEntry) {
         jobHistoryDao.update(entry.toHistoryEntry())
     }
 
-    private fun newFailedToFindEntityError(
-        uid: String
-    ): FailedToFindEntityException {
+    private fun newFailedToFindEntityError(uid: String): FailedToFindEntityException {
         return FailedToFindEntityException(
             entityName = JobEntry::class.java.simpleName,
             fieldName = "uid",

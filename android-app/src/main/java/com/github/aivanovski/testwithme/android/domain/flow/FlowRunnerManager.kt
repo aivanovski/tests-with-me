@@ -8,6 +8,9 @@ import com.github.aivanovski.testwithme.android.data.settings.Settings
 import com.github.aivanovski.testwithme.android.entity.DriverServiceState
 import com.github.aivanovski.testwithme.flow.commands.StepCommand
 import com.github.aivanovski.testwithme.flow.driver.Driver
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,9 +22,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 class FlowRunnerManager(
     interactor: FlowRunnerInteractor,
@@ -133,7 +133,7 @@ class FlowRunnerManager(
             "startFlowIfNeed: lastStartId=%s, isConnected=%s, isRunning=%s",
             startId,
             isConnected,
-            runner.isRunning(),
+            runner.isRunning()
         )
 
         if (!isConnected) {

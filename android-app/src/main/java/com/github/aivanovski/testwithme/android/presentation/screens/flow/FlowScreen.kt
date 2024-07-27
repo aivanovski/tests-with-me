@@ -28,9 +28,9 @@ import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.ui.newFailedHistoryItemCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.ui.newSuccessHistoryItemCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.viewModel.HistoryItemCellViewModel
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowUiEvent
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowState
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowUiEvent
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.ui.FlowCell
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.viewModel.FlowCellViewModel
 import com.github.aivanovski.testwithme.android.utils.IntentUtils.newAccessibilityServicesIntent
@@ -147,7 +147,7 @@ fun FlowScreenPreview() {
                     newSpaceCellViewModel(HalfMargin),
                     newFailedHistoryItemCellViewModel(),
                     newSpaceCellViewModel(HalfMargin),
-                    newSuccessHistoryItemCellViewModel(),
+                    newSuccessHistoryItemCellViewModel()
                 ),
                 errorDialogMessage = null,
                 flowDialogState = null

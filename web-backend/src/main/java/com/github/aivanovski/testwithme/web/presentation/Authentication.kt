@@ -2,9 +2,9 @@ package com.github.aivanovski.testwithme.web.presentation
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.github.aivanovski.testwithme.web.api.response.ErrorMessage
 import com.github.aivanovski.testwithme.web.entity.JwtData
 import com.github.aivanovski.testwithme.web.presentation.Errors.INVALID_OR_EXPIRED_TOKEN
-import com.github.aivanovski.testwithme.web.api.response.ErrorMessage
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install

@@ -8,10 +8,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.aivanovski.testwithme.entity.Duration
-import com.github.aivanovski.testwithme.entity.KeyCode
-import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.entity.FlowStep
+import com.github.aivanovski.testwithme.entity.KeyCode
 import com.github.aivanovski.testwithme.entity.UiElementSelector
+import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.entity.exception.ParsingException
 import com.github.aivanovski.testwithme.extensions.toLongSafely
 import com.github.aivanovski.testwithme.utils.StringUtils.EMPTY
@@ -19,45 +19,43 @@ import com.github.aivanovski.testwithme.utils.StringUtils.SPACE
 
 class YamlParser {
 
-    fun parse(
-        data: String
-    ): Either<ParsingException, YamlFlow> = either {
-        val mapper = ObjectMapper(YAMLFactory())
-            .registerModule(KotlinModule.Builder().build())
+    fun parse(data: String): Either<ParsingException, YamlFlow> =
+        either {
+            val mapper = ObjectMapper(YAMLFactory())
+                .registerModule(KotlinModule.Builder().build())
 
-        val items = try {
-            mapper.readValue<List<Item>>(data)
-        } catch (exception: JacksonException) {
-            raise(ParsingException(cause = exception))
+            val items = try {
+                mapper.readValue<List<Item>>(data)
+            } catch (exception: JacksonException) {
+                raise(ParsingException(cause = exception))
+            }
+
+            val name = findNameItem(items)
+            val filteredItems = items.filter { item -> item != name }
+
+            val steps = convertItems(filteredItems).bind()
+
+            YamlFlow(
+                name = name?.name ?: EMPTY,
+                steps = steps
+            )
         }
-
-        val name = findNameItem(items)
-        val filteredItems = items.filter { item -> item != name }
-
-        val steps = convertItems(filteredItems).bind()
-
-        YamlFlow(
-            name = name?.name ?: EMPTY,
-            steps = steps
-        )
-    }
 
     private fun findNameItem(items: List<Item>): Item? {
         return items.firstOrNull { item -> !item.name.isNullOrEmpty() }
     }
 
-    private fun convertItems(
-        items: List<Item>
-    ): Either<ParsingException, List<FlowStep>> = either {
-        val result = mutableListOf<FlowStep>()
+    private fun convertItems(items: List<Item>): Either<ParsingException, List<FlowStep>> =
+        either {
+            val result = mutableListOf<FlowStep>()
 
-        for (item in items) {
-            val parsedItem = parseItem(item).bind()
-            result.add(parsedItem)
+            for (item in items) {
+                val parsedItem = parseItem(item).bind()
+                result.add(parsedItem)
+            }
+
+            result
         }
-
-        result
-    }
 
     private fun parseItem(item: Item): Either<ParsingException, FlowStep> {
         return when {
@@ -146,50 +144,45 @@ class YamlParser {
         )
     }
 
-    private fun parseLaunch(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        FlowStep.Launch(
-            packageName = item.launch ?: EMPTY
-        )
-    }
+    private fun parseLaunch(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            FlowStep.Launch(
+                packageName = item.launch ?: EMPTY
+            )
+        }
 
-    private fun parseAssertVisible(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        val element = parseUiElement(item.assertVisible).bind()
+    private fun parseAssertVisible(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            val element = parseUiElement(item.assertVisible).bind()
 
-        FlowStep.AssertVisible(
-            elements = listOf(element)
-        )
-    }
+            FlowStep.AssertVisible(
+                elements = listOf(element)
+            )
+        }
 
-    private fun parseAssertNotVisible(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        val element = parseUiElement(item.assertNotVisible).bind()
+    private fun parseAssertNotVisible(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            val element = parseUiElement(item.assertNotVisible).bind()
 
-        FlowStep.AssertNotVisible(
-            elements = listOf(element)
-        )
-    }
+            FlowStep.AssertNotVisible(
+                elements = listOf(element)
+            )
+        }
 
-    private fun parseTapOn(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        FlowStep.TapOn(
-            element = parseUiElement(item.tapOn).bind()
-        )
-    }
+    private fun parseTapOn(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            FlowStep.TapOn(
+                element = parseUiElement(item.tapOn).bind()
+            )
+        }
 
-    private fun parseLongTapOn(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        FlowStep.TapOn(
-            element = parseUiElement(item.longTapOn).bind(),
-            isLong = true
-        )
-    }
+    private fun parseLongTapOn(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            FlowStep.TapOn(
+                element = parseUiElement(item.longTapOn).bind(),
+                isLong = true
+            )
+        }
 
     private fun parsePressKey(item: Item): Either<ParsingException, FlowStep> {
         val name = item.pressKey
@@ -205,66 +198,61 @@ class YamlParser {
         )
     }
 
-    private fun parseInputText(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        when (val inputText = item.inputText) {
-            is String -> {
-                FlowStep.InputText(
-                    text = inputText,
-                    element = null
-                )
+    private fun parseInputText(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            when (val inputText = item.inputText) {
+                is String -> {
+                    FlowStep.InputText(
+                        text = inputText,
+                        element = null
+                    )
+                }
+
+                is Map<*, *> -> {
+                    val element = parseUiElement(inputText).bind()
+
+                    FlowStep.InputText(
+                        text = (inputText[INPUT] as? String) ?: EMPTY,
+                        element = element
+                    )
+                }
+
+                else -> raise(ParsingException("Unable to parse item: $item"))
             }
-
-            is Map<*, *> -> {
-                val element = parseUiElement(inputText).bind()
-
-                FlowStep.InputText(
-                    text = (inputText[INPUT] as? String) ?: EMPTY,
-                    element = element
-                )
-            }
-
-            else -> raise(ParsingException("Unable to parse item: $item"))
         }
-    }
 
-    private fun parseRunFlow(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        FlowStep.RunFlow(
-            name = item.runFlow ?: EMPTY
-        )
-    }
+    private fun parseRunFlow(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            FlowStep.RunFlow(
+                name = item.runFlow ?: EMPTY
+            )
+        }
 
-    private fun parseWaitUntil(
-        item: Item
-    ): Either<ParsingException, FlowStep> = either {
-        val values = item.waitUntil as? Map<*, *>
-            ?: raise(ParsingException("Unable to parse item: $item"))
+    private fun parseWaitUntil(item: Item): Either<ParsingException, FlowStep> =
+        either {
+            val values = item.waitUntil as? Map<*, *>
+                ?: raise(ParsingException("Unable to parse item: $item"))
 
-        val element = parseUiElement(values).bind()
+            val element = parseUiElement(values).bind()
 
-        val stepStr = values[STEP]
-        val timeoutStr = values[TIMEOUT]
-            ?: raise(ParsingException("Parameter '$TIMEOUT' should be specified"))
+            val stepStr = values[STEP]
+            val timeoutStr = values[TIMEOUT]
+                ?: raise(ParsingException("Parameter '$TIMEOUT' should be specified"))
 
-        val step = stepStr?.let { parseDuration(stepStr) }
-            ?: Duration.seconds(1)
+            val step = stepStr?.let { parseDuration(stepStr) }
+                ?: Duration.seconds(1)
 
-        val timeout = parseDuration(timeoutStr)
-            ?: raise(ParsingException("Unable to parse duration: $timeoutStr"))
+            val timeout = parseDuration(timeoutStr)
+                ?: raise(ParsingException("Unable to parse duration: $timeoutStr"))
 
-        FlowStep.WaitUntil(
-            element = element,
-            step = step,
-            timeout = timeout
-        )
-    }
+            FlowStep.WaitUntil(
+                element = element,
+                step = step,
+                timeout = timeout
+            )
+        }
 
-    private fun parseUiElement(
-        element: Any?
-    ): Either<ParsingException, UiElementSelector> {
+    private fun parseUiElement(element: Any?): Either<ParsingException, UiElementSelector> {
         if (element !is String && element !is Map<*, *>) {
             return Either.Left(ParsingException("Unable to parse UiElement: $element"))
         }

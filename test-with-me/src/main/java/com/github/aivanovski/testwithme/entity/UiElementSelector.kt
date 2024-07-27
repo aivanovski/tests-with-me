@@ -27,39 +27,46 @@ data class UiElementSelector private constructor(
 
     companion object {
 
-        fun id(id: String) = UiElementSelector(
-            id = id,
-            type = SelectionType.ID
-        )
+        fun id(id: String) =
+            UiElementSelector(
+                id = id,
+                type = SelectionType.ID
+            )
 
-        fun text(text: String) = UiElementSelector(
-            text = text,
-            type = SelectionType.TEXT
-        )
+        fun text(text: String) =
+            UiElementSelector(
+                text = text,
+                type = SelectionType.TEXT
+            )
 
-        fun containsText(text: String) = UiElementSelector(
-            containsText = text,
-            type = SelectionType.CONTAINS_TEXT
-        )
+        fun containsText(text: String) =
+            UiElementSelector(
+                containsText = text,
+                type = SelectionType.CONTAINS_TEXT
+            )
 
-        fun contentDescription(contentDescription: String) = UiElementSelector(
-            contentDescription = contentDescription,
-            type = SelectionType.CONTENT_DESCRIPTION
-        )
+        fun contentDescription(contentDescription: String) =
+            UiElementSelector(
+                contentDescription = contentDescription,
+                type = SelectionType.CONTENT_DESCRIPTION
+            )
 
-        fun isFocused(isFocused: Boolean) = UiElementSelector(
-            isFocused = isFocused,
-            type = SelectionType.FOCUSED
-        )
+        fun isFocused(isFocused: Boolean) =
+            UiElementSelector(
+                isFocused = isFocused,
+                type = SelectionType.FOCUSED
+            )
 
-        fun isClickable(isClickable: Boolean) = UiElementSelector(
-            isClickable = isClickable,
-            type = SelectionType.CLICKABLE
-        )
+        fun isClickable(isClickable: Boolean) =
+            UiElementSelector(
+                isClickable = isClickable,
+                type = SelectionType.CLICKABLE
+            )
 
-        fun isLongClickable(isLongClickable: Boolean) = UiElementSelector(
-            isLongClickable = isLongClickable,
-            type = SelectionType.LONG_CLICKABLE
-        )
+        fun isLongClickable(isLongClickable: Boolean) =
+            UiElementSelector(
+                isLongClickable = isLongClickable,
+                type = SelectionType.LONG_CLICKABLE
+            )
     }
 }

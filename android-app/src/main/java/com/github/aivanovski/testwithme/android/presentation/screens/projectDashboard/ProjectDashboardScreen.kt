@@ -44,9 +44,7 @@ fun ProjectDashboardScreen(viewModel: ProjectDashboardViewModel) {
 }
 
 @Composable
-private fun ProjectDashboardScreen(
-    state: ProjectDashboardState
-) {
+private fun ProjectDashboardScreen(state: ProjectDashboardState) {
     Surface(
         color = AppTheme.theme.colors.secondaryBackground
     ) {
@@ -96,51 +94,53 @@ fun ProjectDashboardScreenEmptyPreview() {
 }
 
 @Composable
-private fun newEmptyState() = ProjectDashboardState(
-    terminalState = TerminalState.Empty(
-        message = stringResource(R.string.no_tests_in_project_message)
+private fun newEmptyState() =
+    ProjectDashboardState(
+        terminalState = TerminalState.Empty(
+            message = stringResource(R.string.no_tests_in_project_message)
+        )
     )
-)
 
 @Composable
-private fun newDataState() = ProjectDashboardState(
-    terminalState = null,
-    viewModels = listOf(
-        newSpaceCellViewModel(height = ElementMargin),
-        newShapedSpaceCellViewModel(SmallMargin, CornersShape.TOP),
-        newTitleCellViewModel(
-            title = "Completion",
-            shape = CornersShape.NONE
-        ),
-        newShapedSpaceCellViewModel(SmallMargin, CornersShape.NONE),
-        newTextChipRowCellViewModel(shape = CornersShape.NONE), // TODO: show versions
-        newLargeBarCellViewModel(),
-        newShapedSpaceCellViewModel(ElementMargin, CornersShape.NONE),
-        newTableCellViewModel(
-            labels = listOf("Completed", "Failed", "Remained"),
-            values = listOf("158", "44", "18"),
-            shape = CornersShape.NONE
-        ),
-        newShapedSpaceCellViewModel(SmallMargin, CornersShape.BOTTOM),
-        newSpaceCellViewModel(SmallMargin),
+private fun newDataState() =
+    ProjectDashboardState(
+        terminalState = null,
+        viewModels = listOf(
+            newSpaceCellViewModel(height = ElementMargin),
+            newShapedSpaceCellViewModel(SmallMargin, CornersShape.TOP),
+            newTitleCellViewModel(
+                title = "Completion",
+                shape = CornersShape.NONE
+            ),
+            newShapedSpaceCellViewModel(SmallMargin, CornersShape.NONE),
+            newTextChipRowCellViewModel(shape = CornersShape.NONE), // TODO: show versions
+            newLargeBarCellViewModel(),
+            newShapedSpaceCellViewModel(ElementMargin, CornersShape.NONE),
+            newTableCellViewModel(
+                labels = listOf("Completed", "Failed", "Remained"),
+                values = listOf("158", "44", "18"),
+                shape = CornersShape.NONE
+            ),
+            newShapedSpaceCellViewModel(SmallMargin, CornersShape.BOTTOM),
+            newSpaceCellViewModel(SmallMargin),
 
-        newHeaderWithIconCellViewModel(
-            title = "Remained Tests",
-            iconText = "All"
-        ),
-        newFlowCellViewModel(),
-        newSpaceCellViewModel(SmallMargin),
-        newFlowCellViewModel(),
-        newSpaceCellViewModel(SmallMargin),
+            newHeaderWithIconCellViewModel(
+                title = "Remained Tests",
+                iconText = "All"
+            ),
+            newFlowCellViewModel(),
+            newSpaceCellViewModel(SmallMargin),
+            newFlowCellViewModel(),
+            newSpaceCellViewModel(SmallMargin),
 
-        newHeaderWithIconCellViewModel(
-            title = "Tests",
-            iconText = "View"
-        ),
-        newGroupCellViewModel(),
-        newSpaceCellViewModel(SmallMargin),
-        newGroupCellViewModel(),
-        newSpaceCellViewModel(SmallMargin),
-        newFlowCellViewModel(),
+            newHeaderWithIconCellViewModel(
+                title = "Tests",
+                iconText = "View"
+            ),
+            newGroupCellViewModel(),
+            newSpaceCellViewModel(SmallMargin),
+            newGroupCellViewModel(),
+            newSpaceCellViewModel(SmallMargin),
+            newFlowCellViewModel()
+        )
     )
-)

@@ -1,10 +1,10 @@
 package com.github.aivanovski.testwithme.flow.commands.assertion
 
 import arrow.core.Either
-import com.github.aivanovski.testwithme.entity.UiNode
-import com.github.aivanovski.testwithme.extensions.hasElement
 import com.github.aivanovski.testwithme.entity.UiElementSelector
+import com.github.aivanovski.testwithme.entity.UiNode
 import com.github.aivanovski.testwithme.entity.exception.AssertionException
+import com.github.aivanovski.testwithme.extensions.hasElement
 import com.github.aivanovski.testwithme.extensions.toReadableFormat
 
 class VisibleAssertion : Assertion {

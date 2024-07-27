@@ -28,7 +28,10 @@ class ReportCollector : FlowLifecycleListener {
         logger.onFlowStarted(flow)
     }
 
-    override fun onFlowFinished(flow: Flow, result: Either<FlowExecutionException, Any>) {
+    override fun onFlowFinished(
+        flow: Flow,
+        result: Either<FlowExecutionException, Any>
+    ) {
         logger.onFlowFinished(flow, result)
     }
 

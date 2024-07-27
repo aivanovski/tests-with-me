@@ -6,9 +6,9 @@ import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.github.aivanovski.testwithme.android.presentation.screens.Screen
 import com.github.aivanovski.testwithme.android.presentation.screens.root.RootScreenComponent
-import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import timber.log.Timber
 
 class RouterImpl(
     private val rootComponent: RootScreenComponent,

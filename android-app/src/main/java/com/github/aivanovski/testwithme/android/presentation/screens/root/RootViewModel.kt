@@ -9,7 +9,6 @@ import com.github.aivanovski.testwithme.android.presentation.core.EventListener
 import com.github.aivanovski.testwithme.android.presentation.core.EventProviderImpl
 import com.github.aivanovski.testwithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testwithme.android.presentation.screens.Screen
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowUiEvent
 import com.github.aivanovski.testwithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testwithme.android.presentation.screens.login.model.LoginScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.root.model.BottomBarItem

@@ -58,7 +58,8 @@ fun newLongTextCell(): TextCellViewModel {
     return TextCellViewModel(
         model = TextCellModel(
             id = "id",
-            text = "- sendBroadcast: com.ivanovsky.passnotes/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver"
+            text = "- sendBroadcast: com.ivanovsky.passnotes/" +
+                "com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver"
         )
     )
 }

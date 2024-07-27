@@ -16,7 +16,7 @@ class GroupsScreenComponent(
     context: ComponentContext,
     rootViewModel: RootViewModel,
     router: Router,
-    args: GroupsScreenArgs,
+    args: GroupsScreenArgs
 ) : ScreenComponent,
     ComponentContext by context,
     ViewModelStoreOwner by ViewModelStoreOwnerImpl() {

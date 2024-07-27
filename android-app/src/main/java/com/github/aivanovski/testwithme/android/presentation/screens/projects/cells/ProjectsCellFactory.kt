@@ -30,9 +30,7 @@ class ProjectsCellFactory(
         }
     }
 
-    private fun createModels(
-        projects: List<ProjectEntry>
-    ): List<BaseCellModel> {
+    private fun createModels(projects: List<ProjectEntry>): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         models.add(SpaceCellModel(ElementMargin))

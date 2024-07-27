@@ -15,38 +15,37 @@ import kotlinx.coroutines.withContext
 
 class TestRunInteractor(
     private val jobRepository: JobRepository,
-    private val flowRepository: FlowRepository,
+    private val flowRepository: FlowRepository
 ) {
 
-    suspend fun loadData(
-        jobUid: String
-    ): Either<AppException, TestRunScreenData> = withContext(IO) {
-        either {
-            val job = jobRepository.getAllHistory()
-                .firstOrNull { job -> job.uid == jobUid }
-                ?: raise(FailedToFindEntityByUidException(JobHistoryEntry::class, jobUid))
+    suspend fun loadData(jobUid: String): Either<AppException, TestRunScreenData> =
+        withContext(IO) {
+            either {
+                val job = jobRepository.getAllHistory()
+                    .firstOrNull { job -> job.uid == jobUid }
+                    ?: raise(FailedToFindEntityByUidException(JobHistoryEntry::class, jobUid))
 
-            val flowUid = job.flowUid
-            val flow = flowRepository.getCachedFlowByUid(flowUid).bind()
+                val flowUid = job.flowUid
+                val flow = flowRepository.getCachedFlowByUid(flowUid).bind()
 
-            val content = when (flow.entry.sourceType) {
-                SourceType.REMOTE -> {
-                    flowRepository.getFlowContent(flowUid)
-                        .bind()
-                        .let { base64Content -> Base64Utils.decode(base64Content) }
-                }
+                val content = when (flow.entry.sourceType) {
+                    SourceType.REMOTE -> {
+                        flowRepository.getFlowContent(flowUid)
+                            .bind()
+                            .let { base64Content -> Base64Utils.decode(base64Content) }
+                    }
 
-                SourceType.LOCAL -> {
-                    flowRepository.getCachedFlowContent(flowUid)
-                        .bind()
-                }
-            } ?: raise(AppException("Failed to get flow content: uid=$flowUid"))
+                    SourceType.LOCAL -> {
+                        flowRepository.getCachedFlowContent(flowUid)
+                            .bind()
+                    }
+                } ?: raise(AppException("Failed to get flow content: uid=$flowUid"))
 
-            TestRunScreenData(
-                job = job,
-                flow = flow.entry,
-                flowContent = content
-            )
+                TestRunScreenData(
+                    job = job,
+                    flow = flow.entry,
+                    flowContent = content
+                )
+            }
         }
-    }
 }

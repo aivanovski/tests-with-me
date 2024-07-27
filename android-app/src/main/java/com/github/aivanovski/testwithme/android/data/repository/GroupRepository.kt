@@ -11,24 +11,23 @@ class GroupRepository(
     private val api: ApiClient
 ) {
 
-    suspend fun getGroups(): Either<AppException, List<Group>> = either {
-        api.getGroups().bind()
-    }
+    suspend fun getGroups(): Either<AppException, List<Group>> =
+        either {
+            api.getGroups().bind()
+        }
 
-    suspend fun getGroupsByProjectUid(
-        projectUid: String
-    ): Either<AppException, List<Group>> = either {
-        getGroups()
-            .bind()
-            .filter { group -> group.projectUid == projectUid }
-    }
+    suspend fun getGroupsByProjectUid(projectUid: String): Either<AppException, List<Group>> =
+        either {
+            getGroups()
+                .bind()
+                .filter { group -> group.projectUid == projectUid }
+        }
 
-    suspend fun getGroupByUid(
-        uid: String
-    ): Either<AppException, Group> = either {
-        getGroups()
-            .bind()
-            .firstOrNull { group -> group.uid == uid }
-            ?: raise(FailedToFindEntityByUidException(Group::class, uid))
-    }
+    suspend fun getGroupByUid(uid: String): Either<AppException, Group> =
+        either {
+            getGroups()
+                .bind()
+                .firstOrNull { group -> group.uid == uid }
+                ?: raise(FailedToFindEntityByUidException(Group::class, uid))
+        }
 }

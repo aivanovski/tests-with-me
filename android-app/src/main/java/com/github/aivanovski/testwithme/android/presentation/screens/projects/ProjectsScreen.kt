@@ -95,11 +95,12 @@ fun ProjectsScreenPreview() {
     }
 }
 
-private fun newDataState() = ProjectsState(
-    viewModels = listOf(
-        newSpaceCellViewModel(SmallMargin),
-        newProjectViewModel(),
-        newSpaceCellViewModel(SmallMargin),
-        newProjectViewModel()
+private fun newDataState() =
+    ProjectsState(
+        viewModels = listOf(
+            newSpaceCellViewModel(SmallMargin),
+            newProjectViewModel(),
+            newSpaceCellViewModel(SmallMargin),
+            newProjectViewModel()
+        )
     )
-)

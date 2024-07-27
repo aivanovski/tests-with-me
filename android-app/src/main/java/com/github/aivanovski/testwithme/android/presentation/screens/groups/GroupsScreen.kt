@@ -81,7 +81,6 @@ fun ErrorLightPreview() {
             state = newErrorState(),
             onIntent = {}
         )
-
     }
 }
 
@@ -111,4 +110,3 @@ private fun newErrorState(): GroupsState {
         message = newErrorMessage()
     )
 }
-

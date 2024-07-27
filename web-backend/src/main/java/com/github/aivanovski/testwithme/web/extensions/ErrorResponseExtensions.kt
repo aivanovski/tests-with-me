@@ -1,9 +1,9 @@
 package com.github.aivanovski.testwithme.web.extensions
 
 import arrow.core.Either
+import com.github.aivanovski.testwithme.extensions.unwrapError
 import com.github.aivanovski.testwithme.web.entity.ErrorResponse
 import com.github.aivanovski.testwithme.web.entity.exception.AppException
-import com.github.aivanovski.testwithme.extensions.unwrapError
 import com.github.aivanovski.testwithme.web.entity.exception.EntityNotFoundException
 import com.github.aivanovski.testwithme.web.entity.exception.ExpiredTokenException
 import com.github.aivanovski.testwithme.web.entity.exception.InvalidCredentialsException

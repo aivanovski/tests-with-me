@@ -9,22 +9,20 @@ import com.github.aivanovski.testwithme.flow.yaml.YamlParser
 
 class ParseFlowFileUseCase {
 
-    fun parseBase64File(
-        base64content: String
-    ): Either<ParsingException, YamlFlow> = either {
-        val decodedContent = Base64Utils.decode(base64content)
-            ?: raise(ParsingException("Invalid bas64 string"))
+    fun parseBase64File(base64content: String): Either<ParsingException, YamlFlow> =
+        either {
+            val decodedContent = Base64Utils.decode(base64content)
+                ?: raise(ParsingException("Invalid bas64 string"))
 
-        parse(decodedContent).bind()
-    }
+            parse(decodedContent).bind()
+        }
 
-    private fun parse(
-        content: String,
-    ): Either<ParsingException, YamlFlow> = either {
-        val flow = YamlParser().parse(content)
-            .mapLeft { exception -> ParsingException(cause = exception) }
-            .bind()
+    private fun parse(content: String): Either<ParsingException, YamlFlow> =
+        either {
+            val flow = YamlParser().parse(content)
+                .mapLeft { exception -> ParsingException(cause = exception) }
+                .bind()
 
-        flow
-    }
+            flow
+        }
 }

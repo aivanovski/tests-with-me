@@ -28,15 +28,19 @@ data class Uid(
             )
         }
 
-        fun parse(value: String): Either<AppException, Uid> = either {
-            if (value.isNotBlank() && value.length > 16) {
-                Uid(value)
-            } else {
-                raise(ParsingException("Failed to parse uid: $value"))
+        fun parse(value: String): Either<AppException, Uid> =
+            either {
+                if (value.isNotBlank() && value.length > 16) {
+                    Uid(value)
+                } else {
+                    raise(ParsingException("Failed to parse uid: $value"))
+                }
             }
-        }
 
-        fun createFrom(first: Int, second: Int): Uid {
+        fun createFrom(
+            first: Int,
+            second: Int
+        ): Uid {
             return Uid(
                 uid = UUID(first.toLong(), second.toLong()).toString()
             )

@@ -2,9 +2,9 @@ package com.github.aivanovski.testwithme.android.presentation.screens.flow.model
 
 import com.github.aivanovski.testwithme.android.entity.FlowRun
 import com.github.aivanovski.testwithme.android.entity.Group
-import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testwithme.android.entity.User
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
 
 data class FlowData(
     val project: ProjectEntry,

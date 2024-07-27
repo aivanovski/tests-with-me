@@ -14,7 +14,7 @@ import com.github.aivanovski.testwithme.android.presentation.screens.root.RootVi
 class LoginScreenComponent(
     context: ComponentContext,
     private val rootViewModel: RootViewModel,
-    private val router: Router,
+    private val router: Router
 ) : ScreenComponent,
     ComponentContext by context,
     ViewModelStoreOwner by ViewModelStoreOwnerImpl() {

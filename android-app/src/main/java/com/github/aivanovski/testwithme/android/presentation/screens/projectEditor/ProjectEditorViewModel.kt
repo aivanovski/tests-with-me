@@ -78,9 +78,7 @@ class ProjectEditorViewModel(
         intents.trySend(intent)
     }
 
-    private fun handleIntent(
-        intent: ProjectEditorIntent
-    ): Flow<ProjectEditorState> {
+    private fun handleIntent(intent: ProjectEditorIntent): Flow<ProjectEditorState> {
         return when (intent) {
             ProjectEditorIntent.Initialize -> loadData()
             is ProjectEditorIntent.OnDoneMenuClick -> onDoneMenuClicked()
@@ -156,9 +154,7 @@ class ProjectEditorViewModel(
         )
     }
 
-    private fun onNameChanged(
-        intent: ProjectEditorIntent.OnNameChanged
-    ): Flow<ProjectEditorState> {
+    private fun onNameChanged(intent: ProjectEditorIntent.OnNameChanged): Flow<ProjectEditorState> {
         return flowOf(
             state.value.copy(
                 name = intent.name,
@@ -238,8 +234,7 @@ class ProjectEditorViewModel(
         return packageNameError != null || nameError != null
     }
 
-    private fun newLoadingState(): ProjectEditorState =
-        ProjectEditorState(isLoading = true)
+    private fun newLoadingState(): ProjectEditorState = ProjectEditorState(isLoading = true)
 
     private fun createTopBarState(): TopBarState =
         TopBarState(

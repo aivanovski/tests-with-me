@@ -1,8 +1,8 @@
 package com.github.aivanovski.testwithme.extensions
 
-import com.github.aivanovski.testwithme.entity.UiEntity
 import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.entity.UiElementSelector.SelectionType
+import com.github.aivanovski.testwithme.entity.UiEntity
 import com.github.aivanovski.testwithme.utils.StringUtils
 
 // TODO: move to UiElementSelector extensions

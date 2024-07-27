@@ -3,7 +3,6 @@ package com.github.aivanovski.testwithme.android.presentation.screens.projects
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testwithme.android.R
 import com.github.aivanovski.testwithme.android.domain.resources.ResourceProvider
-import kotlinx.coroutines.flow.emptyFlow
 import com.github.aivanovski.testwithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.TerminalState
@@ -29,6 +28,7 @@ import com.github.aivanovski.testwithme.extensions.unwrap
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
@@ -40,7 +40,7 @@ class ProjectsViewModel(
     private val cellFactory: ProjectsCellFactory,
     private val resourceProvider: ResourceProvider,
     private val rootViewModel: RootViewModel,
-    private val router: Router,
+    private val router: Router
 ) : BaseViewModel() {
 
     val state = MutableStateFlow(ProjectsState(terminalState = TerminalState.Loading))
@@ -106,9 +106,7 @@ class ProjectsViewModel(
         }
     }
 
-    private fun navigateToProjectDashboardScreen(
-        projectUid: String
-    ) {
+    private fun navigateToProjectDashboardScreen(projectUid: String) {
         val project = data?.projects
             ?.firstOrNull { project -> project.uid == projectUid }
             ?: return

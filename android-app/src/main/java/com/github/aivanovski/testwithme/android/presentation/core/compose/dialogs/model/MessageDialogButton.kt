@@ -7,6 +7,6 @@ sealed interface MessageDialogButton {
 
     data class ActionButton(
         val title: String,
-        val actionId: Int,
+        val actionId: Int
     ) : MessageDialogButton
 }

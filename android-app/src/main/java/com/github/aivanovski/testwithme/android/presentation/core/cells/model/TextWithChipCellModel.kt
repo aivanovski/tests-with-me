@@ -2,7 +2,6 @@ package com.github.aivanovski.testwithme.android.presentation.core.cells.model
 
 import androidx.compose.ui.graphics.Color
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
 
 data class TextWithChipCellModel(
     override val id: String,
@@ -10,5 +9,5 @@ data class TextWithChipCellModel(
     val chipText: String,
     val chipTextColor: Color,
     val chipColor: Color,
-    val shape: CornersShape,
+    val shape: CornersShape
 ) : BaseCellModel(id)

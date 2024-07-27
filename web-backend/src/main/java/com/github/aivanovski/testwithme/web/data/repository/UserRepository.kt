@@ -16,19 +16,19 @@ class UserRepository(
         return Either.Right(dao.getAll())
     }
 
-    fun getUserByName(
-        name: String
-    ): Either<AppException, User> = either {
-        val user = dao.findByName(name)
-            ?: raise(UserNotFoundByNameException(name))
+    fun getUserByName(name: String): Either<AppException, User> =
+        either {
+            val user = dao.findByName(name)
+                ?: raise(UserNotFoundByNameException(name))
 
-        user
-    }
+            user
+        }
 
-    fun add(user: User): Either<AppException, User> = either {
-        dao.add(user)
+    fun add(user: User): Either<AppException, User> =
+        either {
+            dao.add(user)
 
-        dao.findByUid(user.uid)
-            ?: raise(UserNotFoundByUidException(user.uid))
-    }
+            dao.findByUid(user.uid)
+                ?: raise(UserNotFoundByUidException(user.uid))
+        }
 }

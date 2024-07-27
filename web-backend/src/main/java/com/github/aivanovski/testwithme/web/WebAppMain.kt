@@ -32,5 +32,3 @@ fun main(args: Array<String>) {
         configureRouting()
     }.start(wait = true)
 }
-
-

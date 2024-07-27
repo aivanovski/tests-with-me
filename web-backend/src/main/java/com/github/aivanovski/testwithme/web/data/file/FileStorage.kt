@@ -22,62 +22,65 @@ class FileStorage {
         destination: StorageDestination,
         path: FsPath,
         content: String
-    ): Either<AppException, Unit> = either {
-        val filesDir = getDirectory(destination).bind()
+    ): Either<AppException, Unit> =
+        either {
+            val filesDir = getDirectory(destination).bind()
 
-        val file = path.toPath(base = filesDir.pathString)
+            val file = path.toPath(base = filesDir.pathString)
 
-        val parent = file.parent
-        if (!parent.exists()) {
+            val parent = file.parent
+            if (!parent.exists()) {
+                try {
+                    parent.createDirectories()
+                } catch (exception: IOException) {
+                    raise(AppException(cause = exception))
+                }
+            }
+
             try {
-                parent.createDirectories()
+                file.writeText(content)
             } catch (exception: IOException) {
-                raise(AppException(cause = exception))
+                raise(AppIoException(cause = exception))
             }
         }
-
-        try {
-            file.writeText(content)
-        } catch (exception: IOException) {
-            raise(AppIoException(cause = exception))
-        }
-    }
 
     fun getContent(
         destination: StorageDestination,
         path: FsPath
-    ): Either<AppException, String> = either {
-        val dir = getDirectory(destination).bind()
+    ): Either<AppException, String> =
+        either {
+            val dir = getDirectory(destination).bind()
 
-        val file = path.toPath(base = dir.pathString)
-        if (!file.exists()) {
-            raise(FileNotFoundException(path.path))
-        }
+            val file = path.toPath(base = dir.pathString)
+            if (!file.exists()) {
+                raise(FileNotFoundException(path.path))
+            }
 
-        try {
-            file.readText()
-        } catch (exception: IOException) {
-            raise(AppIoException(cause = exception))
-        }
-    }
-
-    private fun getDirectory(dir: StorageDestination): Either<AppException, Path> = either {
-        val currentDir = System.getProperty("user.dir")
-        if (currentDir.isNullOrBlank()) {
-            raise(AppException("Unable to get current dir"))
-        }
-
-        val path = Path(currentDir, ALL_FILES_DIRECTORY + "/" + dir.path)
-        if (!path.exists()) {
             try {
-                path.createDirectories()
+                file.readText()
             } catch (exception: IOException) {
-                raise(AppException(cause = exception))
+                raise(AppIoException(cause = exception))
             }
         }
 
-        path
-    }
+    private fun getDirectory(dir: StorageDestination): Either<AppException, Path> =
+        either {
+            val currentDir = System.getProperty("user.dir")
+            if (currentDir.isNullOrBlank()) {
+                raise(AppException("Unable to get current dir"))
+            }
+
+            val path = Path(currentDir, ALL_FILES_DIRECTORY + "/" + dir.path)
+            if (!path.exists()) {
+                try {
+                    path.createDirectories()
+                } catch (exception: IOException) {
+                    raise(AppException(cause = exception))
+                }
+            }
+
+            path
+        }
 
     enum class StorageDestination(val path: String) {
         FLOWS(path = "flows"),

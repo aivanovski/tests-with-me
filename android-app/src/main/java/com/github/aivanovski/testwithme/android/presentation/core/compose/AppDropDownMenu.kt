@@ -25,7 +25,6 @@ fun AppDropdownMenu(
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-//    var innerSelectedOption by remember { mutableStateOf(selectedOption) }
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
@@ -37,7 +36,6 @@ fun AppDropdownMenu(
         modifier = modifier
     ) {
         OutlinedTextField(
-//            textStyle = PrimaryTextStyle(),
             readOnly = true,
             enabled = isEnabled,
             modifier = Modifier
@@ -48,8 +46,7 @@ fun AppDropdownMenu(
                 Text(text = label)
             },
             onValueChange = { },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
-//            colors = AppTextFieldColors()
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) }
         )
 
         ExposedDropdownMenu(
@@ -60,7 +57,6 @@ fun AppDropdownMenu(
                 DropdownMenuItem(
                     onClick = {
                         isExpanded = false
-//                        innerSelectedOption = option
                         onOptionSelected.invoke(option)
                     },
                     text = {

@@ -6,7 +6,10 @@ import com.github.aivanovski.testwithme.android.entity.Group
 import com.github.aivanovski.testwithme.android.entity.TreeNode
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 
-fun findParentGroups(targetGroup: Group, allGroups: List<Group>): List<Group> {
+fun findParentGroups(
+    targetGroup: Group,
+    allGroups: List<Group>
+): List<Group> {
     val uidToGroupMap = allGroups.associateBy { group -> group.uid }
     val parents = mutableListOf<Group>()
 
@@ -109,9 +112,7 @@ fun List<FlowEntry>.aggregatePassedFailedAndRemainedFlows(
     return Triple(passed, failed, remained)
 }
 
-fun TreeNode.aggregateDescendantFlows(
-    flows: List<FlowEntry>
-): List<FlowEntry> {
+fun TreeNode.aggregateDescendantFlows(flows: List<FlowEntry>): List<FlowEntry> {
     val root = this
 
     val groupUids = root.getDescendantNodes()

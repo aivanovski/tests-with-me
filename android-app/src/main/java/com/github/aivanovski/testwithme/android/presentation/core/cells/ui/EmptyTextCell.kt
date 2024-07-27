@@ -45,9 +45,10 @@ fun EmptyHistoryCellPreview() {
 }
 
 @Composable
-fun newEmptyTextCellViewModel() = EmptyTextCellViewModel(
-    model = EmptyTextCellModel(
-        id = "id",
-        message = stringResource(R.string.no_runs)
+fun newEmptyTextCellViewModel() =
+    EmptyTextCellViewModel(
+        model = EmptyTextCellModel(
+            id = "id",
+            message = stringResource(R.string.no_runs)
+        )
     )
-)
