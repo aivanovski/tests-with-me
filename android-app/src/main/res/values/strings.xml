@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">TestWithMe</string>
+    <string name="app_name">TestsWithMe</string>
     <string name="title_activity_main">MainActivity</string>
 
     <string name="notification_channel">Driver service</string>
     <string name="notification_channel_description">Driver for </string>
 
-    <string name="accessibility_service_name">TestWithMe Test Runner</string>
-    <string name="accessibility_service_description">This is the Accessibility service that runs tests created in TestWithMe application</string>
+    <string name="accessibility_service_name">TestsWithMe Test Runner</string>
+    <string name="accessibility_service_description">This is the Accessibility service that runs tests created in TestsWithMe application</string>
 
     <!-- Common -->
     <string name="error_has_been_occurred">Error has been occurred, please try again later</string>
@@ -58,7 +58,7 @@
     <string name="prepare_flow_message">Preparing flow data…</string>
     <string name="awaiting_start_message">Flow is starting…</string>
     <string name="driver_is_not_enabled_title">Unable to run</string>
-    <string name="driver_is_not_enabled_message">Please enable TestWithMe service in Settings -> Accessibility</string>
+    <string name="driver_is_not_enabled_message">Please enable TestsWithMe service in Settings -> Accessibility</string>
     <string name="application">Application</string>
     <string name="required_version">Required version</string>
     <string name="installed_version">Installed version</string>

@@ -7,7 +7,7 @@
   [file path]
   (let [content (api/encode-base64 (slurp file))]
     (println (str "Uploading flow: " file))
-    (api/request 
+    (api/request
       {:type :POST
        :endpoint "/flow"
        :headers (merge api/HEADER_CONTENT_TYPE api/HEADER_AUTH)
@@ -24,16 +24,16 @@
 
 ;; Projeects
 (println "Creaing project: KeePassVault")
-(api/post-project-request 
+(api/post-project-request
   {:name "KeePassVault"
-   :packageName "com.ivanovsky.passnotes"
+   :packageName "com.ivanovsky.passnotes.automation"
    :description "KeePass client app for Android"
    :imageUrl "https://raw.githubusercontent.com/aivanovski/keepassvault/master/fastlane/metadata/android/en-US/images/icon.png"
    :downloadUrl "https://github.com/aivanovski/keepassvault/releases"
    :siteUrl "https://github.com/aivanovski/keepassvault"})
 
 (println "Creaing project: F-Droid")
-(api/post-project-request 
+(api/post-project-request
   {:name "F-Droid"
    :packageName "org.fdroid.fdroid"
    :description "FOSS apps"

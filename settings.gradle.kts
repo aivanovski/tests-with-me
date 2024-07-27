@@ -9,7 +9,7 @@ pluginManagement {
 rootProject.name = "test-with-me"
 
 include(
-    ":test-with-me",
+    ":tests-with-me",
     ":android-app",
     ":web-api",
     ":web-backend"

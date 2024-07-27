@@ -1,11 +1,11 @@
 - name: Failing test
 
-- sendBroadcast: com.ivanovsky.passnotes/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
   data:
     - key: isResetAppData
       value: true
 
-- launch: com.ivanovsky.passnotes
+- launch: com.ivanovsky.passnotes.automation
 - assertVisible: KeePassVault
 - tapOn:
     contentDescription: Navigate up

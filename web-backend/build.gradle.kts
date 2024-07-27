@@ -9,7 +9,7 @@ plugins {
     id("jacoco")
 }
 
-val appGroupId = "com.github.aivanovski.testwithme"
+val appGroupId = "com.github.aivanovski.testswithme"
 
 group = appGroupId
 version = libs.versions.appVersion.get()
@@ -44,10 +44,10 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
-        archiveBaseName.set("test-with-me-backend")
+        archiveBaseName.set("tests-with-me-backend")
         mergeServiceFiles()
         manifest {
-            attributes(mapOf("Main-Class" to "com.github.aivanovski.testwithme.web.WebAppMainKt"))
+            attributes(mapOf("Main-Class" to "com.github.aivanovski.testswithme.web.WebAppMainKt"))
         }
     }
 }
@@ -77,8 +77,8 @@ dependencies {
     // Arrow
     implementation(libs.arrow.core)
     implementation(libs.arrow.coroutines)
+    implementation(project(":tests-with-me"))
 
-    // TestWithMe API
-    implementation(project(":test-with-me"))
+    // TestsWithMe API
     implementation(project(":web-api"))
 }

@@ -1,16 +1,16 @@
 - name: Unlock database
 
-- sendBroadcast: com.ivanovsky.passnotes/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
   data:
     - key: isResetAppData
       value: true
 
-- sendBroadcast: com.ivanovsky.passnotes/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
   data:
     - key: fakeFileName
       value: passwords.kdbx
 
-- launch: com.ivanovsky.passnotes
+- launch: com.ivanovsky.passnotes.automation
 - assertVisible: passwords.kdbx
 - tapOn: Password
 - inputText: abc123
