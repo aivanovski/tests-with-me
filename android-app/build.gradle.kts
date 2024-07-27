@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.github.aivanovski.testwithme.android"
+    namespace = "com.github.aivanovski.testswithme.android"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.github.aivanovski.testwithme.android"
+        applicationId = "com.github.aivanovski.testswithme.android"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -119,8 +119,8 @@ dependencies {
     // Navigation
     implementation(libs.decompose)
     implementation(libs.decompose.extensions)
+    implementation(project(":tests-with-me"))
 
-    // TestWithMe API
-    implementation(project(":test-with-me"))
+    // TestsWithMe API
     implementation(project(":web-api"))
 }

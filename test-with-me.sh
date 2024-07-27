@@ -1,7 +1,7 @@
 #!/bin/bash
 
 show_help() {
-    echo "Script to send data to TestWithMe Android application"
+    echo "Script to send data to TestsWithMe Android application"
     echo ""
     echo "Options:"
     echo "  -f, --send-file <path>   Specify the path to the file or directory to be sent"
@@ -12,7 +12,7 @@ show_help() {
 print_ui_tree() {
     echo "Printing UI Tree..."
     adb shell am broadcast \
-        -n com.github.aivanovski.testwithme.android/com.github.aivanovski.testwithme.android.debug.DebugBroadcastReceiver \
+        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.debug.DebugBroadcastReceiver \
         --es "isPrintUiTree" "true"
 }
 
@@ -23,7 +23,7 @@ send_file() {
 
     echo "Sending file: $file_path"
     adb shell am broadcast \
-        -n com.github.aivanovski.testwithme.android/com.github.aivanovski.testwithme.android.debug.DebugBroadcastReceiver \
+        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.debug.DebugBroadcastReceiver \
         --es "testFlowContent" "$file_data"
 }
 
