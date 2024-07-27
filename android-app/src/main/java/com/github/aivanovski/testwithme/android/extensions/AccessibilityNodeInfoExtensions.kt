@@ -2,9 +2,9 @@ package com.github.aivanovski.testwithme.android.extensions
 
 import android.graphics.Rect
 import android.view.accessibility.AccessibilityNodeInfo
+import com.github.aivanovski.testwithme.entity.Bounds
 import com.github.aivanovski.testwithme.entity.UiEntity
 import com.github.aivanovski.testwithme.entity.UiNode
-import com.github.aivanovski.testwithme.entity.Bounds
 import java.util.LinkedList
 
 typealias AccessibilityUiNode = UiNode<AccessibilityNodeInfo>
@@ -58,9 +58,7 @@ fun AccessibilityNodeInfo.getNodes(): Iterable<AccessibilityNodeInfo> {
     return nodes
 }
 
-fun AccessibilityNodeInfo.toUiEntity(
-    bounds: Bounds? = null
-): UiEntity {
+fun AccessibilityNodeInfo.toUiEntity(bounds: Bounds? = null): UiEntity {
     return UiEntity(
         resourceId = viewIdResourceName,
         packageName = packageName?.toString(),

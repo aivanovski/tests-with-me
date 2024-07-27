@@ -4,13 +4,14 @@ import com.github.aivanovski.testwithme.android.R
 import com.github.aivanovski.testwithme.android.domain.buildGroupTree
 import com.github.aivanovski.testwithme.android.domain.findNodeByUid
 import com.github.aivanovski.testwithme.android.domain.resources.ResourceProvider
+import com.github.aivanovski.testwithme.android.entity.AppVersion
 import com.github.aivanovski.testwithme.android.entity.FlowRun
 import com.github.aivanovski.testwithme.android.entity.Group
-import com.github.aivanovski.testwithme.android.entity.AppVersion
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testwithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testwithme.android.presentation.core.cells.createCoreCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconTextCellModel
@@ -22,7 +23,6 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.model.Te
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TextChipRowCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TextSize
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TitleCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.createCoreCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.SmallMargin
@@ -80,7 +80,6 @@ class ProjectDashboardCellFactory(
             models.addAll(createRootGroupSection(data))
             models.add(SpaceCellModel(ElementMargin))
         } else {
-
         }
 
         return models
@@ -159,7 +158,7 @@ class ProjectDashboardCellFactory(
                 LargeBarCellModel(
                     id = CellId.PROGRESS,
                     progress = progress,
-                    title = "${progressPercent}%",
+                    title = "$progressPercent%",
                     subtitle = if (progress == 1f) {
                         resourceProvider.getString(R.string.completed)
                     } else {
@@ -195,9 +194,7 @@ class ProjectDashboardCellFactory(
         return models
     }
 
-    private fun createRemainedSection(
-        data: ProjectDashboardData
-    ): List<BaseCellModel> {
+    private fun createRemainedSection(data: ProjectDashboardData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         models.add(SpaceCellModel(height = SmallMargin))
@@ -220,9 +217,7 @@ class ProjectDashboardCellFactory(
         return models
     }
 
-    private fun createRootGroupSection(
-        data: ProjectDashboardData
-    ): List<BaseCellModel> {
+    private fun createRootGroupSection(data: ProjectDashboardData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         models.add(SpaceCellModel(height = SmallMargin))
@@ -284,9 +279,7 @@ class ProjectDashboardCellFactory(
         return models
     }
 
-    private fun createRemainedFlowCellModels(
-        flows: List<FlowEntry>
-    ): List<BaseCellModel> {
+    private fun createRemainedFlowCellModels(flows: List<FlowEntry>): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         for ((index, flow) in flows.withIndex()) {

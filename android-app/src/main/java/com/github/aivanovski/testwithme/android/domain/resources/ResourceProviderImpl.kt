@@ -11,7 +11,10 @@ class ResourceProviderImpl(
         return content.getString(resId)
     }
 
-    override fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
+    override fun getString(
+        @StringRes resId: Int,
+        vararg formatArgs: Any?
+    ): String {
         return content.getString(resId, *formatArgs)
     }
 }

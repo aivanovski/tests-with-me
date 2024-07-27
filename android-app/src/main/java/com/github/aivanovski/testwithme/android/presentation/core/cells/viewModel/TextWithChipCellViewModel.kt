@@ -6,5 +6,5 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.model.Te
 
 @Immutable
 class TextWithChipCellViewModel(
-    override val model: TextWithChipCellModel,
+    override val model: TextWithChipCellModel
 ) : BaseCellViewModel(model)

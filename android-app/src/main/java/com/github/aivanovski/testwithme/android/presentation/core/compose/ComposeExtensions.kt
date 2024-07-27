@@ -11,16 +11,12 @@ import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.CardCornerSize
 
 @Composable
-inline fun <T> rememberCallback(
-    crossinline block: (T) -> Unit
-): (T) -> Unit {
+inline fun <T> rememberCallback(crossinline block: (T) -> Unit): (T) -> Unit {
     return remember { { value -> block.invoke(value) } }
 }
 
 @Composable
-inline fun rememberOnClickedCallback(
-    crossinline block: () -> Unit
-): () -> Unit {
+inline fun rememberOnClickedCallback(crossinline block: () -> Unit): () -> Unit {
     return remember { { block.invoke() } }
 }
 

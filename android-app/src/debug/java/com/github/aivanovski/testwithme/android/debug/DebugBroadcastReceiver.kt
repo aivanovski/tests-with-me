@@ -3,11 +3,11 @@ package com.github.aivanovski.testwithme.android.debug
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import timber.log.Timber
 import com.github.aivanovski.testwithme.android.debug.parser.DebugCommandParser
 import com.github.aivanovski.testwithme.android.di.GlobalInjector.get
 import com.github.aivanovski.testwithme.extensions.unwrap
 import com.github.aivanovski.testwithme.extensions.unwrapError
+import timber.log.Timber
 
 class DebugBroadcastReceiver : BroadcastReceiver() {
 
@@ -16,7 +16,10 @@ class DebugBroadcastReceiver : BroadcastReceiver() {
         flowRunnerInteractor = get()
     )
 
-    override fun onReceive(context: Context?, intent: Intent?) {
+    override fun onReceive(
+        context: Context?,
+        intent: Intent?
+    ) {
         val parseResult = parser.parse(intent?.extras)
         if (parseResult.isLeft()) {
             Timber.e("Failed to process command: ", parseResult.unwrapError())

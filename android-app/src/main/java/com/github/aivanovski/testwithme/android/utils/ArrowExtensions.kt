@@ -5,8 +5,6 @@ import com.github.aivanovski.testwithme.android.domain.resources.ResourceProvide
 import com.github.aivanovski.testwithme.android.entity.ErrorMessage
 import com.github.aivanovski.testwithme.extensions.unwrapError
 
-fun Either<Exception, Any>.formatError(
-    resourceProvider: ResourceProvider
-): ErrorMessage {
+fun Either<Exception, Any>.formatError(resourceProvider: ResourceProvider): ErrorMessage {
     return unwrapError().formatErrorMessage(resourceProvider)
 }

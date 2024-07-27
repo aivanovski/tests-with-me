@@ -26,8 +26,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.model.Ic
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TextSize
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.toComposeColor
 import com.github.aivanovski.testwithme.android.presentation.core.compose.AppIcons
-import com.github.aivanovski.testwithme.android.presentation.core.compose.TextChip
 import com.github.aivanovski.testwithme.android.presentation.core.compose.PreviewIntentProvider
+import com.github.aivanovski.testwithme.android.presentation.core.compose.TextChip
 import com.github.aivanovski.testwithme.android.presentation.core.compose.ThemedPreview
 import com.github.aivanovski.testwithme.android.presentation.core.compose.rememberOnClickedCallback
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.AppTheme
@@ -35,8 +35,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.HalfMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.LightTheme
-import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineMediumItemHeight
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.SmallMargin
+import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineMediumItemHeight
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.GroupCellIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.GroupCellModel
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.viewModel.GroupCellViewModel
@@ -85,7 +85,7 @@ fun GroupCell(viewModel: GroupCellViewModel) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = AppTheme.theme.colors.primaryText,
-                    style = AppTheme.theme.typography.bodyLarge,
+                    style = AppTheme.theme.typography.bodyLarge
                 )
 
                 Row {

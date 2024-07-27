@@ -12,13 +12,14 @@ class ProjectsInteractor(
     private val projectRepository: ProjectRepository
 ) {
 
-    suspend fun loadData(): Either<AppException, ProjectsData> = withContext(Dispatchers.IO) {
-        either {
-            val projects = projectRepository.getProjects().bind()
+    suspend fun loadData(): Either<AppException, ProjectsData> =
+        withContext(Dispatchers.IO) {
+            either {
+                val projects = projectRepository.getProjects().bind()
 
-            ProjectsData(
-                projects = projects
-            )
+                ProjectsData(
+                    projects = projects
+                )
+            }
         }
-    }
 }

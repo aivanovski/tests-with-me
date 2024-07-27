@@ -5,5 +5,5 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCell
 sealed interface HeaderCellIntent : BaseCellIntent {
     data class OnIconClick(
         val cellId: String
-    ): HeaderCellIntent
+    ) : HeaderCellIntent
 }

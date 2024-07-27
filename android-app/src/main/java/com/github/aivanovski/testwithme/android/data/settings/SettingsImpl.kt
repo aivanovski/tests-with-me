@@ -5,10 +5,10 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.github.aivanovski.testwithme.android.data.settings.SettingKey.AUTH_TOKEN
 import com.github.aivanovski.testwithme.android.data.settings.SettingKey.START_JOB_UID
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.CopyOnWriteArrayList
 
 class SettingsImpl(
     context: Context
@@ -52,7 +52,10 @@ class SettingsImpl(
         return preferences.getInt(key.key, 0)
     }
 
-    private fun putBoolean(key: SettingKey, value: Boolean) {
+    private fun putBoolean(
+        key: SettingKey,
+        value: Boolean
+    ) {
         val isChanged = (getBoolean(key) != value)
 
         putValue {
@@ -60,7 +63,10 @@ class SettingsImpl(
         }
     }
 
-    private fun putString(key: SettingKey, value: String?) {
+    private fun putString(
+        key: SettingKey,
+        value: String?
+    ) {
         val isChanged = (getString(key) != value)
 
         putValue {
@@ -72,7 +78,10 @@ class SettingsImpl(
         }
     }
 
-    private fun putInt(key: SettingKey, value: Int) {
+    private fun putInt(
+        key: SettingKey,
+        value: Int
+    ) {
         val isChanged = (getInt(key) != value)
 
         putValue {

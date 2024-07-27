@@ -95,28 +95,27 @@ fun TextChipRowCellPreview() {
 }
 
 @Composable
-fun newTextChipRowCellViewModel(
-    shape: CornersShape = CornersShape.ALL
-) = TextChipRowCellViewModel(
-    model = TextChipRowCellModel(
-        id = "id",
-        chips = listOf(
-            TextChipItem(
-                text = "1.8.0",
-                textColor = AppTheme.theme.colors.primaryText,
-                textSize = TextSize.LARGE,
-                isClickable = false,
-                isSelected = true
+fun newTextChipRowCellViewModel(shape: CornersShape = CornersShape.ALL) =
+    TextChipRowCellViewModel(
+        model = TextChipRowCellModel(
+            id = "id",
+            chips = listOf(
+                TextChipItem(
+                    text = "1.8.0",
+                    textColor = AppTheme.theme.colors.primaryText,
+                    textSize = TextSize.LARGE,
+                    isClickable = false,
+                    isSelected = true
+                ),
+                TextChipItem(
+                    text = "1.7.0",
+                    textColor = AppTheme.theme.colors.primaryText,
+                    textSize = TextSize.LARGE,
+                    isClickable = true,
+                    isSelected = false
+                )
             ),
-            TextChipItem(
-                text = "1.7.0",
-                textColor = AppTheme.theme.colors.primaryText,
-                textSize = TextSize.LARGE,
-                isClickable = true,
-                isSelected = false
-            )
+            shape = shape
         ),
-        shape = shape
-    ),
-    intentProvider = PreviewIntentProvider
-)
+        intentProvider = PreviewIntentProvider
+    )

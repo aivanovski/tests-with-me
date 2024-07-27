@@ -32,34 +32,33 @@ class AuthService(
         return credentials.username == user.name && credentials.password == user.password
     }
 
-    fun validateToken(principal: JWTPrincipal): Either<ErrorResponse, User> = either {
-        val username = principal.payload.getClaim(USERNAME).asString()
-        val expiresAt = principal.expiresAt?.time
+    fun validateToken(principal: JWTPrincipal): Either<ErrorResponse, User> =
+        either {
+            val username = principal.payload.getClaim(USERNAME).asString()
+            val expiresAt = principal.expiresAt?.time
 
-        logger.debug(
-            "validateToken: username={}, expiresAt={}",
-            username,
-            expiresAt?.let { Date(it) }
-        )
+            logger.debug(
+                "validateToken: username={}, expiresAt={}",
+                username,
+                expiresAt?.let { Date(it) }
+            )
 
-        if (expiresAt == null) {
-            raise(InvalidTokenException().toErrorResponse())
+            if (expiresAt == null) {
+                raise(InvalidTokenException().toErrorResponse())
+            }
+
+            if (System.currentTimeMillis() >= expiresAt) {
+                raise(ExpiredTokenException().toErrorResponse())
+            }
+
+            val user = userRepository.getUserByName(username)
+                .mapLeft { error -> error.toErrorResponse() }
+                .bind()
+
+            user
         }
 
-        if (System.currentTimeMillis() >= expiresAt) {
-            raise(ExpiredTokenException().toErrorResponse())
-        }
-
-        val user = userRepository.getUserByName(username)
-            .mapLeft { error -> error.toErrorResponse() }
-            .bind()
-
-        user
-    }
-
-    fun getOrCreateToken(
-        credentials: Credentials
-    ): String {
+    fun getOrCreateToken(credentials: Credentials): String {
         val existingToken = storage[credentials]
         if (existingToken != null) {
             val token = JWT.decode(existingToken)
@@ -77,9 +76,7 @@ class AuthService(
         return newToken
     }
 
-    private fun createToken(
-        username: String
-    ): String {
+    private fun createToken(username: String): String {
         val jwtData = JwtData.DEFAULT
 
         // TODO: expiration was prolonged for developing needs

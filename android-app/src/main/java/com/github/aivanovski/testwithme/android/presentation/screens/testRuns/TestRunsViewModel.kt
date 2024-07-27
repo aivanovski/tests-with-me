@@ -11,8 +11,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.T
 import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testwithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testwithme.android.presentation.screens.Screen
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenArgs
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testwithme.android.presentation.screens.root.model.BottomBarState
 import com.github.aivanovski.testwithme.android.presentation.screens.root.model.MenuState
@@ -102,7 +102,7 @@ class TestRunsViewModel(
                     Screen.TestRun(
                         TestRunScreenArgs(
                             jobUid = jobUid,
-                            screenTitle = flow.entry.name,
+                            screenTitle = flow.entry.name
                         )
                     )
                 )

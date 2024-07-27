@@ -11,9 +11,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconChipItem
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconChipRowCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.toComposeColor
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.IconChipRowCellViewModel
@@ -62,7 +62,7 @@ fun IconChipRowCell(viewModel: IconChipRowCellViewModel) {
                     iconTint = chip.iconTint.toComposeColor(),
                     text = chip.text,
                     textColor = chip.textColor,
-                    cardColor = chip.chipColor,
+                    cardColor = chip.chipColor
                 )
             }
         }
@@ -83,27 +83,26 @@ fun IconChipRowCellPreview() {
 }
 
 @Composable
-fun newIconChipCell(
-    shape: CornersShape = CornersShape.ALL
-) = IconChipRowCellViewModel(
-    model = IconChipRowCellModel(
-        id = "id",
-        chips = listOf(
-            IconChipItem(
-                icon = AppIcons.CheckCircle,
-                iconTint = IconTint.GREEN,
-                text = "128",
-                textColor = AppTheme.theme.colors.primaryText,
-                chipColor = AppTheme.theme.colors.cardOnPrimaryBackground
+fun newIconChipCell(shape: CornersShape = CornersShape.ALL) =
+    IconChipRowCellViewModel(
+        model = IconChipRowCellModel(
+            id = "id",
+            chips = listOf(
+                IconChipItem(
+                    icon = AppIcons.CheckCircle,
+                    iconTint = IconTint.GREEN,
+                    text = "128",
+                    textColor = AppTheme.theme.colors.primaryText,
+                    chipColor = AppTheme.theme.colors.cardOnPrimaryBackground
+                ),
+                IconChipItem(
+                    icon = AppIcons.ErrorCircle,
+                    iconTint = IconTint.RED,
+                    text = "13",
+                    textColor = AppTheme.theme.colors.primaryText,
+                    chipColor = AppTheme.theme.colors.cardOnPrimaryBackground
+                )
             ),
-            IconChipItem(
-                icon = AppIcons.ErrorCircle,
-                iconTint = IconTint.RED,
-                text = "13",
-                textColor = AppTheme.theme.colors.primaryText,
-                chipColor = AppTheme.theme.colors.cardOnPrimaryBackground,
-            )
-        ),
-        shape = shape
+            shape = shape
+        )
     )
-)

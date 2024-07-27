@@ -14,15 +14,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testwithme.android.R
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
+import com.github.aivanovski.testwithme.android.presentation.core.cells.model.LabeledTextCellModel
+import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.LabeledTextCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.compose.ThemedPreview
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.LightTheme
-import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineSmallItemHeight
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.SmallMargin
+import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineSmallItemHeight
 import com.github.aivanovski.testwithme.android.presentation.core.compose.toComposeShape
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.LabeledTextCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.LabeledTextCellViewModel
 
 @Composable
 fun LabeledTextCell(viewModel: LabeledTextCellViewModel) {
@@ -78,9 +78,7 @@ fun LabeledTextCellPreview() {
     }
 }
 
-fun newLabeledTextCell(
-    shape: CornersShape = CornersShape.ALL
-): LabeledTextCellViewModel {
+fun newLabeledTextCell(shape: CornersShape = CornersShape.ALL): LabeledTextCellViewModel {
     return LabeledTextCellViewModel(
         model = LabeledTextCellModel(
             id = "id",

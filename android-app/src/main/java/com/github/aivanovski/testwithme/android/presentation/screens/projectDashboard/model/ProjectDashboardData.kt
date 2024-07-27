@@ -1,8 +1,8 @@
 package com.github.aivanovski.testwithme.android.presentation.screens.projectDashboard.model
 
+import com.github.aivanovski.testwithme.android.entity.AppVersion
 import com.github.aivanovski.testwithme.android.entity.FlowRun
 import com.github.aivanovski.testwithme.android.entity.Group
-import com.github.aivanovski.testwithme.android.entity.AppVersion
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 
 data class ProjectDashboardData(

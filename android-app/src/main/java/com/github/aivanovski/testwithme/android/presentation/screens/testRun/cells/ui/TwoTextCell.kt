@@ -30,7 +30,7 @@ fun TwoTextCell(viewModel: TwoTextCellViewModel) {
         Text(
             text = model.title,
             color = AppTheme.theme.colors.secondaryText,
-            style = AppTheme.theme.typography.bodyMedium,
+            style = AppTheme.theme.typography.bodyMedium
         )
 
         Text(

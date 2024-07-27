@@ -13,13 +13,12 @@ class ProjectEditorInteractor(
     private val projectRepository: ProjectRepository
 ) {
 
-    suspend fun upload(
-        request: PostProjectRequest
-    ): Either<AppException, ProjectEntry> = withContext(Dispatchers.IO) {
-        either {
-            val response = projectRepository.uploadProject(request).bind()
+    suspend fun upload(request: PostProjectRequest): Either<AppException, ProjectEntry> =
+        withContext(Dispatchers.IO) {
+            either {
+                val response = projectRepository.uploadProject(request).bind()
 
-            projectRepository.getProjectByUid(response.id).bind()
+                projectRepository.getProjectByUid(response.id).bind()
+            }
         }
-    }
 }

@@ -69,7 +69,6 @@ private fun ProjectEditorScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-
         when {
             state.isLoading -> {
                 ProgressIndicator()
@@ -166,10 +165,11 @@ fun ProjectEditorScreenDataPreview() {
     }
 }
 
-private fun newDataState() = ProjectEditorState(
-    packageName = "com.ivanovsky.passnotes",
-    name = "KeePassVault",
-    description = "KeePass client app for Android",
-    siteUrl = "https://github.com/aivanovski/keepassvault",
-    downloadUrl = "https://github.com/aivanovski/keepassvault/releases"
-)
+private fun newDataState() =
+    ProjectEditorState(
+        packageName = "com.ivanovsky.passnotes",
+        name = "KeePassVault",
+        description = "KeePass client app for Android",
+        siteUrl = "https://github.com/aivanovski/keepassvault",
+        downloadUrl = "https://github.com/aivanovski/keepassvault/releases"
+    )

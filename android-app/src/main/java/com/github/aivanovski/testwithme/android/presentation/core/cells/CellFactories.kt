@@ -6,8 +6,8 @@ import com.github.aivanovski.testwithme.android.entity.exception.UnsupportedCell
 import com.github.aivanovski.testwithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.ButtonCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.EmptyTextCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconChipRowCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.HeaderCellModel
+import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconChipRowCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconTextCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconThreeTextCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.LabeledTableCellModel
@@ -19,8 +19,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.model.Te
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TitleCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.ButtonCell
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.EmptyTextCell
-import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.IconChipRowCell
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.HeaderCell
+import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.IconChipRowCell
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.IconTextCell
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.IconThreeTextCell
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.LabeledTableCell
@@ -32,8 +32,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.TextW
 import com.github.aivanovski.testwithme.android.presentation.core.cells.ui.TitleCell
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.ButtonCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.EmptyTextCellViewModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.IconChipRowCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
+import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.IconChipRowCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.IconTextCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.IconThreeTextCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.LabeledTableCellViewModel

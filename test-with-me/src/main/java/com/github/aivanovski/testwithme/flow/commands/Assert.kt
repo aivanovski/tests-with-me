@@ -2,13 +2,13 @@ package com.github.aivanovski.testwithme.flow.commands
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testwithme.flow.commands.assertion.Assertion
-import com.github.aivanovski.testwithme.extensions.findNode
-import com.github.aivanovski.testwithme.extensions.matches
 import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.entity.exception.FailedToFindNodeException
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testwithme.extensions.findNode
+import com.github.aivanovski.testwithme.extensions.matches
 import com.github.aivanovski.testwithme.extensions.toReadableFormat
+import com.github.aivanovski.testwithme.flow.commands.assertion.Assertion
 import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
 
 class Assert(
@@ -34,19 +34,19 @@ class Assert(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> = either {
+    ): Either<FlowExecutionException, Unit> =
+        either {
+            val uiRoot = context.driver.getUiTree().bind()
 
-        val uiRoot = context.driver.getUiTree().bind()
+            val nodeToLookup = if (parent == null) {
+                uiRoot
+            } else {
+                val parentNode = uiRoot.findNode { node -> node.matches(parent) }
+                    ?: raise(FailedToFindNodeException(parent))
 
-        val nodeToLookup = if (parent == null) {
-            uiRoot
-        } else {
-            val parentNode = uiRoot.findNode { node -> node.matches(parent) }
-                ?: raise(FailedToFindNodeException(parent))
+                parentNode
+            }
 
-            parentNode
+            assertion.assert(nodeToLookup, elements).bind()
         }
-
-        assertion.assert(nodeToLookup, elements).bind()
-    }
 }

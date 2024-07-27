@@ -1,11 +1,11 @@
 package com.github.aivanovski.testwithme.android.data.api
 
 import com.github.aivanovski.testwithme.android.entity.FlowRun
-import com.github.aivanovski.testwithme.android.entity.SourceType
 import com.github.aivanovski.testwithme.android.entity.Group
-import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testwithme.android.entity.SourceType
 import com.github.aivanovski.testwithme.android.entity.User
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testwithme.web.api.FlowRunsItemDto
 import com.github.aivanovski.testwithme.web.api.FlowsItemDto
 import com.github.aivanovski.testwithme.web.api.GroupsItemDto

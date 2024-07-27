@@ -7,9 +7,7 @@ import com.github.aivanovski.testwithme.flow.commands.StepCommand
 
 interface FlowLifecycleListener {
 
-    fun onFlowStarted(
-        flow: Flow
-    )
+    fun onFlowStarted(flow: Flow)
 
     fun onFlowFinished(
         flow: Flow,

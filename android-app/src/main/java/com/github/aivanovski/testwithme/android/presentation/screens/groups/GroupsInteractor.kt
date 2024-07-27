@@ -19,42 +19,43 @@ class GroupsInteractor(
     suspend fun getData(
         projectUid: String,
         groupUid: String?
-    ): Either<AppException, GroupsData> = withContext(Dispatchers.IO) {
-        either {
-            val allGroups = groupRepository.getGroups().bind()
+    ): Either<AppException, GroupsData> =
+        withContext(Dispatchers.IO) {
+            either {
+                val allGroups = groupRepository.getGroups().bind()
 
-            val filteredGroups = allGroups
-                .filter { group ->
-                    group.projectUid == projectUid && group.parentUid == groupUid
+                val filteredGroups = allGroups
+                    .filter { group ->
+                        group.projectUid == projectUid && group.parentUid == groupUid
+                    }
+
+                val selectedGroup = groupUid?.let {
+                    allGroups.firstOrNull { group -> group.uid == groupUid }
                 }
 
-            val selectedGroup = groupUid?.let {
-                allGroups.firstOrNull { group -> group.uid == groupUid }
+                val allFlows = flowRepository.getFlows().bind()
+                val flows = allFlows
+                    .filter { flow ->
+                        flow.projectUid == projectUid && flow.groupUid == groupUid
+                    }
+
+                val flowUids = flows
+                    .map { flow -> flow.uid }
+                    .toSet()
+
+                val allRuns = flowRunRepository.getRuns().bind()
+                val runs = allRuns
+                    .filter { run -> run.flowUid in flowUids }
+
+                GroupsData(
+                    allGroups = allGroups,
+                    group = selectedGroup,
+                    groups = filteredGroups,
+                    allFlows = allFlows,
+                    flows = flows,
+                    allRuns = allRuns,
+                    runs = runs
+                )
             }
-
-            val allFlows = flowRepository.getFlows().bind()
-            val flows = allFlows
-                .filter { flow ->
-                    flow.projectUid == projectUid && flow.groupUid == groupUid
-                }
-
-            val flowUids = flows
-                .map { flow -> flow.uid }
-                .toSet()
-
-            val allRuns = flowRunRepository.getRuns().bind()
-            val runs = allRuns
-                .filter { run -> run.flowUid in flowUids }
-
-            GroupsData(
-                allGroups = allGroups,
-                group = selectedGroup,
-                groups = filteredGroups,
-                allFlows = allFlows,
-                flows = flows,
-                allRuns = allRuns,
-                runs = runs
-            )
         }
-    }
 }

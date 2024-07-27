@@ -1,11 +1,10 @@
 package com.github.aivanovski.testwithme.web.entity.exception
 
-import com.github.aivanovski.testwithme.web.entity.Uid
 import com.github.aivanovski.testwithme.web.entity.Flow
 import com.github.aivanovski.testwithme.web.entity.Project
+import com.github.aivanovski.testwithme.web.entity.Uid
 import com.github.aivanovski.testwithme.web.entity.User
 import com.github.aivanovski.testwithme.web.presentation.Errors.ENTITY_NOT_FOUND
-import javax.management.openmbean.InvalidOpenTypeException
 import kotlin.reflect.KClass
 
 open class EntityNotFoundException(

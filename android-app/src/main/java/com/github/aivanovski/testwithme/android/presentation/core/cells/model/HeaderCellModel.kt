@@ -7,5 +7,5 @@ data class HeaderCellModel(
     override val id: String,
     val title: String,
     val iconText: String?,
-    val icon: ImageVector?,
+    val icon: ImageVector?
 ) : BaseCellModel(id)

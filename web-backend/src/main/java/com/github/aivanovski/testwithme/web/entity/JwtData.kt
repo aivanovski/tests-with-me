@@ -13,7 +13,7 @@ data class JwtData(
             secret = "secret",
             issuer = "http://0.0.0.0:8080/",
             audience = "http://0.0.0.0:8080/hello",
-            realm = "Access to Pico Automator API",
+            realm = "Access to Pico Automator API"
         )
     }
 }

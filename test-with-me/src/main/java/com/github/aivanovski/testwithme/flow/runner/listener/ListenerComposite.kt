@@ -21,7 +21,10 @@ class ListenerComposite : FlowLifecycleListener {
         }
     }
 
-    override fun onFlowFinished(flow: Flow, result: Either<FlowExecutionException, Any>) {
+    override fun onFlowFinished(
+        flow: Flow,
+        result: Either<FlowExecutionException, Any>
+    ) {
         listeners.forEach { listener ->
             listener.onFlowFinished(flow, result)
         }

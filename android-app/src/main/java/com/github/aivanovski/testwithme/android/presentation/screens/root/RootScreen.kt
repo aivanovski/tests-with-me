@@ -52,9 +52,7 @@ import com.github.aivanovski.testwithme.android.presentation.screens.root.model.
 import com.github.aivanovski.testwithme.utils.StringUtils
 
 @Composable
-fun RootScreen(
-    rootComponent: RootScreenComponent
-) {
+fun RootScreen(rootComponent: RootScreenComponent) {
     val context = LocalContext.current
     val viewModel = rootComponent.viewModel
     val topBarState by viewModel.topBarState.collectAsState()
@@ -129,7 +127,6 @@ private fun RootScreen(
         ) {
             content.invoke()
         }
-
     }
 }
 
@@ -138,7 +135,7 @@ private fun RootScreen(
 private fun TopBarContent(
     state: TopBarState,
     menuState: MenuState,
-    onIntent: (intent: RootIntent) -> Unit,
+    onIntent: (intent: RootIntent) -> Unit
 ) {
     val onBackClicked = rememberOnClickedCallback {
         onIntent.invoke(RootIntent.NavigateBack)
@@ -147,7 +144,7 @@ private fun TopBarContent(
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = AppTheme.theme.colors.background,
-            titleContentColor = AppTheme.theme.colors.primaryText,
+            titleContentColor = AppTheme.theme.colors.primaryText
         ),
         title = {
             Text(
@@ -180,7 +177,7 @@ private fun TopBarContent(
 @Composable
 private fun MenuContent(
     state: MenuState,
-    onIntent: (intent: RootIntent) -> Unit,
+    onIntent: (intent: RootIntent) -> Unit
 ) {
     if (state.items.isEmpty()) {
         return
@@ -335,6 +332,6 @@ private fun newBottomBarState(): BottomBarState =
         selectedIndex = 0,
         items = listOf(
             BottomBarItem.PROJECTS,
-            BottomBarItem.TEST_RUNS,
+            BottomBarItem.TEST_RUNS
         )
     )

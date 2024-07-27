@@ -14,9 +14,7 @@ import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.LightTheme
 
 @Composable
-fun ProgressIndicator(
-    modifier: Modifier = Modifier.fillMaxSize()
-) {
+fun ProgressIndicator(modifier: Modifier = Modifier.fillMaxSize()) {
     Box(
         modifier = modifier
     ) {

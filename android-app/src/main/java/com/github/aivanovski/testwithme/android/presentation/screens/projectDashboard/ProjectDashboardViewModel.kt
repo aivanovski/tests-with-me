@@ -3,8 +3,8 @@ package com.github.aivanovski.testwithme.android.presentation.screens.projectDas
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testwithme.android.R
 import com.github.aivanovski.testwithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testwithme.android.entity.Group
 import com.github.aivanovski.testwithme.android.entity.AppVersion
+import com.github.aivanovski.testwithme.android.entity.Group
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testwithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellIntent
@@ -15,8 +15,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.T
 import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testwithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testwithme.android.presentation.screens.Screen
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenArgs
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.FlowCellIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.GroupCellIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.model.GroupsScreenArgs
@@ -92,18 +92,14 @@ class ProjectDashboardViewModel(
         intents.trySend(intent)
     }
 
-    private fun handleIntent(
-        intent: ProjectDashboardIntent
-    ): Flow<ProjectDashboardState> {
+    private fun handleIntent(intent: ProjectDashboardIntent): Flow<ProjectDashboardState> {
         return when (intent) {
             ProjectDashboardIntent.Initialize -> loadData()
             is ProjectDashboardIntent.OnVersionClick -> loadData(intent.versionName)
         }
     }
 
-    private fun loadData(
-        versionName: String? = null
-    ): Flow<ProjectDashboardState> {
+    private fun loadData(versionName: String? = null): Flow<ProjectDashboardState> {
         return flow {
             emit(ProjectDashboardState(terminalState = TerminalState.Loading))
 

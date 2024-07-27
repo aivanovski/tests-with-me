@@ -19,26 +19,27 @@ class TestRunsInteractor(
     private val stepRunRepository: StepRunRepository
 ) {
 
-    suspend fun loadData(): Either<AppException, TestRunsData> = withContext(Dispatchers.IO) {
-        either {
-            val projects = projectRepository.getProjects().bind()
+    suspend fun loadData(): Either<AppException, TestRunsData> =
+        withContext(Dispatchers.IO) {
+            either {
+                val projects = projectRepository.getProjects().bind()
 
-            val jobHistory = jobRepository.getAllHistory()
-            val steps = stepRunRepository.getAll()
+                val jobHistory = jobRepository.getAllHistory()
+                val steps = stepRunRepository.getAll()
 
-            val flowWithSteps = mutableListOf<FlowWithSteps>()
+                val flowWithSteps = mutableListOf<FlowWithSteps>()
 
-            for (job in jobHistory) {
-                val flow = flowRepository.getCachedFlowByUid(job.flowUid).bind()
-                flowWithSteps.add(flow)
+                for (job in jobHistory) {
+                    val flow = flowRepository.getCachedFlowByUid(job.flowUid).bind()
+                    flowWithSteps.add(flow)
+                }
+
+                TestRunsData(
+                    allProjects = projects,
+                    allFlows = flowWithSteps,
+                    jobHistory = jobHistory,
+                    localRuns = steps
+                )
             }
-
-            TestRunsData(
-                allProjects = projects,
-                allFlows = flowWithSteps,
-                jobHistory = jobHistory,
-                localRuns = steps
-            )
         }
-    }
 }

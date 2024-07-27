@@ -1,7 +1,6 @@
 package com.github.aivanovski.testwithme.android.presentation.core.cells.model
 
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
 
 data class LabeledTextCellModel(
     override val id: String,

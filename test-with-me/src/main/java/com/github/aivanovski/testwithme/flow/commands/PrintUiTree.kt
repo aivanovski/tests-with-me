@@ -14,9 +14,10 @@ class PrintUiTree : ExecutableStepCommand<Unit> {
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> = either {
-        val uiRoot = context.driver.getUiTree().bind()
+    ): Either<FlowExecutionException, Unit> =
+        either {
+            val uiRoot = context.driver.getUiTree().bind()
 
-        context.logger.debug(uiRoot.dumpToString())
-    }
+            context.logger.debug(uiRoot.dumpToString())
+        }
 }

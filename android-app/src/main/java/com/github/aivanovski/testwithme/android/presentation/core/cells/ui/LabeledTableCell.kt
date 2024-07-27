@@ -43,7 +43,7 @@ fun LabeledTableCell(viewModel: LabeledTableCellViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = ElementMargin,
+                    horizontal = ElementMargin
                 )
                 .defaultMinSize(minHeight = TwoLineSmallItemHeight)
         ) {
@@ -61,13 +61,13 @@ fun LabeledTableCell(viewModel: LabeledTableCellViewModel) {
                     Text(
                         text = labelText,
                         color = AppTheme.theme.colors.secondaryText,
-                        style = AppTheme.theme.typography.bodySmall,
+                        style = AppTheme.theme.typography.bodySmall
                     )
 
                     Text(
                         text = text,
                         color = AppTheme.theme.colors.primaryText,
-                        style = AppTheme.theme.typography.bodyLarge,
+                        style = AppTheme.theme.typography.bodyLarge
                     )
                 }
             }
@@ -103,35 +103,32 @@ fun newTableCellViewModel(
     )
 )
 
-fun newOneColumnTableCell(
-    shape: CornersShape = CornersShape.ALL
-) = LabeledTableCellViewModel(
-    model = LabeledTableCellModel(
-        id = "id",
-        labels = listOf("Column 1"),
-        values = listOf("Value 1"),
-        shape = shape
+fun newOneColumnTableCell(shape: CornersShape = CornersShape.ALL) =
+    LabeledTableCellViewModel(
+        model = LabeledTableCellModel(
+            id = "id",
+            labels = listOf("Column 1"),
+            values = listOf("Value 1"),
+            shape = shape
+        )
     )
-)
 
-fun newTwoColumnsTableCell(
-    shape: CornersShape = CornersShape.ALL
-) = LabeledTableCellViewModel(
-    model = LabeledTableCellModel(
-        id = "id",
-        labels = listOf("Column 1", "Column 2"),
-        values = listOf("Value 1", "Value 2"),
-        shape = shape
+fun newTwoColumnsTableCell(shape: CornersShape = CornersShape.ALL) =
+    LabeledTableCellViewModel(
+        model = LabeledTableCellModel(
+            id = "id",
+            labels = listOf("Column 1", "Column 2"),
+            values = listOf("Value 1", "Value 2"),
+            shape = shape
+        )
     )
-)
 
-fun newThreeColumnsTableCell(
-    shape: CornersShape = CornersShape.ALL
-) = LabeledTableCellViewModel(
-    model = LabeledTableCellModel(
-        id = "id",
-        labels = listOf("Column 1", "Column 2", "Column 3"),
-        values = listOf("Value 1", "Value 2", "Value 3"),
-        shape = shape
+fun newThreeColumnsTableCell(shape: CornersShape = CornersShape.ALL) =
+    LabeledTableCellViewModel(
+        model = LabeledTableCellModel(
+            id = "id",
+            labels = listOf("Column 1", "Column 2", "Column 3"),
+            values = listOf("Value 1", "Value 2", "Value 3"),
+            shape = shape
+        )
     )
-)

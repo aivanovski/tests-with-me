@@ -49,7 +49,6 @@ fun ProjectCell(viewModel: ProjectCellViewModel) {
         modifier = Modifier
             .padding(horizontal = ElementMargin)
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -75,7 +74,6 @@ fun ProjectCell(viewModel: ProjectCellViewModel) {
                 )
             }
 
-
             Column(
                 modifier = Modifier
                     .padding(horizontal = HalfMargin)
@@ -86,7 +84,7 @@ fun ProjectCell(viewModel: ProjectCellViewModel) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = AppTheme.theme.colors.primaryText,
-                    style = AppTheme.theme.typography.bodyLarge,
+                    style = AppTheme.theme.typography.bodyLarge
                 )
 
                 Text(
@@ -94,7 +92,7 @@ fun ProjectCell(viewModel: ProjectCellViewModel) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = AppTheme.theme.colors.secondaryText,
-                    style = AppTheme.theme.typography.bodyMedium,
+                    style = AppTheme.theme.typography.bodyMedium
                 )
             }
         }

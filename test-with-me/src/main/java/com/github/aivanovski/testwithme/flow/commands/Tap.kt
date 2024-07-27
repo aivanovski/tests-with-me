@@ -2,12 +2,12 @@ package com.github.aivanovski.testwithme.flow.commands
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testwithme.extensions.findNode
-import com.github.aivanovski.testwithme.extensions.getNodeParents
-import com.github.aivanovski.testwithme.extensions.matches
 import com.github.aivanovski.testwithme.entity.UiElementSelector
 import com.github.aivanovski.testwithme.entity.exception.FailedToFindNodeException
 import com.github.aivanovski.testwithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testwithme.extensions.findNode
+import com.github.aivanovski.testwithme.extensions.getNodeParents
+import com.github.aivanovski.testwithme.extensions.matches
 import com.github.aivanovski.testwithme.extensions.toReadableFormat
 import com.github.aivanovski.testwithme.flow.runner.ExecutionContext
 
@@ -25,31 +25,32 @@ class Tap(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> = either {
-        val uiRoot = context.driver.getUiTree().bind()
+    ): Either<FlowExecutionException, Unit> =
+        either {
+            val uiRoot = context.driver.getUiTree().bind()
 
-        val node = uiRoot.findNode { node -> node.matches(element) }
-            ?: raise(FailedToFindNodeException(element))
+            val node = uiRoot.findNode { node -> node.matches(element) }
+                ?: raise(FailedToFindNodeException(element))
 
-        val nodeSelector = getSelectorForNode()
+            val nodeSelector = getSelectorForNode()
 
-        val tappableNode = if (!node.matches(nodeSelector)) {
-            val parents = uiRoot.getNodeParents(node)
+            val tappableNode = if (!node.matches(nodeSelector)) {
+                val parents = uiRoot.getNodeParents(node)
 
-            val clickableParent = parents.lastOrNull { parent -> parent.matches(nodeSelector) }
-                ?: raise(FailedToFindNodeException(nodeSelector))
+                val clickableParent = parents.lastOrNull { parent -> parent.matches(nodeSelector) }
+                    ?: raise(FailedToFindNodeException(nodeSelector))
 
-            clickableParent
-        } else {
-            node
+                clickableParent
+            } else {
+                node
+            }
+
+            if (isLongTap) {
+                context.driver.longTapOn(tappableNode).bind()
+            } else {
+                context.driver.tapOn(tappableNode).bind()
+            }
         }
-
-        if (isLongTap) {
-            context.driver.longTapOn(tappableNode).bind()
-        } else {
-            context.driver.tapOn(tappableNode).bind()
-        }
-    }
 
     private fun getSelectorForNode(): UiElementSelector {
         return if (isLongTap) {

@@ -19,63 +19,62 @@ class StepRunRepository(
         return runDao.getAll()
     }
 
-    fun getByJobUid(
-        jobUid: String
-    ): Either<AppException, List<LocalStepRun>> = either {
-        runDao.getByJobUid(jobUid)
-    }
+    fun getByJobUid(jobUid: String): Either<AppException, List<LocalStepRun>> =
+        either {
+            runDao.getByJobUid(jobUid)
+        }
 
     fun getOrCreate(
         jobUid: String,
         flowUid: String,
         stepUid: String
-    ): Either<AppException, LocalStepRun> = either {
-        val entry = runDao.get(jobUid, flowUid, stepUid)
+    ): Either<AppException, LocalStepRun> =
+        either {
+            val entry = runDao.get(jobUid, flowUid, stepUid)
 
-        val steps = stepDao.getByFlowUid(flowUid)
-        if (steps.isEmpty()) {
-            raise(AppException("No steps found"))
+            val steps = stepDao.getByFlowUid(flowUid)
+            if (steps.isEmpty()) {
+                raise(AppException("No steps found"))
+            }
+
+            val isLast = (stepUid == steps.last().uid)
+
+            val result = if (entry == null) {
+                val newEntry = LocalStepRun(
+                    jobUid = jobUid,
+                    flowUid = flowUid,
+                    stepUid = stepUid,
+                    attemptCount = 0,
+                    result = null,
+                    isLast = isLast,
+                    syncStatus = SyncStatus.NONE
+                )
+
+                runDao.insert(newEntry)
+
+                newEntry
+            } else {
+                entry
+            }
+
+            result
         }
-
-        val isLast = (stepUid == steps.last().uid)
-
-        val result = if (entry == null) {
-            val newEntry = LocalStepRun(
-                jobUid = jobUid,
-                flowUid = flowUid,
-                stepUid = stepUid,
-                attemptCount = 0,
-                result = null,
-                isLast = isLast,
-                syncStatus = SyncStatus.NONE
-            )
-
-            runDao.insert(newEntry)
-
-            newEntry
-        } else {
-            entry
-        }
-
-        result
-    }
 
     fun add(entry: LocalStepRun) {
         runDao.insert(entry)
     }
 
-    fun update(
-        entry: LocalStepRun
-    ): Either<AppException, Unit> = either {
-        val existingEntry = runDao.get(entry.jobUid, entry.flowUid, entry.stepUid)
-            ?: raise(newFailedToFindEntityError())
+    fun update(entry: LocalStepRun): Either<AppException, Unit> =
+        either {
+            val existingEntry = runDao.get(entry.jobUid, entry.flowUid, entry.stepUid)
+                ?: raise(newFailedToFindEntityError())
 
-        runDao.update(
-            entry.copy(
-                id = existingEntry.id
+            runDao.update(
+                entry.copy(
+                    id = existingEntry.id
+                )
             )
-        )
-    }
+        }
 
     private fun newFailedToFindEntityError(): FailedToFindEntityException {
         return FailedToFindEntityException(

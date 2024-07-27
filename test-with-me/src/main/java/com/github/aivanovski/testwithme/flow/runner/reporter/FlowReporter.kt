@@ -20,7 +20,10 @@ open class FlowReporter(
         logger.debug("Start flow '%s'".format(flow.name))
     }
 
-    override fun onFlowFinished(flow: Flow, result: Either<FlowExecutionException, Any>) {
+    override fun onFlowFinished(
+        flow: Flow,
+        result: Either<FlowExecutionException, Any>
+    ) {
         if (result.isRight()) {
             logger.debug("Flow '%s' finished successfully".format(flowTransformer.transform(flow)))
         } else {

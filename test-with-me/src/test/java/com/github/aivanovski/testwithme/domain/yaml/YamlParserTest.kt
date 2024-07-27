@@ -1,14 +1,14 @@
 package com.github.aivanovski.testwithme.domain.yaml
 
 import arrow.core.Either
-import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.entity.FlowStep
 import com.github.aivanovski.testwithme.entity.UiElementSelector
+import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.flow.yaml.YamlParser
 import com.github.aivanovski.testwithme.utils.StringUtils.NEW_LINE
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 import java.lang.StringBuilder
+import org.junit.jupiter.api.Test
 
 class YamlParserTest {
 

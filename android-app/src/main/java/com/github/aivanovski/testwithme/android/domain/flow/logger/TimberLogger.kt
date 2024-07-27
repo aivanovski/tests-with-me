@@ -1,8 +1,8 @@
 package com.github.aivanovski.testwithme.android.domain.flow.logger
 
 import com.github.aivanovski.testwithme.utils.Logger
-import timber.log.Timber
 import java.lang.Exception
+import timber.log.Timber
 
 class TimberLogger(
     private val tag: String

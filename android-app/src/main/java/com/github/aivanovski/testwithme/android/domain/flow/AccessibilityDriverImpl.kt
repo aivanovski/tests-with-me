@@ -7,21 +7,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.accessibility.AccessibilityNodeInfo
 import arrow.core.Either
-import com.github.aivanovski.testwithme.entity.UiNode
 import com.github.aivanovski.testwithme.android.extensions.convertToUiNode
-import com.github.aivanovski.testwithme.flow.driver.Driver
 import com.github.aivanovski.testwithme.entity.KeyCode
+import com.github.aivanovski.testwithme.entity.UiNode
 import com.github.aivanovski.testwithme.entity.exception.DriverException
 import com.github.aivanovski.testwithme.entity.exception.FailedToGetUiNodesException
 import com.github.aivanovski.testwithme.entity.exception.FailedToPerformActionException
-import java.util.concurrent.atomic.AtomicReference
+import com.github.aivanovski.testwithme.flow.driver.Driver
 
 class AccessibilityDriverImpl(
     private val context: Context,
     private val service: AccessibilityService
 ) : Driver<AccessibilityNodeInfo> {
 
-    private val lastUiTree = AtomicReference<UiNode<AccessibilityNodeInfo>>()
+    // TODO: UiTree should be added to the test report
 
     override fun sendBroadcast(
         packageName: String,

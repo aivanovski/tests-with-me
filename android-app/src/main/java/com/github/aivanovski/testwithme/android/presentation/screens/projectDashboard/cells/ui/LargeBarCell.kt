@@ -38,7 +38,6 @@ fun LargeBarCell(viewModel: LargeBarCellViewModel) {
                 horizontal = ElementMargin
             )
     ) {
-
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -70,7 +69,6 @@ fun LargeBarCell(viewModel: LargeBarCellViewModel) {
                 )
             }
         }
-
     }
 }
 

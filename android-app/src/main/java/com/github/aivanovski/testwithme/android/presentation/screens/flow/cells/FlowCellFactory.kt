@@ -5,14 +5,16 @@ import com.github.aivanovski.testwithme.android.domain.resources.ResourceProvide
 import com.github.aivanovski.testwithme.android.entity.AppVersion
 import com.github.aivanovski.testwithme.android.entity.FlowRun
 import com.github.aivanovski.testwithme.android.entity.Group
-import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testwithme.android.entity.User
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testwithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testwithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testwithme.android.presentation.core.cells.createCoreCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.ButtonCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
+import com.github.aivanovski.testwithme.android.presentation.core.cells.model.EmptyTextCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.LabeledTableCellModel
@@ -22,10 +24,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.model.Te
 import com.github.aivanovski.testwithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.SmallMargin
-import com.github.aivanovski.testwithme.android.presentation.core.cells.createCoreCellViewModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.EmptyTextCellModel
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.model.HistoryItemCellModel
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ThemeProvider
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.model.HistoryItemCellModel
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.viewModel.HistoryItemCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowData
@@ -118,8 +118,10 @@ class FlowCellFactory(
         val models = mutableListOf<BaseCellModel>()
 
         val installedVersion = installedAppData?.appVersion
-        val isAppInstalled = (requiredAppVersion == null ||
-            (installedVersion != null && installedVersion.name == requiredAppVersion.name))
+        val isAppInstalled = (
+            requiredAppVersion == null ||
+                (installedVersion != null && installedVersion.name == requiredAppVersion.name)
+            )
 
         models.add(newElementSpaceModel())
         models.addAll(createDriverStatusModels(isDriverRunning))
@@ -266,9 +268,7 @@ class FlowCellFactory(
         return models
     }
 
-    private fun createDriverStatusModels(
-        isDriverRunning: Boolean
-    ): List<BaseCellModel> {
+    private fun createDriverStatusModels(isDriverRunning: Boolean): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         val textColor = if (isDriverRunning) {
@@ -320,8 +320,10 @@ class FlowCellFactory(
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
         val installedVersion = installedAppData?.appVersion
-        val isInstalled = ((requiredAppVersion == null && installedVersion != null) ||
-            (installedVersion != null && requiredAppVersion?.name == installedVersion.name))
+        val isInstalled = (
+            (requiredAppVersion == null && installedVersion != null) ||
+                (installedVersion != null && requiredAppVersion?.name == installedVersion.name)
+            )
 
         models.add(
             LabeledTextCellModel(
@@ -362,9 +364,7 @@ class FlowCellFactory(
         return models
     }
 
-    private fun createStatsModels(
-        runs: List<FlowRun>
-    ): List<BaseCellModel> {
+    private fun createStatsModels(runs: List<FlowRun>): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         val totalRuns = runs.size
@@ -557,8 +557,7 @@ class FlowCellFactory(
         return sortedByRuns + sortedByName
     }
 
-    private fun newElementSpaceModel(): SpaceCellModel =
-        SpaceCellModel(height = ElementMargin)
+    private fun newElementSpaceModel(): SpaceCellModel = SpaceCellModel(height = ElementMargin)
 
     object CellId {
         const val EMPTY_MESSAGE = "empty-message"

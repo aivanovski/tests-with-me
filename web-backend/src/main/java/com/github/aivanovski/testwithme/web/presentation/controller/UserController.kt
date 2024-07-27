@@ -12,18 +12,19 @@ class UserController(
     private val userRepository: UserRepository
 ) {
 
-    fun getUsers(): Either<ErrorResponse, UsersResponse> = either {
-        val users = userRepository.getUsers()
-            .transformError()
-            .bind()
+    fun getUsers(): Either<ErrorResponse, UsersResponse> =
+        either {
+            val users = userRepository.getUsers()
+                .transformError()
+                .bind()
 
-        UsersResponse(
-            users = users.map { user ->
-                UsersItemDto(
-                    id = user.uid.toString(),
-                    name = user.name
-                )
-            }
-        )
-    }
+            UsersResponse(
+                users = users.map { user ->
+                    UsersItemDto(
+                        id = user.uid.toString(),
+                        name = user.name
+                    )
+                }
+            )
+        }
 }

@@ -4,8 +4,8 @@ import com.github.aivanovski.testwithme.android.entity.SourceType
 import com.github.aivanovski.testwithme.android.entity.StepVerificationType
 import com.github.aivanovski.testwithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testwithme.android.entity.db.StepEntry
-import com.github.aivanovski.testwithme.entity.YamlFlow
 import com.github.aivanovski.testwithme.entity.FlowStep
+import com.github.aivanovski.testwithme.entity.YamlFlow
 
 fun YamlFlow.convertToFlowEntry(
     flowUid: String,
@@ -22,10 +22,7 @@ fun YamlFlow.convertToFlowEntry(
     )
 }
 
-fun List<FlowStep>.convertToStepEntries(
-    flowUid: String,
-): List<StepEntry> {
-
+fun List<FlowStep>.convertToStepEntries(flowUid: String): List<StepEntry> {
     val steps = mutableListOf<StepEntry>()
     for (stepIdx in this.indices) {
         val step = this[stepIdx]

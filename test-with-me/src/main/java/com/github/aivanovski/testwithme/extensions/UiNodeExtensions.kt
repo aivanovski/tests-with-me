@@ -1,7 +1,7 @@
 package com.github.aivanovski.testwithme.extensions
 
-import com.github.aivanovski.testwithme.entity.UiNode
 import com.github.aivanovski.testwithme.entity.UiElementSelector
+import com.github.aivanovski.testwithme.entity.UiNode
 import java.lang.StringBuilder
 import java.util.LinkedList
 
@@ -12,9 +12,7 @@ fun UiNode<*>.matches(selector: UiElementSelector): Boolean {
     return entity.matches(selector)
 }
 
-fun <T> UiNode<T>.traverseAndCollect(
-    predicate: (UiNode<T>) -> Boolean
-): List<UiNode<T>> {
+fun <T> UiNode<T>.traverseAndCollect(predicate: (UiNode<T>) -> Boolean): List<UiNode<T>> {
     val result = mutableListOf<UiNode<T>>()
 
     val nodes = LinkedList<UiNode<T>>()
@@ -35,15 +33,11 @@ fun <T> UiNode<T>.traverseAndCollect(
     return result
 }
 
-fun <T> UiNode<T>.findNode(
-    predicate: (UiNode<T>) -> Boolean
-): UiNode<T>? {
+fun <T> UiNode<T>.findNode(predicate: (UiNode<T>) -> Boolean): UiNode<T>? {
     return traverseAndCollect(predicate).firstOrNull()
 }
 
-fun <T> UiNode<T>.getNodeParents(
-    target: UiNode<T>
-): List<UiNode<T>> {
+fun <T> UiNode<T>.getNodeParents(target: UiNode<T>): List<UiNode<T>> {
     val result = mutableListOf<UiNode<T>>()
 
     this.traverseParents(target, result)
@@ -85,9 +79,7 @@ fun <T> UiNode<T>.dumpToString(): String {
     return lines.joinToString(separator = "\n")
 }
 
-fun <T> UiNode<T>.visitWithDepth(
-    visitor: (node: UiNode<T>, depth: Int) -> Unit
-) {
+fun <T> UiNode<T>.visitWithDepth(visitor: (node: UiNode<T>, depth: Int) -> Unit) {
     val nodes = LinkedList<Pair<Int, UiNode<T>>>()
     nodes.add(0 to this)
 
@@ -133,42 +125,48 @@ fun UiNode<*>.formatShortDescription(): String {
             }
 
             if (id != null) {
-                appendWithSeparator("id=$id",
+                appendWithSeparator(
+                    "id=$id",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )
             }
 
             if (text != null) {
-                appendWithSeparator("text=$text",
+                appendWithSeparator(
+                    "text=$text",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )
             }
 
             if (cd != null) {
-                appendWithSeparator("contDesc=$cd",
+                appendWithSeparator(
+                    "contDesc=$cd",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )
             }
 
             if (bounds != null) {
-                appendWithSeparator("bounds=$bounds",
+                appendWithSeparator(
+                    "bounds=$bounds",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )
             }
 
             if (isFocused == true) {
-                appendWithSeparator("FOCUSED",
+                appendWithSeparator(
+                    "FOCUSED",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )
             }
 
             if (isClickable == true) {
-                appendWithSeparator("CLICKABLE",
+                appendWithSeparator(
+                    "CLICKABLE",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )

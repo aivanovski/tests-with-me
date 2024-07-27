@@ -30,8 +30,8 @@ import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.HalfMargin
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.LightTheme
-import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineMediumItemHeight
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.SmallMargin
+import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineMediumItemHeight
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.FlowCellIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.FlowCellModel
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.viewModel.FlowCellViewModel

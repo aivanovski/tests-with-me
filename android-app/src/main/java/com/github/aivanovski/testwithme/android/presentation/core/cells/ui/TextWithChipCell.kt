@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testwithme.android.R
 import com.github.aivanovski.testwithme.android.presentation.core.cells.model.CornersShape
+import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TextWithChipCellModel
+import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
 import com.github.aivanovski.testwithme.android.presentation.core.compose.TextChip
 import com.github.aivanovski.testwithme.android.presentation.core.compose.ThemedPreview
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.AppTheme
@@ -24,8 +26,6 @@ import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testwithme.android.presentation.core.compose.theme.TwoLineSmallItemHeight
 import com.github.aivanovski.testwithme.android.presentation.core.compose.toComposeShape
-import com.github.aivanovski.testwithme.android.presentation.core.cells.model.TextWithChipCellModel
-import com.github.aivanovski.testwithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
 
 @Composable
 fun TextWithChipCell(viewModel: TextWithChipCellViewModel) {
@@ -46,7 +46,7 @@ fun TextWithChipCell(viewModel: TextWithChipCellViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = ElementMargin,
+                    horizontal = ElementMargin
                 )
                 .defaultMinSize(minHeight = TwoLineSmallItemHeight)
         ) {

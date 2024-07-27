@@ -63,7 +63,10 @@ class LoginViewModel(
         }
     }
 
-    private fun handleIntent(intent: LoginIntent, state: LoginState): Flow<LoginState> {
+    private fun handleIntent(
+        intent: LoginIntent,
+        state: LoginState
+    ): Flow<LoginState> {
         return when (intent) {
             is LoginIntent.Initialize -> createInitialState().asFlow()
             is LoginIntent.OnLoginButtonClicked -> onLoginButtonClicked(state)
@@ -118,9 +121,7 @@ class LoginViewModel(
         )
     }
 
-    private fun onLoginButtonClicked(
-        currentState: LoginState
-    ): Flow<LoginState> {
+    private fun onLoginButtonClicked(currentState: LoginState): Flow<LoginState> {
         val state = (currentState as? LoginState.Data) ?: return flowOf(currentState)
 
         return flow {

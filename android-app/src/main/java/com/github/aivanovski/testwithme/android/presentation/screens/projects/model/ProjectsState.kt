@@ -6,7 +6,7 @@ import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.C
 import com.github.aivanovski.testwithme.android.presentation.core.cells.screen.TerminalState
 
 @Immutable
-data class ProjectsState (
+data class ProjectsState(
     override val terminalState: TerminalState? = null,
     override val viewModels: List<BaseCellViewModel> = emptyList()
 ) : CellsScreenState

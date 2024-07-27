@@ -127,7 +127,6 @@ fun newMessageDialogWithTitle(): MessageDialogState {
     )
 }
 
-
 fun newMessageDialogWithButtonAndTitle(): MessageDialogState {
     return MessageDialogState(
         title = "Title",

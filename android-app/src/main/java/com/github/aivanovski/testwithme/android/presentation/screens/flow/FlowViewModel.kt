@@ -16,13 +16,13 @@ import com.github.aivanovski.testwithme.android.presentation.screens.Screen
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.FlowCellFactory
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.cells.model.HistoryItemCellIntent
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowData
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenArgs
-import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowUiEvent
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowState
+import com.github.aivanovski.testwithme.android.presentation.screens.flow.model.FlowUiEvent
 import com.github.aivanovski.testwithme.android.presentation.screens.groups.cells.model.FlowCellIntent
 import com.github.aivanovski.testwithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testwithme.android.presentation.screens.root.model.MenuState
@@ -34,6 +34,8 @@ import com.github.aivanovski.testwithme.android.utils.infiniteRepeatFlow
 import com.github.aivanovski.testwithme.android.utils.toUids
 import com.github.aivanovski.testwithme.extensions.unwrap
 import com.github.aivanovski.testwithme.utils.StringUtils
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -48,8 +50,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
 
 // TODO: rename to test screen
 class FlowViewModel(
@@ -346,17 +346,13 @@ class FlowViewModel(
         }
     }
 
-    private fun onDismissErrorDialog(
-        state: FlowState
-    ): Flow<FlowState> {
+    private fun onDismissErrorDialog(state: FlowState): Flow<FlowState> {
         return flowOf(
             state.copy(errorDialogMessage = null)
         )
     }
 
-    private fun onDismissFlowDialog(
-        state: FlowState
-    ): Flow<FlowState> {
+    private fun onDismissFlowDialog(state: FlowState): Flow<FlowState> {
         return flowOf(
             state.copy(flowDialogState = null)
         )

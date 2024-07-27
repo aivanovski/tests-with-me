@@ -1,26 +1,26 @@
 package com.github.aivanovski.testwithme.android.di
 
 import android.view.accessibility.AccessibilityNodeInfo
-import com.github.aivanovski.testwithme.android.data.repository.FlowRepository
-import com.github.aivanovski.testwithme.android.data.settings.Settings
-import com.github.aivanovski.testwithme.android.data.settings.SettingsImpl
 import com.github.aivanovski.testwithme.android.data.api.ApiClient
 import com.github.aivanovski.testwithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testwithme.android.data.db.AppDatabase
-import com.github.aivanovski.testwithme.android.data.db.dao.LocalStepRunDao
 import com.github.aivanovski.testwithme.android.data.db.dao.FlowEntryDao
 import com.github.aivanovski.testwithme.android.data.db.dao.JobDao
 import com.github.aivanovski.testwithme.android.data.db.dao.JobHistoryDao
+import com.github.aivanovski.testwithme.android.data.db.dao.LocalStepRunDao
 import com.github.aivanovski.testwithme.android.data.db.dao.ProjectEntryDao
 import com.github.aivanovski.testwithme.android.data.db.dao.StepEntryDao
 import com.github.aivanovski.testwithme.android.data.file.FileCache
 import com.github.aivanovski.testwithme.android.data.file.FileCacheImpl
-import com.github.aivanovski.testwithme.android.data.repository.StepRunRepository
+import com.github.aivanovski.testwithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testwithme.android.data.repository.FlowRunRepository
 import com.github.aivanovski.testwithme.android.data.repository.GroupRepository
 import com.github.aivanovski.testwithme.android.data.repository.JobRepository
 import com.github.aivanovski.testwithme.android.data.repository.ProjectRepository
+import com.github.aivanovski.testwithme.android.data.repository.StepRunRepository
 import com.github.aivanovski.testwithme.android.data.repository.UserRepository
+import com.github.aivanovski.testwithme.android.data.settings.Settings
+import com.github.aivanovski.testwithme.android.data.settings.SettingsImpl
 import com.github.aivanovski.testwithme.android.domain.VersionParser
 import com.github.aivanovski.testwithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testwithme.android.domain.flow.FlowRunnerManager
@@ -72,7 +72,6 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import org.koin.dsl.module
 import timber.log.Timber
-import kotlin.math.sin
 
 object AndroidAppModule {
 
@@ -245,23 +244,17 @@ object AndroidAppModule {
         }
     }
 
-    private fun provideStepEntryDao(db: AppDatabase): StepEntryDao =
-        db.stepEntryDao
+    private fun provideStepEntryDao(db: AppDatabase): StepEntryDao = db.stepEntryDao
 
-    private fun provideFlowEntryDao(db: AppDatabase): FlowEntryDao =
-        db.flowEntryDao
+    private fun provideFlowEntryDao(db: AppDatabase): FlowEntryDao = db.flowEntryDao
 
-    private fun provideRunnerEntryDao(db: AppDatabase): JobDao =
-        db.runnerEntryDao
+    private fun provideRunnerEntryDao(db: AppDatabase): JobDao = db.runnerEntryDao
 
-    private fun provideExecutionEntryDao(db: AppDatabase): LocalStepRunDao =
-        db.executionDataDao
+    private fun provideExecutionEntryDao(db: AppDatabase): LocalStepRunDao = db.executionDataDao
 
-    private fun provideJobHistoryEntryDao(db: AppDatabase): JobHistoryDao =
-        db.jobHistoryDao
+    private fun provideJobHistoryEntryDao(db: AppDatabase): JobHistoryDao = db.jobHistoryDao
 
-    private fun provideProjectEntryDao(db: AppDatabase): ProjectEntryDao =
-        db.projectEntryDao
+    private fun provideProjectEntryDao(db: AppDatabase): ProjectEntryDao = db.projectEntryDao
 
     private fun provideHttpRequestExecutor(): HttpRequestExecutor {
         return HttpRequestExecutor(

@@ -78,7 +78,6 @@ fun IconChip(
     }
 }
 
-
 @Composable
 fun TextChip(
     text: String,
@@ -106,9 +105,6 @@ fun TextChip(
                     horizontal = QuarterMargin,
                     vertical = TinyMargin
                 )
-//                .defaultMinSize(
-//                    minWidth = 64.dp
-//                )
         ) {
             Text(
                 text = text,
@@ -130,7 +126,7 @@ fun ChipPreview() {
             IconChip(
                 icon = AppIcons.CheckCircle,
                 iconTint = IconTint.GREEN.toComposeColor(),
-                text = "101",
+                text = "101"
             )
 
             Spacer(Modifier.height(SmallMargin))
@@ -138,7 +134,7 @@ fun ChipPreview() {
             IconChip(
                 icon = AppIcons.ErrorCircle,
                 iconTint = IconTint.RED.toComposeColor(),
-                text = "18",
+                text = "18"
             )
 
             Spacer(Modifier.height(SmallMargin))
@@ -146,7 +142,7 @@ fun ChipPreview() {
             IconChip(
                 icon = AppIcons.CheckCircle,
                 iconTint = IconTint.PRIMARY_ICON.toComposeColor(),
-                text = "18",
+                text = "18"
             )
 
             Spacer(Modifier.height(SmallMargin))

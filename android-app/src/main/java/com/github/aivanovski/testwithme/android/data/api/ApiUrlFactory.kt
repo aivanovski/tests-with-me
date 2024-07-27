@@ -1,7 +1,7 @@
 package com.github.aivanovski.testwithme.android.data.api
 
-import com.github.aivanovski.testwithme.web.api.Endpoints.FLOW_RUN
 import com.github.aivanovski.testwithme.web.api.Endpoints.FLOW
+import com.github.aivanovski.testwithme.web.api.Endpoints.FLOW_RUN
 import com.github.aivanovski.testwithme.web.api.Endpoints.GROUP
 import com.github.aivanovski.testwithme.web.api.Endpoints.LOGIN
 import com.github.aivanovski.testwithme.web.api.Endpoints.PROJECT

@@ -1,7 +1,7 @@
 package com.github.aivanovski.testwithme.web.entity
 
-import com.github.aivanovski.testwithme.web.data.database.converters.UidConverter
 import com.github.aivanovski.testwithme.web.data.database.converters.FsPathConverter
+import com.github.aivanovski.testwithme.web.data.database.converters.UidConverter
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity

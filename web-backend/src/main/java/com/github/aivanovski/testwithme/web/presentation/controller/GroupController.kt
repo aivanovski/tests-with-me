@@ -24,69 +24,70 @@ class GroupController(
     fun postGroup(
         user: User,
         request: PostGroupRequest
-    ): Either<AppException, PostGroupResponse> = either {
-        val (project, parent) = resolvePathUseCase.resolveProjectAndGroup(
-            path = request.path,
-            projectUid = request.projectId,
-            groupUid = request.parentGroupId,
-            user = user
-        ).bind()
+    ): Either<AppException, PostGroupResponse> =
+        either {
+            val (project, parent) = resolvePathUseCase.resolveProjectAndGroup(
+                path = request.path,
+                projectUid = request.projectId,
+                groupUid = request.parentGroupId,
+                user = user
+            ).bind()
 
-        validateGroupName(
-            name = request.name,
-            project = project,
-            parent = parent
-        ).bind()
+            validateGroupName(
+                name = request.name,
+                project = project,
+                parent = parent
+            ).bind()
 
-        val group = Group(
-            uid = Uid.generate(),
-            parentUid = parent?.uid,
-            projectUid = project.uid,
-            name = request.name
-        )
+            val group = Group(
+                uid = Uid.generate(),
+                parentUid = parent?.uid,
+                projectUid = project.uid,
+                name = request.name
+            )
 
-        groupRepository.add(group).bind()
+            groupRepository.add(group).bind()
 
-        PostGroupResponse(
-            id = group.uid.toString()
-        )
-    }
+            PostGroupResponse(
+                id = group.uid.toString()
+            )
+        }
 
-    fun getGroups(
-        user: User
-    ): Either<AppException, GroupsResponse> = either {
-        val groups = groupRepository.getByUserUid(user.uid).bind()
+    fun getGroups(user: User): Either<AppException, GroupsResponse> =
+        either {
+            val groups = groupRepository.getByUserUid(user.uid).bind()
 
-        GroupsResponse(
-            groups = groups.map { group ->
-                GroupsItemDto(
-                    id = group.uid.toString(),
-                    parentId = group.parentUid?.toString(),
-                    projectId = group.projectUid.toString(),
-                    name = group.name
-                )
-            }
-        )
-    }
+            GroupsResponse(
+                groups = groups.map { group ->
+                    GroupsItemDto(
+                        id = group.uid.toString(),
+                        parentId = group.parentUid?.toString(),
+                        projectId = group.projectUid.toString(),
+                        name = group.name
+                    )
+                }
+            )
+        }
 
     private fun validateGroupName(
         name: String,
         project: Project,
         parent: Group?
-    ): Either<AppException, Unit> = either {
-        if (name.isBlank()) {
-            raise(EmptyRequestFieldException(FIELD_NAME))
-        }
+    ): Either<AppException, Unit> =
+        either {
+            if (name.isBlank()) {
+                raise(EmptyRequestFieldException(FIELD_NAME))
+            }
 
-        val groupsInParent = groupRepository.getByProjectUid(project.uid)
-            .bind()
-            .filter { group -> group.parentUid == parent?.uid }
+            val groupsInParent = groupRepository.getByProjectUid(project.uid)
+                .bind()
+                .filter { group -> group.parentUid == parent?.uid }
 
-        val hasTheSameName = groupsInParent.any { group -> group.name == name }
-        if (hasTheSameName) {
-            raise(EntityAlreadyExistsException(name))
+            val hasTheSameName = groupsInParent.any { group -> group.name == name }
+            if (hasTheSameName) {
+                raise(EntityAlreadyExistsException(name))
+            }
         }
-    }
 
     companion object {
         private const val FIELD_NAME = "name"
