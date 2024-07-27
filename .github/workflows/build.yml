@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-code-style:
+    name: 'Check code style'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download ktlint binary
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.2.1/ktlint
+          chmod +x ktlint
+
+      - name: Run ktlint
+        run: ./ktlint --editorconfig=".editorconfig"
+
+  run-tests:
+    name: 'Run tests'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Run tests
+        run: ./gradlew test
+
+  build-android-app:
+    name: 'Build Android app'
+    needs: [ check-code-style, run-tests ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup version variable
+        run: |
+          echo "VERSION=$(grep 'appVersion' ./gradle/libs.versions.toml | cut -d= -f2 | cut -d'"' -f2)" >> $GITHUB_ENV
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Build debug jar
+        run: ./gradlew android-app:assembleDebug
