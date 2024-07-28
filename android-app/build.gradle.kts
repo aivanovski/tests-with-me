@@ -6,6 +6,13 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+fun getVersionName(): String = libs.versions.appVersion.get()
+
+fun getVersionCode(): Int {
+    val values = getVersionName().split(".")
+    return values[0].toInt() * 10000 + values[1].toInt() * 100 + values[2].toInt()
+}
+
 android {
     namespace = "com.github.aivanovski.testswithme.android"
     compileSdk = 34
@@ -14,8 +21,8 @@ android {
         applicationId = "com.github.aivanovski.testswithme.android"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.0.1"
+        versionCode = getVersionCode()
+        versionName = getVersionName()
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,7 +61,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.8"
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 
     packaging {
