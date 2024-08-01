@@ -15,7 +15,9 @@ import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.web.api.request.LoginRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
+import com.github.aivanovski.testswithme.web.api.request.PostGroupRequest
 import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
+import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowRunsResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
@@ -23,8 +25,10 @@ import com.github.aivanovski.testswithme.web.api.response.GroupsResponse
 import com.github.aivanovski.testswithme.web.api.response.LoginResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowRunResponse
+import com.github.aivanovski.testswithme.web.api.response.PostGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 import com.github.aivanovski.testswithme.web.api.response.ProjectsResponse
+import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.UsersResponse
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.headers
@@ -131,6 +135,49 @@ class ApiClient(
             }
 
             parseJson<PostProjectResponse>(response.bodyAsText()).bind()
+        }
+
+    suspend fun postGroup(request: PostGroupRequest): Either<ApiException, PostGroupResponse> =
+        either {
+            val body = json.encodeToString(request)
+
+            // TODO: should be retried if 401
+            val response = executor.post(urlFactory.groups()) {
+                headers {
+                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                }
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }.bind()
+
+            if (response.status != HttpStatusCode.OK) {
+                raise(InvalidHttpStatusCodeException(response.status))
+            }
+
+            parseJson<PostGroupResponse>(response.bodyAsText()).bind()
+        }
+
+    suspend fun putGroup(
+        groupUid: String,
+        request: UpdateGroupRequest
+    ): Either<ApiException, UpdateGroupResponse> =
+        either {
+            val body = json.encodeToString(request)
+
+            // TODO: refactor + retry if 401
+            val response = executor.put(urlFactory.group(groupUid)) {
+                headers {
+                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                }
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }.bind()
+
+            if (response.status != HttpStatusCode.OK) {
+                raise(InvalidHttpStatusCodeException(response.status))
+            }
+
+            parseJson<UpdateGroupResponse>(response.bodyAsText()).bind()
         }
 
     suspend fun getFlowRuns(): Either<ApiException, List<FlowRun>> =

@@ -7,6 +7,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.statement.HttpResponse
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,19 @@ class HttpRequestExecutor(
         withContext(Dispatchers.IO) {
             try {
                 val response = client.post(urlString = url, block = block)
+                Either.Right(response)
+            } catch (exception: IOException) {
+                Either.Left(NetworkException(exception))
+            }
+        }
+
+    suspend fun put(
+        url: String,
+        block: HttpRequestBuilder.() -> Unit
+    ): Either<ApiException, HttpResponse> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = client.put(urlString = url, block = block)
                 Either.Right(response)
             } catch (exception: IOException) {
                 Either.Left(NetworkException(exception))

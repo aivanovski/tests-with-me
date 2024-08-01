@@ -17,6 +17,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.navigation.Ro
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
+import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.model.GroupEditorScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.FlowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.GroupCellIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.model.GroupsScreenArgs
@@ -27,6 +28,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuState
+import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
 import com.github.aivanovski.testswithme.android.utils.formatErrorMessage
@@ -36,6 +39,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
@@ -62,6 +66,7 @@ class ProjectDashboardViewModel(
         super.start()
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
+        rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
         if (!isSubscribed) {
             isSubscribed = true
@@ -95,7 +100,19 @@ class ProjectDashboardViewModel(
     private fun handleIntent(intent: ProjectDashboardIntent): Flow<ProjectDashboardState> {
         return when (intent) {
             ProjectDashboardIntent.Initialize -> loadData()
-            is ProjectDashboardIntent.OnVersionClick -> loadData(intent.versionName)
+
+            ProjectDashboardIntent.ReloadData -> loadData(
+                versionName = getSelectedVersion()?.name
+            )
+
+            is ProjectDashboardIntent.OnVersionClick -> loadData(
+                versionName = intent.versionName
+            )
+
+            ProjectDashboardIntent.OnAddButtonClick -> {
+                navigateToNewGroupScreen()
+                emptyFlow()
+            }
         }
     }
 
@@ -121,7 +138,7 @@ class ProjectDashboardViewModel(
 
             selectedVersionName = versionName ?: data.versions.firstOrNull()?.name
 
-            if (data.rootGroups.isNotEmpty() || data.rootFlows.isNotEmpty()) {
+            if (data.allGroups.isNotEmpty() || data.allFlows.isNotEmpty()) {
                 val viewModels = cellFactory.createCellViewModels(
                     data = data,
                     selectedVersion = selectedVersionName,
@@ -225,8 +242,6 @@ class ProjectDashboardViewModel(
     }
 
     private fun navigateToGroupScreen(groupUid: String) {
-        val group = findGroupByUid(groupUid) ?: return
-
         router.navigateTo(
             Screen.Groups(
                 GroupsScreenArgs(
@@ -235,6 +250,20 @@ class ProjectDashboardViewModel(
                 )
             )
         )
+    }
+
+    private fun navigateToNewGroupScreen() {
+        router.navigateTo(
+            Screen.GroupEditor(
+                GroupEditorScreenArgs.NewGroup(
+                    projectUid = args.projectUid,
+                    parentGroupUid = null
+                )
+            )
+        )
+        router.setResultListener(Screen.GroupEditor::class) { _ ->
+            sendIntent(ProjectDashboardIntent.ReloadData)
+        }
     }
 
     private fun findGroupByUid(groupUid: String): Group? {

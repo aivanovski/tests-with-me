@@ -202,7 +202,7 @@ class ProjectEditorViewModel(
                 }
 
                 is ProjectEditorArgs.EditProject -> {
-                    emit(ProjectEditorState(isLoading = true))
+                    TODO()
                 }
             }
         }
