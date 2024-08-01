@@ -13,6 +13,7 @@ open class EntityNotFoundException(
     value: String
 ) : AppException(ENTITY_NOT_FOUND.format(entity, key, value))
 
+// TODO: rename to FailedToFindEntity..
 class EntityNotFoundByUidException : EntityNotFoundException {
 
     constructor(

@@ -1,6 +1,7 @@
 package com.github.aivanovski.testswithme.android.presentation.screens
 
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.model.GroupEditorScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.model.GroupsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardScreenArgs
@@ -36,6 +37,11 @@ sealed interface Screen {
     @Serializable
     data class Groups(
         val args: GroupsScreenArgs
+    ) : Screen
+
+    @Serializable
+    data class GroupEditor(
+        val args: GroupEditorScreenArgs
     ) : Screen
 
     @Serializable

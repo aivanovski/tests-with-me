@@ -16,6 +16,7 @@
     <string name="log_out">Log out</string>
     <string name="view">View</string>
     <string name="should_not_be_empty">Should not be empty</string>
+    <string name="edit">Edit</string>
 
     <!-- Login screen -->
     <string name="username">Username</string>
@@ -36,6 +37,9 @@
     <string name="root">Root</string>
     <string name="upload">Upload</string>
     <string name="test_successfully_uploaded_message">Test have been successfully uploaded</string>
+
+    <!-- Groups screen -->
+    <string name="this_group_is_empty">This group is empty</string>
 
     <!-- Flow screen -->
     <string name="groups">Groups</string>
@@ -87,6 +91,13 @@
     <string name="site_url">Site url</string>
     <string name="download_url">Url to download application</string>
     <string name="project_successfully_created_with_str">Project \'%s\' was successfully created</string>
+
+    <!-- Group Editor -->
+    <string name="create_group">Create Group</string>
+    <string name="name">Name</string>
+<!--    <string name=""></string>-->
+<!--    <string name=""></string>-->
+<!--    <string name=""></string>-->
 <!--    <string name=""></string>-->
 <!--    <string name=""></string>-->
 

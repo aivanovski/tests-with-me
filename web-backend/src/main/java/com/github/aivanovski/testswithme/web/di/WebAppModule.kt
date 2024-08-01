@@ -14,8 +14,8 @@ import com.github.aivanovski.testswithme.web.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.data.repository.UserRepository
+import com.github.aivanovski.testswithme.web.domain.PathResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
-import com.github.aivanovski.testswithme.web.domain.usecases.ResolvePathUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController
@@ -50,7 +50,7 @@ object WebAppModule {
 
         // UseCases
         single { ValidateEmailUseCase() }
-        single { ResolvePathUseCase(get(), get()) }
+        single { PathResolver(get(), get()) }
 
         // Services
         single { AuthService(get()) }
@@ -62,6 +62,6 @@ object WebAppModule {
         single { ProjectController(get()) }
         single { FlowRunController(get(), get(), get()) }
         single { UserController(get()) }
-        single { GroupController(get(), get()) }
+        single { GroupController(get(), get(), get()) }
     }
 }

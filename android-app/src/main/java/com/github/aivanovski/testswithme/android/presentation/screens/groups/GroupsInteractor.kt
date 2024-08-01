@@ -16,7 +16,7 @@ class GroupsInteractor(
     private val flowRunRepository: FlowRunRepository
 ) {
 
-    suspend fun getData(
+    suspend fun loadData(
         projectUid: String,
         groupUid: String?
     ): Either<AppException, GroupsData> =

@@ -1,6 +1,7 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.ui
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,12 +42,17 @@ import com.github.aivanovski.testswithme.android.presentation.screens.groups.cel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.GroupCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.viewModel.GroupCellViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupCell(viewModel: GroupCellViewModel) {
     val model = viewModel.model
 
     val onClick = rememberOnClickedCallback {
         viewModel.sendIntent(GroupCellIntent.OnClick(model.id))
+    }
+
+    val onLongClick = rememberOnClickedCallback {
+        viewModel.sendIntent(GroupCellIntent.OnLongClick(model.id))
     }
 
     val onDetailsClick = rememberOnClickedCallback {
@@ -65,7 +71,10 @@ fun GroupCell(viewModel: GroupCellViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
                 .padding(horizontal = ElementMargin)
                 .height(height = TwoLineMediumItemHeight)
         ) {

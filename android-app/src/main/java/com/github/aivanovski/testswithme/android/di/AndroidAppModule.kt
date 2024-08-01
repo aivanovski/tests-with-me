@@ -36,10 +36,12 @@ import com.github.aivanovski.testswithme.android.presentation.screens.flow.FlowI
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.FlowViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.GroupEditorInteractor
+import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.GroupEditorViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.model.GroupEditorScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.GroupsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.GroupsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.GroupsCellModelFactory
-import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.GroupsCellViewModelFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.model.GroupsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginViewModel
@@ -134,11 +136,11 @@ object AndroidAppModule {
         single { UploadTestInteractor(get(), get(), get(), get()) }
         single { ProjectDashboardInteractor(get(), get(), get(), get(), get()) }
         single { ProjectEditorInteractor(get()) }
+        single { GroupEditorInteractor(get()) }
 
         // Cell factories
         single { FlowCellFactory(get(), get()) }
         single { GroupsCellModelFactory(get()) }
-        single { GroupsCellViewModelFactory() }
         single { ProjectsCellFactory(get()) }
         single { TestRunsCellFactory(get()) }
         single { TestRunCellFactory(get()) }
@@ -167,7 +169,6 @@ object AndroidAppModule {
         }
         factory { (vm: RootViewModel, router: Router, args: GroupsScreenArgs) ->
             GroupsViewModel(
-                get(),
                 get(),
                 get(),
                 get(),
@@ -235,6 +236,15 @@ object AndroidAppModule {
         }
         factory { (vm: RootViewModel, router: Router, args: ProjectEditorArgs) ->
             ProjectEditorViewModel(
+                get(),
+                get(),
+                vm,
+                router,
+                args
+            )
+        }
+        factory { (vm: RootViewModel, router: Router, args: GroupEditorScreenArgs) ->
+            GroupEditorViewModel(
                 get(),
                 get(),
                 vm,

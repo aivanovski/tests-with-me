@@ -1,8 +1,8 @@
-package com.github.aivanovski.testswithme.web.domain.usecases
+package com.github.aivanovski.testswithme.web.domain
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testswithme.utils.StringUtils
+import com.github.aivanovski.testswithme.web.api.EntityReference
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.entity.Group
@@ -14,14 +14,55 @@ import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByNameException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
+import com.github.aivanovski.testswithme.web.entity.exception.InvalidUidString
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.web.extensions.aggregateGroupsByParent
 import java.util.LinkedList
 
-class ResolvePathUseCase(
+class PathResolver(
     private val projectRepository: ProjectRepository,
     private val groupRepository: GroupRepository
 ) {
+
+    fun parseProjectAndGroup(
+        reference: EntityReference,
+        user: User
+    ): Either<AppException, Pair<Project, Group?>> =
+        either {
+            val path = reference.path
+            val groupId = reference.groupId
+            val projectId = reference.projectId
+
+            when {
+                path != null -> {
+                    val (project, groups) = resolveProjectAndGroupsByPath(
+                        path = path,
+                        user = user
+                    ).bind()
+
+                    project to groups.lastOrNull()
+                }
+
+                groupId != null -> {
+                    val group = findGroupByUid(groupId, user).bind()
+
+                    val project = projectRepository.findByUid(group.projectUid).bind()
+                        ?: raise(EntityNotFoundByUidException(Project::class, group.projectUid))
+
+                    project to group
+                }
+
+                projectId != null -> {
+                    val project = getProject(projectId, user).bind()
+
+                    project to null
+                }
+
+                else -> {
+                    raise(ParsingException("Failed to parse reference: $reference"))
+                }
+            }
+        }
 
     fun resolveProjectAndGroup(
         path: String?,
@@ -41,7 +82,7 @@ class ResolvePathUseCase(
                 }
 
                 !projectUid.isNullOrBlank() -> {
-                    val project = getProject(projectUid ?: StringUtils.EMPTY, user).bind()
+                    val project = getProject(projectUid, user).bind()
                     val group = getGroup(groupUid, project.uid).bind()
 
                     project to group
@@ -53,13 +94,27 @@ class ResolvePathUseCase(
             }
         }
 
+    private fun findGroupByUid(
+        groupUid: String,
+        user: User
+    ): Either<AppException, Group> =
+        either {
+            val uid = Uid.parse(groupUid).getOrNull()
+                ?: raise(InvalidUidString(groupUid))
+
+            groupRepository.getByUserUid(user.uid)
+                .bind()
+                .firstOrNull { group -> group.uid == uid }
+                ?: raise(EntityNotFoundByUidException(Group::class, groupUid))
+        }
+
     private fun getProject(
         projectUid: String,
         user: User
     ): Either<AppException, Project> =
         either {
             val uid = Uid.parse(projectUid).getOrNull()
-                ?: raise(ParsingException("Failed to parse uid: $projectUid"))
+                ?: raise(InvalidUidString(projectUid))
 
             val project = projectRepository.findByUid(uid).bind()
                 ?: raise(EntityNotFoundByUidException(Project::class, uid))
@@ -81,7 +136,7 @@ class ResolvePathUseCase(
             }
 
             val uid = Uid.parse(groupUid).getOrNull()
-                ?: raise(ParsingException("Failed to parse uid: $groupUid"))
+                ?: raise(InvalidUidString(groupUid))
 
             val group = groupRepository.findByUid(uid).bind()
                 ?: raise(EntityNotFoundByUidException(Group::class, uid))
@@ -93,7 +148,7 @@ class ResolvePathUseCase(
             group
         }
 
-    fun resolveProjectAndGroupsByPath(
+    private fun resolveProjectAndGroupsByPath(
         path: String,
         user: User
     ): Either<AppException, GroupPath> =
@@ -158,7 +213,7 @@ class ResolvePathUseCase(
                 }
 
                 else -> {
-                    projects.first()
+                    projectsByName.first()
                 }
             }
         }

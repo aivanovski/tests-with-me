@@ -41,4 +41,9 @@ class GroupRepository(
             groupDao.findByUid(group.uid)
                 ?: raise(EntityNotFoundByUidException(Group::class, group.uid))
         }
+
+    fun update(group: Group): Either<AppException, Group> =
+        either {
+            groupDao.update(group)
+        }
 }

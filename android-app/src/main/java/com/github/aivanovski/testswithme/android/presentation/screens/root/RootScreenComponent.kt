@@ -12,6 +12,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.decompose.Vie
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.RouterImpl
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.FlowScreenComponent
+import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.GroupEditorScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.GroupsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardScreenComponent
@@ -93,6 +94,15 @@ class RootScreenComponent(
 
             is Screen.Groups -> {
                 GroupsScreenComponent(
+                    context = childContext,
+                    rootViewModel = viewModel,
+                    router = router,
+                    args = screen.args
+                )
+            }
+
+            is Screen.GroupEditor -> {
+                GroupEditorScreenComponent(
                     context = childContext,
                     rootViewModel = viewModel,
                     router = router,

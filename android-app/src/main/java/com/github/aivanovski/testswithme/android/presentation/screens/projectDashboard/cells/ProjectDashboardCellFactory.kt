@@ -76,10 +76,17 @@ class ProjectDashboardCellFactory(
             if (data.remainedFlows.isNotEmpty()) {
                 models.addAll(createRemainedSection(data))
             }
+        }
+
+        if (data.allGroups.isNotEmpty()) {
+            if (models.isEmpty()) {
+                models.add(SpaceCellModel(ElementMargin))
+            } else {
+                models.add(SpaceCellModel(SmallMargin))
+            }
 
             models.addAll(createRootGroupSection(data))
             models.add(SpaceCellModel(ElementMargin))
-        } else {
         }
 
         return models
@@ -220,7 +227,6 @@ class ProjectDashboardCellFactory(
     private fun createRootGroupSection(data: ProjectDashboardData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
-        models.add(SpaceCellModel(height = SmallMargin))
         models.add(
             HeaderCellModel(
                 id = CellId.GROUPS_HEADER,

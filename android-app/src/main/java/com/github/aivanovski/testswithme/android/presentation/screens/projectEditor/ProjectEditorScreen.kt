@@ -1,8 +1,6 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.projectEditor
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,9 +16,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.AppTe
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ErrorMessage
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ProgressIndicator
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
-import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.MessageDialog
-import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogIntent
-import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.GroupMargin
@@ -28,7 +23,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent.OnDescriptionChanged
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent.OnDownloadUrlChanged
-import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent.OnMessageDialogClick
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent.OnNameChanged
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent.OnPackageNameChanged
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorIntent.OnSiteUrlChanged
@@ -65,90 +59,70 @@ private fun ProjectEditorScreen(
         onIntent.invoke(OnDownloadUrlChanged(newDownloadUrl))
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        when {
-            state.isLoading -> {
-                ProgressIndicator()
-            }
+    when {
+        state.isLoading -> {
+            ProgressIndicator()
+        }
 
-            else -> {
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            top = GroupMargin,
-                            start = ElementMargin,
-                            end = ElementMargin
-                        )
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    if (state.errorMessage != null) {
-                        ErrorMessage(message = state.errorMessage)
-                    }
-
-                    AppTextField(
-                        value = state.packageName,
-                        error = state.packageNameError,
-                        label = stringResource(R.string.application_package_name),
-                        onValueChange = onPackageNameChanged,
-                        modifier = Modifier
-                            .fillMaxWidth()
+        else -> {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        top = GroupMargin,
+                        start = ElementMargin,
+                        end = ElementMargin
                     )
-
-                    AppTextField(
-                        value = state.name,
-                        error = state.nameError,
-                        label = stringResource(R.string.project_name),
-                        onValueChange = onNameChanged,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-
-                    AppTextField(
-                        value = state.description,
-                        label = stringResource(R.string.project_description),
-                        onValueChange = onDescriptionChanged,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-
-                    AppTextField(
-                        value = state.siteUrl,
-                        label = stringResource(R.string.site_url),
-                        onValueChange = onUrlChanged,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-
-                    AppTextField(
-                        value = state.downloadUrl,
-                        label = stringResource(R.string.download_url),
-                        onValueChange = onDownloadUrlChanged,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (state.errorMessage != null) {
+                    ErrorMessage(message = state.errorMessage)
                 }
+
+                AppTextField(
+                    value = state.packageName,
+                    error = state.packageNameError,
+                    label = stringResource(R.string.application_package_name),
+                    onValueChange = onPackageNameChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
+                AppTextField(
+                    value = state.name,
+                    error = state.nameError,
+                    label = stringResource(R.string.project_name),
+                    onValueChange = onNameChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
+                AppTextField(
+                    value = state.description,
+                    label = stringResource(R.string.project_description),
+                    onValueChange = onDescriptionChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
+                AppTextField(
+                    value = state.siteUrl,
+                    label = stringResource(R.string.site_url),
+                    onValueChange = onUrlChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
+                AppTextField(
+                    value = state.downloadUrl,
+                    label = stringResource(R.string.download_url),
+                    onValueChange = onDownloadUrlChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
         }
     }
-}
-
-@Composable
-private fun MessageDialogContent(
-    state: MessageDialogState,
-    onIntent: (intent: ProjectEditorIntent) -> Unit
-) {
-    MessageDialog(
-        state = state,
-        onIntent = { intent ->
-            if (intent is MessageDialogIntent.OnActionButtonClick) {
-                onIntent.invoke(OnMessageDialogClick(intent.actionId))
-            }
-        }
-    )
 }
 
 @Composable

@@ -8,6 +8,10 @@ sealed interface GroupCellIntent : BaseCellIntent {
         val cellId: String
     ) : GroupCellIntent
 
+    data class OnLongClick(
+        val cellId: String
+    ) : GroupCellIntent
+
     data class OnDetailsClick(
         val cellId: String
     ) : GroupCellIntent
