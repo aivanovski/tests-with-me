@@ -3,7 +3,6 @@ package com.github.aivanovski.testswithme.web.presentation.routes
 import arrow.core.Either
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
-import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.Endpoints.FLOW
 import com.github.aivanovski.testswithme.web.api.Endpoints.FLOW_RUN
 import com.github.aivanovski.testswithme.web.api.Endpoints.GROUP
@@ -40,6 +39,7 @@ import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -84,7 +84,7 @@ fun Application.configureRouting() {
 
             get("/$FLOW/{$ID}") {
                 handleAuthenticated(authService, call) { user ->
-                    val uid = call.parameters[ID] ?: StringUtils.EMPTY
+                    val uid = call.parameters[ID].orEmpty()
                     flowController
                         .getFlow(user, uid)
                         .transformError()
@@ -129,7 +129,7 @@ fun Application.configureRouting() {
 
             get("/$FLOW_RUN/{$ID}") {
                 handleAuthenticated(authService, call) { user ->
-                    val uid = call.parameters[ID] ?: StringUtils.EMPTY
+                    val uid = call.parameters[ID].orEmpty()
                     flowRunController
                         .getFlowRun(user, uid)
                         .transformError()
@@ -165,7 +165,16 @@ fun Application.configureRouting() {
             post("/$GROUP") {
                 handleAuthenticated(authService, call) { user ->
                     groupController
-                        .postGroup(user, call.receive())
+                        .addGroup(user, call.receive())
+                        .transformError()
+                }
+            }
+
+            put("/$GROUP/{$ID}") {
+                handleAuthenticated(authService, call) { user ->
+                    val uid = call.parameters[ID].orEmpty()
+                    groupController
+                        .updateGroup(user, uid, call.receive())
                         .transformError()
                 }
             }

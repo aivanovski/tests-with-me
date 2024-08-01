@@ -46,4 +46,12 @@ abstract class Dao<T>(
             save(entity)
         }
     }
+
+    fun update(entity: T): T {
+        db.execTransaction {
+            update(entity)
+        }
+
+        return entity
+    }
 }

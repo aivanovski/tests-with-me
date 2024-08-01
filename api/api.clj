@@ -25,10 +25,11 @@
   [params]
   (let [other-params (dissoc params :type)
         url (str URL (:endpoint params))
-        response 
+        response
         (case (:type params)
           :GET (http/get url (merge other-params {:throw false}))
-          :POST (http/post url (merge other-params {:throw false})))]
+          :POST (http/post url (merge other-params {:throw false}))
+          :PUT (http/put url (merge other-params {:throw false})))]
     (print-response response)))
 
 (defn sign-up-request
@@ -37,7 +38,7 @@
     {:type :POST
      :endpoint "/sign-up"
      :headers HEADER_CONTENT_TYPE
-     :body (to-json 
+     :body (to-json
              {:username username
               :password password
               :email (:email params)})}))
@@ -74,7 +75,7 @@
 (defn get-projects-request
   []
   (request
-    {:type :GET 
+    {:type :GET
      :endpoint "/project"
      :headers HEADER_AUTH}))
 
@@ -94,14 +95,22 @@
 
 (defn get-groups-request
   []
-  (request 
+  (request
     {:type :GET
      :endpoint "/group"
      :headers HEADER_AUTH}))
 
+(defn update-group-request
+  [uid params]
+  (request
+    {:type :PUT
+     :endpoint (str "/group/" uid)
+     :headers (merge HEADER_CONTENT_TYPE HEADER_AUTH)
+     :body (to-json params)}))
+
 (defn post-flow-run-request
   [flow-uid]
-  (request 
+  (request
     {:type :POST
      :endpoint "/flow-run"
      :headers (merge HEADER_CONTENT_TYPE HEADER_AUTH)
@@ -116,16 +125,16 @@
 
 (defn post-project-request
   [params]
-  (request 
+  (request
     {:type :POST
      :endpoint "/project"
      :headers (merge HEADER_CONTENT_TYPE HEADER_AUTH)
-     :body (to-json 
+     :body (to-json
              params)}))
 
 (defn post-group-request
   [name path]
-  (request 
+  (request
     {:type :POST
      :endpoint "/group"
      :headers (merge HEADER_CONTENT_TYPE HEADER_AUTH)
@@ -138,4 +147,11 @@
     {:type :GET
      :endpoint "/user"
      :headers HEADER_AUTH})
+
+  (post-group-request "Garbage" "KeePassVault")
+
+  (update-group-request
+    "0be53378-2abc-4fa2-960f-2f58eb5de00d"
+    {:name "Test"
+     :parent {:path "KeePassVault/Other"}})
   )

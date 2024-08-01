@@ -8,3 +8,9 @@ open class ParsingException(
 class InvalidBase64String : ParsingException(
     message = "Invalid Base64 string"
 )
+
+class InvalidUidString(
+    uid: String
+) : ParsingException(
+    message = "Invalid uid string: $uid"
+)

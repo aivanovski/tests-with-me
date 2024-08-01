@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.web.api
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GroupsItemDto(
+data class GroupItemDto(
     val id: String,
     val parentId: String?,
     val projectId: String,

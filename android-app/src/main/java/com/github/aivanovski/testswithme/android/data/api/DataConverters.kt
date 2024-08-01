@@ -8,7 +8,7 @@ import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.web.api.FlowRunsItemDto
 import com.github.aivanovski.testswithme.web.api.FlowsItemDto
-import com.github.aivanovski.testswithme.web.api.GroupsItemDto
+import com.github.aivanovski.testswithme.web.api.GroupItemDto
 import com.github.aivanovski.testswithme.web.api.UsersItemDto
 import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
 
@@ -34,7 +34,7 @@ fun List<UsersItemDto>.toUsers(): List<User> {
     }
 }
 
-fun List<GroupsItemDto>.toGroups(): List<Group> {
+fun List<GroupItemDto>.toGroups(): List<Group> {
     return map { item ->
         Group(
             uid = item.id,

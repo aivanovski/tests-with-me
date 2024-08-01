@@ -11,7 +11,7 @@ import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
-import com.github.aivanovski.testswithme.web.domain.usecases.ResolvePathUseCase
+import com.github.aivanovski.testswithme.web.domain.PathResolver
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Project
@@ -29,7 +29,7 @@ import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
 
 class FlowController(
     private val flowRepository: FlowRepository,
-    private val resolvePathUseCase: ResolvePathUseCase
+    private val pathResolver: PathResolver
 ) {
 
     fun postFlow(
@@ -37,7 +37,7 @@ class FlowController(
         request: PostFlowRequest
     ): Either<AppException, PostFlowResponse> =
         either {
-            val (project, group) = resolvePathUseCase.resolveProjectAndGroup(
+            val (project, group) = pathResolver.resolveProjectAndGroup(
                 path = request.path,
                 projectUid = request.projectId,
                 groupUid = request.groupId,
