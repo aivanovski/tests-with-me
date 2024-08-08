@@ -69,7 +69,7 @@ class FlowController(
             val flow = Flow(
                 uid = flowUid,
                 projectUid = project.uid,
-                groupUid = group?.uid,
+                groupUid = group.uid,
                 name = parsedFlow.name,
                 path = path
             )
@@ -102,7 +102,7 @@ class FlowController(
                 FlowItemDto(
                     id = flow.uid.toString(),
                     projectId = flow.projectUid.toString(),
-                    groupId = flow.groupUid?.toString(),
+                    groupId = flow.groupUid.toString(),
                     name = flow.name,
                     base64Content = rawContent.encodeToBase64()
                 )
@@ -117,7 +117,7 @@ class FlowController(
                 FlowsItemDto(
                     id = flow.uid.toString(),
                     projectId = flow.projectUid.toString(),
-                    groupId = flow.groupUid?.toString(),
+                    groupId = flow.groupUid.toString(),
                     name = flow.name
                 )
             }
@@ -147,9 +147,4 @@ class FlowController(
                 raise(EntityAlreadyExistsException(name))
             }
         }
-
-    companion object {
-        private const val FIELD_PROJECT_ID = "projectId"
-        private const val FIELD_GROUP_ID = "groupId"
-    }
 }

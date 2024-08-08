@@ -24,6 +24,10 @@ data class Project(
     @Convert(converter = UidConverter::class)
     val userUid: Uid,
 
+    @Column(name = "root_group_uid")
+    @Convert(converter = UidConverter::class)
+    val rootGroupUid: Uid,
+
     @Column(name = "package_name")
     val packageName: String,
 
@@ -41,4 +45,6 @@ data class Project(
 
     @Column(name = "site_url", nullable = true)
     val siteUrl: String?
-)
+) {
+    // TODO: add db fields
+}

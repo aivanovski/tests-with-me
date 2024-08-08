@@ -10,24 +10,33 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 @Entity
-@Table(name = "Groups")
+@Table(name = Group.DbFields.TABLE_NAME)
 data class Group(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0,
 
-    @Column(name = "uid")
+    @Column(name = DbFields.UID)
     @Convert(converter = UidConverter::class)
     val uid: Uid,
 
-    @Column(name = "parent_uid", nullable = true)
+    @Column(name = DbFields.PARENT_UID, nullable = true)
     @Convert(converter = UidConverter::class)
     val parentUid: Uid?,
 
-    @Column(name = "project_uid")
+    @Column(name = DbFields.PROJECT_UID)
     @Convert(converter = UidConverter::class)
     val projectUid: Uid,
 
-    @Column(name = "name")
+    @Column(name = DbFields.NAME)
     val name: String
-)
+) {
+    object DbFields {
+        const val TABLE_NAME = "Groups"
+
+        const val UID = "uid"
+        const val PARENT_UID = "parent_uid"
+        const val PROJECT_UID = "project_uid"
+        const val NAME = "name"
+    }
+}

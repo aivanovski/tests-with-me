@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PostProjectResponse(
-    val id: String
+    val id: String,
+    val rootGroupId: String
 )

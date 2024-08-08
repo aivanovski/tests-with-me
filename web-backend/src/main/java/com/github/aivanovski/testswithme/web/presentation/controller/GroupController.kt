@@ -57,7 +57,7 @@ class GroupController(
                     user = user
                 ).bind()
 
-                newProject.uid to newParentGroup?.uid
+                newProject.uid to newParentGroup.uid
             } else {
                 group.projectUid to group.parentUid
             }
@@ -101,7 +101,7 @@ class GroupController(
 
             val group = Group(
                 uid = Uid.generate(),
-                parentUid = parent?.uid,
+                parentUid = parent.uid,
                 projectUid = project.uid,
                 name = request.name
             )

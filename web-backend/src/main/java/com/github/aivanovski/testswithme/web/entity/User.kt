@@ -9,25 +9,35 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.Table
 
-// TODO: improve security, password should be encrypted and salted
+// TODO: improve security, password should be hashed and salted
 
 @Entity(name = "User_") // TODO: specify
-@Table(name = "Users")
+@Table(name = User.DbFields.TABLE_NAME)
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0,
 
-    @Column(name = "uid")
+    @Column(name = DbFields.UID)
     @Convert(converter = UidConverter::class)
     val uid: Uid,
 
-    @Column(name = "name")
+    @Column(name = DbFields.NAME)
     val name: String,
 
-    @Column(name = "email")
+    @Column(name = DbFields.EMAIL)
     val email: String,
 
-    @Column(name = "password")
+    @Column(name = DbFields.PASSWORD)
     val password: String
-)
+) {
+
+    object DbFields {
+        const val TABLE_NAME = "Users"
+
+        const val UID = "uid"
+        const val NAME = "name"
+        const val EMAIL = "email"
+        const val PASSWORD = "password"
+    }
+}

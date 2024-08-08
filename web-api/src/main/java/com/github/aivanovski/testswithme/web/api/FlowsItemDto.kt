@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 data class FlowsItemDto(
     val id: String,
     val projectId: String,
-    val groupId: String?,
+    val groupId: String,
     val name: String
 )

@@ -27,7 +27,7 @@ data class Flow(
 
     @Column(name = "group_uid", nullable = true)
     @Convert(converter = UidConverter::class)
-    val groupUid: Uid?,
+    val groupUid: Uid,
 
     @Column(name = "name")
     val name: String,
@@ -35,4 +35,6 @@ data class Flow(
     @Column(name = "path")
     @Convert(converter = FsPathConverter::class)
     val path: FsPath
-)
+) {
+    // TODO: Add db fields
+}

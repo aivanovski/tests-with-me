@@ -59,7 +59,7 @@ object WebAppModule {
         single { LoginController(get()) }
         single { SignUpController(get(), get(), get()) }
         single { FlowController(get(), get()) }
-        single { ProjectController(get()) }
+        single { ProjectController(get(), get()) }
         single { FlowRunController(get(), get(), get()) }
         single { UserController(get()) }
         single { GroupController(get(), get(), get()) }

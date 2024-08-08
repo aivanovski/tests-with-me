@@ -42,58 +42,58 @@
    :siteUrl "https://f-droid.org"})
 
 ;; Groups
-(println "Creaing group: KeePassVault/Screens")
+(println "Creaing group: KeePassVault/Root/Screens")
 (api/post-group-request
   "Screens"
-  "KeePassVault")
+  "KeePassVault/Root")
 
-(println "Creaing group: KeePassVault/Screens/About")
+(println "Creaing group: KeePassVault/Root/Screens/About")
 (api/post-group-request
   "About"
-  "KeePassVault/Screens")
+  "KeePassVault/Root/Screens")
 
-(println "Creaing group: KeePassVault/Screens/New Database")
+(println "Creaing group: KeePassVault/Root/Screens/New Database")
 (api/post-group-request
   "New Database"
-  "KeePassVault/Screens")
+  "KeePassVault/Root/Screens")
 
-(println "Creaing group: KeePassVault/Screens/Unlock")
+(println "Creaing group: KeePassVault/Root/Screens/Unlock")
 (api/post-group-request
   "Unlock"
-  "KeePassVault/Screens")
+  "KeePassVault/Root/Screens")
 
 ;; Flows
 (post-flow-file
   "flows/keepassvault/about_navigate-back.yaml"
-  "KeePassVault/Screens/About")
+  "KeePassVault/Root/Screens/About")
 
 (post-flow-file
   "flows/keepassvault/about_open-screen.yaml"
-  "KeePassVault/Screens/About")
+  "KeePassVault/Root/Screens/About")
 
 (post-flow-file
   "flows/keepassvault/about_feedback-url-should-be-shown.yaml"
-  "KeePassVault/Screens/About")
+  "KeePassVault/Root/Screens/About")
 
 (post-flow-file
   "flows/keepassvault/failing.yaml"
-  "KeePassVault/Screens/About")
+  "KeePassVault/Root/Screens/About")
 
 (post-flow-file
   "flows/keepassvault/new_db_create-new.yaml"
-  "KeePassVault/Screens/New Database")
+  "KeePassVault/Root/Screens/New Database")
 
 (post-flow-file
   "flows/keepassvault/unlock_open-database.yaml"
-  "KeePassVault/Screens/Unlock")
+  "KeePassVault/Root/Screens/Unlock")
 
 (post-flow-file
   "flows/keepassvault/unlock_remove-file.yaml"
-  "KeePassVault/Screens/Unlock")
+  "KeePassVault/Root/Screens/Unlock")
 
 (post-flow-file
   "flows/keepassvault/all.yaml"
-  "KeePassVault")
+  "KeePassVault/Root")
 
 (comment
   )

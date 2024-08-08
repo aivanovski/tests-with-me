@@ -7,7 +7,9 @@ import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
 import com.github.aivanovski.testswithme.web.api.response.ProjectsResponse
+import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
+import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
@@ -16,7 +18,8 @@ import com.github.aivanovski.testswithme.web.entity.exception.EmptyRequestFieldE
 import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExistsException
 
 class ProjectController(
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val groupRepository: GroupRepository
 ) {
 
     fun postProject(
@@ -26,9 +29,13 @@ class ProjectController(
         either {
             validateProjectData(request).bind()
 
+            val projectUid = Uid.generate()
+            val rootGroupUid = Uid.generate()
+
             val project = Project(
-                uid = Uid.generate(),
+                uid = projectUid,
                 userUid = user.uid,
+                rootGroupUid = rootGroupUid,
                 packageName = request.packageName,
                 name = request.name,
                 description = request.description?.trim()?.orNull(),
@@ -37,10 +44,19 @@ class ProjectController(
                 siteUrl = request.siteUrl?.trim()?.orNull()
             )
 
-            projectRepository.add(project)
+            val rootGroup = Group(
+                uid = rootGroupUid,
+                parentUid = null,
+                projectUid = projectUid,
+                name = GroupRepository.ROOT_GROUP_NAME
+            )
+
+            projectRepository.add(project).bind()
+            groupRepository.add(rootGroup).bind()
 
             PostProjectResponse(
-                id = project.uid.toString()
+                id = project.uid.toString(),
+                rootGroupId = rootGroup.uid.toString()
             )
         }
 
@@ -52,6 +68,7 @@ class ProjectController(
                 .map { project ->
                     ProjectsItemDto(
                         id = project.uid.toString(),
+                        rootGroupId = project.rootGroupUid.toString(),
                         packageName = project.packageName,
                         name = project.name,
                         description = project.description,

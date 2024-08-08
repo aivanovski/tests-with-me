@@ -13,7 +13,7 @@ class UserDao(
 
     fun findByName(name: String): User? {
         return findByField(
-            fieldName = "name",
+            fieldName = User.DbFields.NAME,
             fieldValue = name
         ).firstOrNull()
     }
