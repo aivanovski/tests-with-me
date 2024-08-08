@@ -27,7 +27,7 @@ class PathResolver(
     fun parseProjectAndGroup(
         reference: EntityReference,
         user: User
-    ): Either<AppException, Pair<Project, Group?>> =
+    ): Either<AppException, Pair<Project, Group>> =
         either {
             val path = reference.path
             val groupId = reference.groupId
@@ -40,7 +40,7 @@ class PathResolver(
                         user = user
                     ).bind()
 
-                    project to groups.lastOrNull()
+                    project to groups.last()
                 }
 
                 groupId != null -> {
@@ -54,8 +54,12 @@ class PathResolver(
 
                 projectId != null -> {
                     val project = getProject(projectId, user).bind()
+                    val group = getGroup(
+                        groupUid = project.rootGroupUid.toString(),
+                        projectUid = project.uid
+                    ).bind()
 
-                    project to null
+                    project to group
                 }
 
                 else -> {
@@ -69,7 +73,7 @@ class PathResolver(
         projectUid: String?,
         groupUid: String?,
         user: User
-    ): Either<AppException, Pair<Project, Group?>> =
+    ): Either<AppException, Pair<Project, Group>> =
         either {
             when {
                 !path.isNullOrBlank() -> {
@@ -78,12 +82,16 @@ class PathResolver(
                         user = user
                     ).bind()
 
-                    project to groups.lastOrNull()
+                    project to groups.last()
                 }
 
                 !projectUid.isNullOrBlank() -> {
                     val project = getProject(projectUid, user).bind()
-                    val group = getGroup(groupUid, project.uid).bind()
+                    val group = if (groupUid != null) {
+                        getGroup(groupUid, project.uid).bind()
+                    } else {
+                        getGroup(project.rootGroupUid.toString(), project.uid).bind()
+                    }
 
                     project to group
                 }
@@ -127,14 +135,10 @@ class PathResolver(
         }
 
     private fun getGroup(
-        groupUid: String?,
+        groupUid: String,
         projectUid: Uid
-    ): Either<AppException, Group?> =
+    ): Either<AppException, Group> =
         either {
-            if (groupUid.isNullOrBlank()) {
-                return@either null
-            }
-
             val uid = Uid.parse(groupUid).getOrNull()
                 ?: raise(InvalidUidString(groupUid))
 
@@ -187,7 +191,10 @@ class PathResolver(
 
                 resolveGroupsByName(groupNames, groups).bind()
             } else {
-                emptyList()
+                val rootGroup = groupRepository.findByUid(project.rootGroupUid).bind()
+                    ?: raise(EntityNotFoundByUidException(Group::class, project.rootGroupUid))
+
+                listOf(rootGroup)
             }
 
             GroupPath(

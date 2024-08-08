@@ -50,4 +50,6 @@ data class FlowRun(
 
     @Column(name = "app_version_code")
     val appVersionCode: String
-)
+) {
+    // TODO: Add db fields
+}

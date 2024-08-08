@@ -46,4 +46,8 @@ class GroupRepository(
         either {
             groupDao.update(group)
         }
+
+    companion object {
+        const val ROOT_GROUP_NAME = "Root"
+    }
 }
