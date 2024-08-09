@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.ktor.server.negotiation)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authjwt)
+    implementation(libs.ktor.server.cors)
 
     // Database
     implementation(libs.db.h2)
