@@ -39,3 +39,5 @@ app-data/
 .clj-kondo/
 .lsp
 .nrepl-port
+
+web-api-scala/
