@@ -75,3 +75,29 @@ jobs:
 
       - name: Build jar file
         run: ./gradlew web-backend:shadowJar
+
+  build-transpiled-api:
+    name: Build transpiled API
+    needs: [ check-code-style ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Setup
+        run: |
+          curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+          chmod +x install
+          ./install
+          bb --version
+
+      - name: Transpile API into Scala
+        run: bb api/transpiler/cli.clj
+
+      - name: Compile Transpiled API
+        run: sbt -v compile
+

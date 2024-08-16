@@ -6,8 +6,8 @@
             [clojure.string :as str])
   (:import [java.io File]))
 
-(def INPUT_PATH "./web-api/src/main")
-(def OUTPUT_PATH "./web-api-scala/src/main")
+(def INPUT_PATH "web-api")
+(def OUTPUT_PATH "web-api-scala/shared")
 (def INPUT_PATTERN #"([\w-_]+)/([\w\/-_]+)/(java)/([\w\/-_]+).(kt)")
 
 (defn parse-input-path
@@ -23,8 +23,8 @@
       (re-find INPUT_PATTERN path))))
 
 (defn format-output-path
-  [segments]
-  (let [scala-segments {:project "web-api-scala"
+  [segments output-root-path]
+  (let [scala-segments {:project output-root-path
                         :language "scala"
                         :extension "scala"}
         merged (merge segments scala-segments)]
@@ -37,20 +37,35 @@
       (:path merged)
       (:extension merged))))
 
-(defn transpile-file
-  [src-path]
-  (let [src-segments (parse-input-path src-path)
-        dst-path (format-output-path src-segments)
-        dst-parent (.toString (.getParent (File. dst-path)))]
+(defn read-file
+  [path]
+  (if (fs/exists? path)
+    (String. (fs/read-all-bytes path))
+    nil))
 
-    (println (str "parent: " dst-parent))
-    (println (format "output into: %s" dst-path))
+(defn transpile-file
+  [src-path dst-root-path]
+  (let [src-segments (parse-input-path src-path)
+        dst-path (format-output-path src-segments dst-root-path)
+        dst-name (fs/file-name dst-path)
+        dst-parent (.toString (.getParent (File. dst-path)))]
 
     (when (not (fs/exists? dst-parent)) (fs/create-dirs dst-parent))
 
-    (let [src-content (String. (fs/read-all-bytes src-path))
+    (let [src-content (read-file src-path)
+          curr-dst-content (read-file dst-path)
           dst-content (tr/transpile src-content)]
-      (fs/write-bytes dst-path (.getBytes dst-content)))
+
+      (if (not= dst-content curr-dst-content)
+        (do
+         (println
+           (format
+             "Write to: %s %s bytes"
+             dst-name
+             (count dst-content)))
+
+         (fs/write-bytes dst-path (.getBytes dst-content)))
+        (println (format "Skip %s" dst-name))))
     ))
 
 (defn transpile-sources
@@ -58,12 +73,18 @@
   (let [src-files (fs/glob src-root "**{.kt}")]
 
     (doseq [src-file src-files]
+      (transpile-file (str src-file) dst-root))))
 
-      (println (format "transpiling: %s" src-file))
-      (transpile-file (str src-file)))))
+(transpile-sources INPUT_PATH OUTPUT_PATH)
 
 (comment
 
   (transpile-sources INPUT_PATH OUTPUT_PATH)
+
+  (def path "web-api/src/main/java/com/github/aivanovski/testswithme/web/api/FlowsItemDto.kt")
+  (parse-input-path path)
+
+  (fs/read-all-bytes "web-api-scala/src/main/scala/com/github/aivanovski/testswithme/web/api/FlowsItemDto.scala")
+
 
   )

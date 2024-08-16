@@ -40,4 +40,28 @@ app-data/
 .lsp
 .nrepl-port
 
-web-api-scala/
+# Transpiled server API
+web-api-scala/shared/src
+
+# Scala
+sbt
+.bsp
+.sbt-local
+.cache
+.history
+.lib
+dist
+target
+lib_managed
+src_managed
+credentials.sbt
+node_modules
+.metals/
+.bloop
+metals.sbt
+.bsp/
+.ammonite
+.coursier
+.parcel-cache
+yarn.lock
+.vscode/

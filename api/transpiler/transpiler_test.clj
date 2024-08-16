@@ -42,7 +42,7 @@
   "
   package com.github.aivanovski.testswithme.web.api.request
   object Api {
-     const val username: String,
+     const val username: String
      const val password: String
   }"
 
@@ -50,7 +50,7 @@
   "
   package com.github.aivanovski.testswithme.web.api.request
   object Api {
-     val username: String,
+     val username: String
      val password: String
   }")
 
