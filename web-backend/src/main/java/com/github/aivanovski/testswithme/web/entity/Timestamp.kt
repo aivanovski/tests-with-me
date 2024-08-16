@@ -10,7 +10,7 @@ data class Timestamp(
 ) {
 
     fun formatForTransport(): String {
-        return ApiDateFormat.DATE_TIME_FORMAT.format(Date(milliseconds))
+        return API_FORMAT.format(Date(milliseconds))
     }
 
     override fun toString(): String {
@@ -20,6 +20,11 @@ data class Timestamp(
     companion object {
         private val ISO_FORMAT = SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            Locale.ENGLISH
+        )
+
+        private val API_FORMAT = SimpleDateFormat(
+            ApiDateFormat.DATE_TIME_FORMAT,
             Locale.ENGLISH
         )
 
