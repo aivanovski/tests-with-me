@@ -66,25 +66,32 @@
 
          (fs/write-bytes dst-path (.getBytes dst-content)))
         (println (format "Skip %s" dst-name))))
-    ))
+
+    dst-path))
+
+(defn list-files
+  [root file-pattern]
+  (->> (fs/glob root file-pattern)
+       (map #(str %))))
 
 (defn transpile-sources
   [src-root dst-root]
-  (let [src-files (fs/glob src-root "**{.kt}")]
+  (let
+    [src-files (list-files src-root "**{.kt}")
+     existing-dst-files (list-files dst-root "**{.scala}")
+     dst-files (->> src-files
+                    (map #(transpile-file % dst-root))
+                    (set))]
 
-    (doseq [src-file src-files]
-      (transpile-file (str src-file) dst-root))))
+    (doseq [file existing-dst-files]
+      (when (not (contains? dst-files file))
+        (println (format "Remove %s" file))
+        (fs/delete file)))
+    ))
 
 (transpile-sources INPUT_PATH OUTPUT_PATH)
 
 (comment
 
   (transpile-sources INPUT_PATH OUTPUT_PATH)
-
-  (def path "web-api/src/main/java/com/github/aivanovski/testswithme/web/api/FlowsItemDto.kt")
-  (parse-input-path path)
-
-  (fs/read-all-bytes "web-api-scala/src/main/scala/com/github/aivanovski/testswithme/web/api/FlowsItemDto.scala")
-
-
   )
