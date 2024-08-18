@@ -7,6 +7,7 @@
 (def TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vMC4wLjAuMDo4MDgwL2hlbGxvIiwiaXNzIjoiaHR0cDovLzAuMC4wLjA6ODA4MC8iLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNzI2NDkyMTkwfQ.QtMNxlGy7K2_HlJljlQEjfvpAfLm02ZK3KKgpfkVoWQ")
 (def HEADER_CONTENT_TYPE {:content-type "application/json"})
 (def HEADER_AUTH {:authorization (str "Bearer " TOKEN)})
+(def PRINT_HEADERS true)
 (defn to-json [data] (json/encode data))
 (defn decode-base64 [str]
   (String. (.decode (Base64/getDecoder) (.getBytes str))))
@@ -16,10 +17,18 @@
 (defn print-response
   [response]
   (let [has-body (not (empty? (:body response)))
+        headers (:headers response {})
         data (json/parse-string (:body response) true)]
+
+    (when PRINT_HEADERS
+      (println (format "HEADERS: %s" (count headers)))
+      (doseq [key (keys headers)]
+        (println (format "%s: %s" key (get headers key)))))
+
     (if has-body
       (println (json/generate-string data {:pretty true}))
-      (println response))))
+      (println response))
+    ))
 
 (defn request
   [params]
@@ -44,12 +53,12 @@
               :email (:email params)})}))
 
 (defn login-request
-  []
+  [username password]
   (request
     {:type :POST
      :endpoint "/login"
      :headers HEADER_CONTENT_TYPE
-     :body (to-json {:username "admin", :password "abc123"})}))
+     :body (to-json {:username username, :password password})}))
 
 (defn get-users-request
   []

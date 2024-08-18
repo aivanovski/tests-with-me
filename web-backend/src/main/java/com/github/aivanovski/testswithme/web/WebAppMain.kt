@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.web
 
+import com.github.aivanovski.testswithme.web.api.ApiHeaders
 import com.github.aivanovski.testswithme.web.data.database.configureDatabase
 import com.github.aivanovski.testswithme.web.di.WebAppModule
 import com.github.aivanovski.testswithme.web.presentation.configureAuthentication
@@ -36,6 +37,7 @@ fun main(args: Array<String>) {
             allowMethod(HttpMethod.Options)
             allowHeader(HttpHeaders.ContentType)
             allowHeader(HttpHeaders.Authorization)
+            allowHeader(ApiHeaders.X_REQUEST_SET_COOKIE)
 
             exposeHeader(HttpHeaders.AccessControlAllowOrigin)
         }
