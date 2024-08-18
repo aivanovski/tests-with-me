@@ -60,7 +60,7 @@ fun Application.configureRouting() {
         post(LOGIN) {
             handle(call) {
                 loginController
-                    .login(call.receive())
+                    .login(call, call.receive())
                     .transformError()
             }
         }

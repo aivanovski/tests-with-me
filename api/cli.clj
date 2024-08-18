@@ -14,8 +14,8 @@
 (def args *command-line-args*)
 
 (case (first args)
-  "login" (api/login-request)
-  "sign-up" (api/sign-up-request 
+  "login" (api/login-request "admin" "abc123")
+  "sign-up" (api/sign-up-request
               "admin1"
               "abc123"
               {:email "example@gmail.com"})
