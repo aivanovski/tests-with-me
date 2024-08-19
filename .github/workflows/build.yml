@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tests-with-me-backend.jar
-          path: ./web-backend/build/libs/tests-with-me-backend-${{env.VERSION}}-all.jar
+          path: ./web-backend/build/libs/tests-with-me-backend.jar
 
   build-transpiled-api:
     name: Build transpiled API
