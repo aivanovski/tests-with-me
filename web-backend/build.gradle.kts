@@ -44,7 +44,7 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
-        archiveBaseName.set("tests-with-me-backend")
+        archiveFileName.set("tests-with-me-backend.jar")
         mergeServiceFiles()
         manifest {
             attributes(mapOf("Main-Class" to "com.github.aivanovski.testswithme.web.WebAppMainKt"))
@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authjwt)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.keysore)
 
     // Database
     implementation(libs.db.h2)
