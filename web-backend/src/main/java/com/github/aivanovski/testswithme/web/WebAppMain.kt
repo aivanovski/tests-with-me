@@ -33,7 +33,8 @@ fun main(args: Array<String>) {
             keyStore = keyStore.keyStore,
             keyAlias = keyStore.alias,
             keyStorePassword = { keyStore.password.toCharArray() },
-            privateKeyPassword = { keyStore.password.toCharArray() }) {
+            privateKeyPassword = { keyStore.password.toCharArray() }
+        ) {
             port = 8443
         }
 

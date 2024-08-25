@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory
 
 class CORSController {
 
-    fun handleCorsOptionsCall(
-        call: ApplicationCall
-    ): Either<AppException, Response<String>> =
+    fun handleCorsOptionsCall(call: ApplicationCall): Either<AppException, Response<String>> =
         either {
             val headers = call.request.headers
 

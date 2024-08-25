@@ -108,9 +108,7 @@ suspend inline fun <reified T : Any> ApplicationCall.sendResponse(
     }
 }
 
-fun ApplicationCall.formatRequestLogMessage(
-    response: Either<ErrorResponse, Any>
-): String {
+fun ApplicationCall.formatRequestLogMessage(response: Either<ErrorResponse, Any>): String {
     return when (response) {
         is Either.Left -> {
             val error = response.unwrapError()
