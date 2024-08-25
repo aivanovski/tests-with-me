@@ -16,6 +16,7 @@ import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.data.repository.UserRepository
 import com.github.aivanovski.testswithme.web.domain.PathResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
+import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
@@ -52,6 +53,7 @@ object WebAppModule {
         // UseCases
         single { ValidateEmailUseCase() }
         single { PathResolver(get(), get()) }
+        single { GetSslKeyStoreUseCase(get()) }
 
         // Services
         single { AuthService(get()) }

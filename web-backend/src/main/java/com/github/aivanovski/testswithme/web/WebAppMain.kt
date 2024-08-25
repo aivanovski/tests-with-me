@@ -1,34 +1,58 @@
 package com.github.aivanovski.testswithme.web
 
+import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.web.data.database.configureDatabase
+import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.web.di.WebAppModule
+import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.presentation.configureAuthentication
 import com.github.aivanovski.testswithme.web.presentation.routes.configureRouting
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.engine.sslConnector
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
 
-@OptIn(ExperimentalSerializationApi::class)
 fun main(args: Array<String>) {
     startKoin {
         modules(WebAppModule.module)
     }
 
-    embeddedServer(Netty, 8080) {
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    explicitNulls = false
-                }
-            )
+    val getKeyStoreUseCase: GetSslKeyStoreUseCase = get()
+
+    val environment = applicationEngineEnvironment {
+        val keyStore = getKeyStoreUseCase.getKeyStore().unwrap()
+
+        sslConnector(
+            keyStore = keyStore.keyStore,
+            keyAlias = keyStore.alias,
+            keyStorePassword = { keyStore.password.toCharArray() },
+            privateKeyPassword = { keyStore.password.toCharArray() }) {
+            port = 8443
         }
-        configureDatabase()
-        configureAuthentication()
-        configureRouting()
-    }.start(wait = true)
+
+        module(Application::appModule)
+    }
+
+    embeddedServer(Netty, environment).start(wait = true)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun Application.appModule() {
+    install(ContentNegotiation) {
+        json(
+            Json {
+                explicitNulls = false
+            }
+        )
+    }
+    configureDatabase()
+    configureAuthentication()
+    configureRouting()
 }
