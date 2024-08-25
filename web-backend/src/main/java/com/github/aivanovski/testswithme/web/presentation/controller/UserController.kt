@@ -5,17 +5,15 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.web.api.UsersItemDto
 import com.github.aivanovski.testswithme.web.api.response.UsersResponse
 import com.github.aivanovski.testswithme.web.data.repository.UserRepository
-import com.github.aivanovski.testswithme.web.entity.ErrorResponse
-import com.github.aivanovski.testswithme.web.extensions.transformError
+import com.github.aivanovski.testswithme.web.entity.exception.AppException
 
 class UserController(
     private val userRepository: UserRepository
 ) {
 
-    fun getUsers(): Either<ErrorResponse, UsersResponse> =
+    fun getUsers(): Either<AppException, UsersResponse> =
         either {
             val users = userRepository.getUsers()
-                .transformError()
                 .bind()
 
             UsersResponse(

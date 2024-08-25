@@ -12,14 +12,12 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.response.respond
-import org.slf4j.LoggerFactory
 
 const val AUTH_PROVIDER = "jwt-auth-provider"
 
-private val logger = LoggerFactory.getLogger("Authentication")
-
 fun Application.configureAuthentication() {
-    val jwtData = JwtData.DEFAULT // TODO: read from properties
+    // TODO: should be read from properties file in production environment
+    val jwtData = JwtData.DEFAULT
 
     install(Authentication) {
         jwt(AUTH_PROVIDER) {
