@@ -8,4 +8,5 @@ object StringUtils {
     const val DOTS = "…"
     const val SLASH = "/"
     const val DASH = "-"
+    const val STAR = "*"
 }

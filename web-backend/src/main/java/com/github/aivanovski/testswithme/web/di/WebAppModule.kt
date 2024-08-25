@@ -17,6 +17,7 @@ import com.github.aivanovski.testswithme.web.data.repository.UserRepository
 import com.github.aivanovski.testswithme.web.domain.PathResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.ValidateEmailUseCase
+import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController
 import com.github.aivanovski.testswithme.web.presentation.controller.GroupController
@@ -56,6 +57,7 @@ object WebAppModule {
         single { AuthService(get()) }
 
         // Controllers
+        single { CORSController() }
         single { LoginController(get()) }
         single { SignUpController(get(), get(), get()) }
         single { FlowController(get(), get()) }

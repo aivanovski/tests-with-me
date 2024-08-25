@@ -19,6 +19,7 @@ import com.github.aivanovski.testswithme.web.extensions.transformError
 import com.github.aivanovski.testswithme.web.presentation.AUTH_PROVIDER
 import com.github.aivanovski.testswithme.web.presentation.Errors.ERROR_HAS_BEEN_OCCURRED
 import com.github.aivanovski.testswithme.web.presentation.Errors.INVALID_OR_EXPIRED_TOKEN
+import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController
 import com.github.aivanovski.testswithme.web.presentation.controller.GroupController
@@ -27,6 +28,7 @@ import com.github.aivanovski.testswithme.web.presentation.controller.ProjectCont
 import com.github.aivanovski.testswithme.web.presentation.controller.SignUpController
 import com.github.aivanovski.testswithme.web.presentation.controller.UserController
 import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -38,6 +40,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
+import io.ktor.server.routing.options
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
@@ -55,8 +58,13 @@ fun Application.configureRouting() {
     val flowRunController: FlowRunController by lazy { get() }
     val userController: UserController by lazy { get() }
     val groupController: GroupController by lazy { get() }
+    val corsController: CORSController by lazy { get() }
 
     routing {
+        options("/*") {
+            corsController.handleCorsOptionsCall(call)
+        }
+
         post(LOGIN) {
             handle(call) {
                 loginController
@@ -213,6 +221,16 @@ suspend inline fun <reified T : Any> handle(
     block: () -> Either<ErrorResponse, T>
 ) {
     val response = block.invoke()
+
+    val origin = call.request.headers[HttpHeaders.Origin]
+    if (!origin.isNullOrBlank()) {
+        call.response.headers.apply {
+            append(HttpHeaders.AccessControlAllowOrigin, origin)
+            append(HttpHeaders.AccessControlAllowCredentials, "true")
+            append(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.AccessControlAllowOrigin)
+        }
+    }
+
     call.sendResponse(response)
 }
 
