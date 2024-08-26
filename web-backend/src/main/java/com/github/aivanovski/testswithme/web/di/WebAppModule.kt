@@ -1,7 +1,5 @@
 package com.github.aivanovski.testswithme.web.di
 
-import com.github.aivanovski.testswithme.data.resources.ResourceProvider
-import com.github.aivanovski.testswithme.data.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.web.data.database.AppDatabase
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowDao
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowRunDao

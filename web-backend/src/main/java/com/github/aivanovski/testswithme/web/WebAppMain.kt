@@ -1,7 +1,5 @@
 package com.github.aivanovski.testswithme.web
 
-import arrow.core.raise.either
-import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapOrReport
 import com.github.aivanovski.testswithme.web.data.database.configureDatabase
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
