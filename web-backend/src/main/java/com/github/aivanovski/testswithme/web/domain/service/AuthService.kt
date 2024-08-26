@@ -16,7 +16,7 @@ import com.github.aivanovski.testswithme.web.extensions.toErrorResponse
 import io.ktor.server.auth.jwt.JWTPrincipal
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.days
 import org.slf4j.LoggerFactory
 
 class AuthService(
@@ -38,9 +38,10 @@ class AuthService(
             val expiresAt = principal.expiresAt?.time
 
             logger.debug(
-                "validateToken: username={}, expiresAt={}",
-                username,
-                expiresAt?.let { Date(it) }
+                "validateToken: username=%s, expiresAt=%s".format(
+                    username,
+                    expiresAt?.let { Date(it) }
+                )
             )
 
             if (expiresAt == null) {
@@ -63,7 +64,7 @@ class AuthService(
         if (existingToken != null) {
             val token = JWT.decode(existingToken)
             if (!token.isExpired()) {
-                logger.debug("Reuse existing token: token={}", existingToken)
+                logger.debug("Reuse existing token: token=%s".format(existingToken))
                 return existingToken
             }
         }
@@ -71,7 +72,7 @@ class AuthService(
         val newToken = createToken(credentials.username)
         storage[credentials] = newToken
 
-        logger.debug("Created new token: username={}, token={}", credentials, newToken)
+        logger.debug("Created new token: username=%s, token=%s".format(credentials, newToken))
 
         return newToken
     }
@@ -79,9 +80,7 @@ class AuthService(
     private fun createToken(username: String): String {
         val jwtData = JwtData.DEFAULT
 
-        // TODO: expiration was prolonged for developing needs
-        // val expires = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1)
-        val expires = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(60)
+        val expires = System.currentTimeMillis() + TOKEN_VALIDITY_PERIOD
 
         return JWT.create()
             .withAudience(jwtData.audience)
@@ -97,7 +96,9 @@ class AuthService(
 
     companion object {
         private val logger = LoggerFactory.getLogger(AuthService::class.java)
-
         private const val USERNAME = "username"
+
+        // TODO: expiration is prolonged for developing needs
+        val TOKEN_VALIDITY_PERIOD = 30.days.inWholeMilliseconds
     }
 }

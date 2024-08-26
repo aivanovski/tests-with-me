@@ -11,9 +11,9 @@ data class JwtData(
         // TODO: data should be in resources
         val DEFAULT = JwtData(
             secret = "secret",
-            issuer = "http://0.0.0.0:8080/",
-            audience = "http://0.0.0.0:8080/hello",
-            realm = "Access to Pico Automator API"
+            issuer = "https://0.0.0.0:8443",
+            audience = "http://0.0.0.0:8443",
+            realm = "TestWithMe"
         )
     }
 }

@@ -11,3 +11,11 @@ fun <E, V> Either<E, V>.unwrapError(): E {
     requireNotNull(error)
     return error
 }
+
+fun <E : Exception, V> Either<E, V>.unwrapOrReport(): V {
+    return if (isRight()) {
+        unwrap()
+    } else {
+        throw unwrapError()
+    }
+}
