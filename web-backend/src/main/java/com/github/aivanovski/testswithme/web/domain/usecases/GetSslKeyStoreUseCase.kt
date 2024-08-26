@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.web.domain.usecases
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testswithme.data.resources.ResourceProvider
+import com.github.aivanovski.testswithme.web.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.web.entity.SslKeyStore
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.AppIoException
@@ -12,16 +12,16 @@ import java.security.KeyStore
 import java.util.Properties
 
 class GetSslKeyStoreUseCase(
-    private val resourceProvider: ResourceProvider
+    private val fileSystemProvider: FileSystemProvider
 ) {
 
     fun getKeyStore(): Either<AppException, SslKeyStore> =
         either {
-            val devKeyStoreBytes = resourceProvider.readBytes(DEV_KEY_STORE_PATH)
+            val devKeyStoreBytes = fileSystemProvider.readBytes(DEV_KEY_STORE_PATH)
                 .mapLeft { exception -> AppIoException(cause = exception) }
                 .bind()
 
-            val properties = resourceProvider.readBytes(DEV_PROPERTIES_PATH)
+            val properties = fileSystemProvider.readBytes(DEV_PROPERTIES_PATH)
                 .mapLeft { exception -> AppIoException(cause = exception) }
                 .map { bytes ->
                     Properties()
@@ -63,6 +63,7 @@ class GetSslKeyStoreUseCase(
     companion object {
         private const val DEV_KEY_STORE_PATH = "keys/dev-keystore.jks"
         private const val DEV_PROPERTIES_PATH = "keys/dev-keystore.properties"
+
         private const val PROPERTY_ALIAS = "alias"
         private const val PROPERTY_PASSWORD = "password"
     }

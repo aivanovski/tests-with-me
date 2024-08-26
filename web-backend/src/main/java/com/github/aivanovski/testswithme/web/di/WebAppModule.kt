@@ -9,6 +9,8 @@ import com.github.aivanovski.testswithme.web.data.database.dao.GroupDao
 import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
 import com.github.aivanovski.testswithme.web.data.database.dao.UserDao
 import com.github.aivanovski.testswithme.web.data.file.FileStorage
+import com.github.aivanovski.testswithme.web.data.file.FileSystemProvider
+import com.github.aivanovski.testswithme.web.data.file.FileSystemProviderImpl
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
@@ -32,7 +34,7 @@ object WebAppModule {
 
     val module = module {
         // core
-        single<ResourceProvider> { ResourceProviderImpl(WebAppModule::class) }
+        single<FileSystemProvider> { FileSystemProviderImpl() }
         single { FileStorage() }
 
         // Database

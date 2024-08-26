@@ -1,6 +1,8 @@
 package com.github.aivanovski.testswithme.web
 
+import arrow.core.raise.either
 import com.github.aivanovski.testswithme.extensions.unwrap
+import com.github.aivanovski.testswithme.extensions.unwrapOrReport
 import com.github.aivanovski.testswithme.web.data.database.configureDatabase
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.web.di.WebAppModule
@@ -26,9 +28,8 @@ fun main(args: Array<String>) {
 
     val getKeyStoreUseCase: GetSslKeyStoreUseCase = get()
 
+    val keyStore = getKeyStoreUseCase.getKeyStore().unwrapOrReport()
     val environment = applicationEngineEnvironment {
-        val keyStore = getKeyStoreUseCase.getKeyStore().unwrap()
-
         sslConnector(
             keyStore = keyStore.keyStore,
             keyAlias = keyStore.alias,

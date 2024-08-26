@@ -52,23 +52,6 @@ tasks {
     }
 }
 
-tasks.classes {
-    dependsOn("checkSslCertificates")
-}
-
-tasks.register("checkSslCertificates") {
-    doLast {
-        val devKeystoreFile = File(projectDir, "src/main/resources/keys/dev-keystore.jks")
-        if (devKeystoreFile.exists()) {
-            project.logger.lifecycle("Dev SSL KeyStore: ${devKeystoreFile.name}")
-        } else {
-            val message = "Failed to find Dev SSL KeyStore at: $devKeystoreFile"
-            project.logger.error(message)
-            throw GradleException(message)
-        }
-    }
-}
-
 dependencies {
     testImplementation(libs.junit.engine)
     testImplementation(libs.kotest.runner)
