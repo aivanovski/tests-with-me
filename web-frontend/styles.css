@@ -1,0 +1,139 @@
+body {
+    margin: 0px;
+}
+
+.wrapper {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 80px 1fr;
+    grid-template-areas:
+        "side header"
+        "side main";
+}
+
+.header {
+    background-color: #e1e1e1;
+    grid-area: header;
+}
+
+.sidebar {
+    background-color: #1c1f23;
+    grid-area: side;
+}
+
+.sidebar-text {
+    font-size: 26px;
+    color: whitesmoke;
+}
+
+.main {
+    background-color: #ffffff;
+    grid-area: main;
+}
+
+
+.active,
+.expandable:hover,
+.selectable:hover,
+.tree-group-item:hover,
+.tree-file-item:hover {
+    background-color: #87eeaa;
+}
+
+.icon {
+    color: #999999;
+    font-size: 22px;
+    width: 24px;
+    height: 24px;
+}
+
+.icon-box {
+    display: none;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+}
+
+.chevron-icon {
+    color: #999999;
+    font-size: 12px;
+    text-align: center;
+}
+
+.chevron-icon-box {
+    width: 14px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.tree-menu-box {
+    display: flex;
+    align-items: center;
+}
+
+.tree {
+    display: block;
+    width: 100%;
+    font-size: 15px;
+    color: white;
+}
+
+.tree-group-item {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    width: 100%;
+}
+
+.tree-file-item {
+    display: flex;
+    align-items: center;
+    padding-left: 14px;
+    height: 48px;
+    width: 100%;
+}
+
+.rotated {
+    transform: rotate(90deg);
+}
+
+/* Login Page  */
+.login-main {
+    display: flex;
+    width: 100vw;
+    justify-content: center;
+}
+
+.login-box {
+    display: flex;
+    width: 400px;
+    flex-direction: column;
+    margin-top: 200px;
+}
+
+.error-box {
+    display: flex;
+    width: 400px;
+    justify-content: center;
+}
+
+.error-text {
+    color: #f2473b;
+    line-height: 2em;
+    font-size: 18px;
+}
+
+.login-input {
+    line-height: 2em;
+    font-size: 18px;
+    margin-top: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.login-button {
+    margin-top: 20px;
+    height: 40px;
+}
