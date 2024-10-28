@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.di
 
+import android.annotation.SuppressLint
 import android.view.accessibility.AccessibilityNodeInfo
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
@@ -56,6 +57,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projects.P
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.cells.ProjectsCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.TestRunCellFactory
@@ -68,10 +70,16 @@ import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
 import com.github.aivanovski.testswithme.flow.driver.Driver
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.engine.okhttp.OkHttpConfig
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.X509TrustManager
 import org.koin.dsl.module
 import timber.log.Timber
 
@@ -94,7 +102,7 @@ object AndroidAppModule {
         single { provideProjectEntryDao(get()) }
 
         // Network
-        single { provideHttpRequestExecutor() }
+        single { provideHttpRequestExecutor(get()) }
         single { ApiClient(get(), get()) }
 
         // Repositories
@@ -252,6 +260,14 @@ object AndroidAppModule {
                 args
             )
         }
+        factory { (vm: RootViewModel, router: Router) ->
+            SettingsViewModel(
+                get(),
+                get(),
+                vm,
+                router
+            )
+        }
     }
 
     private fun provideStepEntryDao(db: AppDatabase): StepEntryDao = db.stepEntryDao
@@ -266,7 +282,7 @@ object AndroidAppModule {
 
     private fun provideProjectEntryDao(db: AppDatabase): ProjectEntryDao = db.projectEntryDao
 
-    private fun provideHttpRequestExecutor(): HttpRequestExecutor {
+    private fun provideHttpRequestExecutor(settings: Settings): HttpRequestExecutor {
         return HttpRequestExecutor(
             client = HttpClient(OkHttp) {
                 install(Logging) {
@@ -277,7 +293,48 @@ object AndroidAppModule {
                     }
                     level = LogLevel.INFO
                 }
+
+                if (settings.isSslVerificationDisabled) {
+                    Timber.i("SSL certificate validation disabled")
+                    disableSslVerification()
+                }
             }
         )
+    }
+
+    private fun HttpClientConfig<OkHttpConfig>.disableSslVerification() {
+        @SuppressLint("CustomX509TrustManager")
+        val trustAllCerts = object : X509TrustManager {
+            @SuppressLint("TrustAllX509TrustManager")
+            override fun checkClientTrusted(
+                chain: Array<X509Certificate>,
+                authType: String
+            ) {
+            }
+
+            @SuppressLint("TrustAllX509TrustManager")
+            override fun checkServerTrusted(
+                chain: Array<X509Certificate>,
+                authType: String
+            ) {
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return emptyArray()
+            }
+        }
+
+        val sslSocketFactory = SSLContext.getInstance("SSL")
+            .apply {
+                init(null, arrayOf(trustAllCerts), SecureRandom())
+            }
+            .socketFactory
+
+        engine {
+            config {
+                sslSocketFactory(sslSocketFactory, trustAllCerts)
+                hostnameVerifier(hostnameVerifier = { _, _ -> true })
+            }
+        }
     }
 }

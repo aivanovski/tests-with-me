@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.AUTH_TOKEN
+import com.github.aivanovski.testswithme.android.data.settings.SettingKey.IS_SSL_VERIFICATION_DISABLED
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.START_JOB_UID
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +29,12 @@ class SettingsImpl(
         get() = getString(AUTH_TOKEN)
         set(value) {
             putString(AUTH_TOKEN, value)
+        }
+
+    override var isSslVerificationDisabled: Boolean
+        get() = getBoolean(IS_SSL_VERIFICATION_DISABLED)
+        set(value) {
+            putBoolean(IS_SSL_VERIFICATION_DISABLED, value)
         }
 
     override fun subscribe(listener: OnSettingsChangeListener) {
@@ -60,6 +67,10 @@ class SettingsImpl(
 
         putValue {
             putBoolean(key.key, value)
+        }
+
+        if (isChanged) {
+            notifyOnSettingsChanged(key)
         }
     }
 

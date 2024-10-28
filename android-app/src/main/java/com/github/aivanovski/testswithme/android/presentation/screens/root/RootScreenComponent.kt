@@ -18,6 +18,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.login.Logi
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.ProjectEditorScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsScreenComponent
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.TestRunsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestScreenComponent
@@ -151,6 +152,14 @@ class RootScreenComponent(
                     rootViewModel = viewModel,
                     router = router,
                     args = screen.args
+                )
+            }
+
+            Screen.Settings -> {
+                SettingsScreenComponent(
+                    context = childContext,
+                    rootViewModel = viewModel,
+                    router = router
                 )
             }
         }

@@ -11,6 +11,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.login.mode
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarState
+import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuItem
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetBottomBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
@@ -43,7 +44,7 @@ class LoginViewModel(
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
         rootViewModel.sendIntent(SetBottomBarState(BottomBarState.HIDDEN))
-        rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
+        rootViewModel.sendIntent(SetMenuState(createMenuState()))
 
         if (state.value == LoginState.NotInitialized) {
             viewModelScope.launch {
@@ -55,6 +56,15 @@ class LoginViewModel(
                     }
             }
         }
+
+        rootViewModel.subscribeToMenuEvent(this) { item ->
+            router.navigateTo(Screen.Settings)
+        }
+    }
+
+    override fun destroy() {
+        super.destroy()
+        rootViewModel.unsubscribeFromMenuEvent(this)
     }
 
     fun sendIntent(intent: LoginIntent) {
@@ -145,6 +155,14 @@ class LoginViewModel(
         return TopBarState(
             title = resourceProvider.getString(R.string.login),
             isBackVisible = false
+        )
+    }
+
+    private fun createMenuState(): MenuState {
+        return MenuState(
+            items = listOf(
+                MenuItem.SETTINGS
+            )
         )
     }
 }

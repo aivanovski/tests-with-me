@@ -26,6 +26,6 @@ class ApiUrlFactory {
     fun group(groupUid: String): String = "$SERVER_URL/$GROUP/$groupUid"
 
     companion object {
-        private const val SERVER_URL = "http://10.0.2.2:8080"
+        private const val SERVER_URL = "https://10.0.2.2:8443"
     }
 }

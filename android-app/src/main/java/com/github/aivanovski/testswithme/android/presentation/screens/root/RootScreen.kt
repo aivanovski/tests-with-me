@@ -201,6 +201,20 @@ private fun MenuContent(
                 }
             }
 
+            MenuItem.SETTINGS -> {
+                IconButton(
+                    onClick = {
+                        onIntent.invoke(RootIntent.OnMenuClick(MenuItem.SETTINGS))
+                    }
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Settings,
+                        tint = AppTheme.theme.colors.primaryIcon,
+                        contentDescription = null
+                    )
+                }
+            }
+
             MenuItem.LOG_OUT -> {
                 IconButton(
                     onClick = { isMenuShown = !isMenuShown }
@@ -239,6 +253,7 @@ private fun MenuItem.getTitle(): String {
     return when (this) {
         MenuItem.LOG_OUT -> stringResource(R.string.log_out)
         MenuItem.DONE -> StringUtils.EMPTY
+        MenuItem.SETTINGS -> stringResource(R.string.settings)
     }
 }
 
@@ -322,6 +337,7 @@ private fun newMenuState(): MenuState =
     MenuState(
         items = listOf(
             MenuItem.DONE,
+            MenuItem.SETTINGS,
             MenuItem.LOG_OUT
         )
     )
