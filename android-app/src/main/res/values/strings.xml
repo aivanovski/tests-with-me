@@ -17,6 +17,7 @@
     <string name="view">View</string>
     <string name="should_not_be_empty">Should not be empty</string>
     <string name="edit">Edit</string>
+    <string name="settings">Settings</string>
 
     <!-- Login screen -->
     <string name="username">Username</string>
@@ -95,10 +96,10 @@
     <!-- Group Editor -->
     <string name="create_group">Create Group</string>
     <string name="name">Name</string>
-<!--    <string name=""></string>-->
-<!--    <string name=""></string>-->
-<!--    <string name=""></string>-->
-<!--    <string name=""></string>-->
-<!--    <string name=""></string>-->
 
+    <!-- Settings -->
+    <string name="validate_ssl_certificates">Validate SSL certificates</string>
+    <string name="requires_application_restart">Requires application restart</string>
+
+    <!--    <string name=""></string>-->
 </resources>

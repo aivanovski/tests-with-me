@@ -2,5 +2,6 @@ package com.github.aivanovski.testswithme.android.presentation.screens.root.mode
 
 enum class MenuItem {
     DONE,
-    LOG_OUT
+    LOG_OUT,
+    SETTINGS
 }

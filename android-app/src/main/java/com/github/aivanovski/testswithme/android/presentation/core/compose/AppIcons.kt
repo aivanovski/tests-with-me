@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.outlined.Android
 import androidx.compose.material.icons.outlined.Check
@@ -31,4 +32,5 @@ object AppIcons {
     val Add = Icons.Filled.Add
     val Upload = Icons.Filled.Upload
     val Menu = Icons.Filled.MoreVert
+    val Settings = Icons.Filled.Settings
 }

@@ -58,4 +58,7 @@ sealed interface Screen {
     data class UploadTest(
         val args: UploadTestScreenArgs
     ) : Screen
+
+    @Serializable
+    data object Settings : Screen
 }
