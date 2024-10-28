@@ -1,0 +1,4 @@
+- name: Open about screen
+
+- launch: com.ivanovsky.passnotes.automation
+- test:

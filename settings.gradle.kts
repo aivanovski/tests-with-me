@@ -12,5 +12,6 @@ include(
     ":tests-with-me",
     ":android-app",
     ":web-api",
-    ":web-backend"
+    ":web-backend",
+    ":cli-app"
 )

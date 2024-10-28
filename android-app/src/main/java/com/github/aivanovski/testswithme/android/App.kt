@@ -18,5 +18,9 @@ class App : MultiDexApplication() {
             androidContext(this@App)
             modules(AndroidAppModule.module)
         }
+
+
+        
+
     }
 }

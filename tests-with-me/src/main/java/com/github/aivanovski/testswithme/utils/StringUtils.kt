@@ -9,4 +9,5 @@ object StringUtils {
     const val SLASH = "/"
     const val DASH = "-"
     const val STAR = "*"
+    const val SEMICOLON = ":"
 }
