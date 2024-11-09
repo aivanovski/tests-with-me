@@ -23,12 +23,17 @@ import com.github.aivanovski.testswithme.android.data.repository.UserRepository
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.data.settings.SettingsImpl
 import com.github.aivanovski.testswithme.android.domain.VersionParser
+import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayReceiverInteractor
+import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayServer
+import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StartTestController
+import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StatusController
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
+import com.github.aivanovski.testswithme.android.domain.usecases.IsLoggedInUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
@@ -57,6 +62,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projects.P
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.cells.ProjectsCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunViewModel
@@ -80,6 +86,7 @@ import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import timber.log.Timber
 
@@ -106,54 +113,36 @@ object AndroidAppModule {
         single { ApiClient(get(), get()) }
 
         // Repositories
-        single { FlowRepository(get(), get(), get(), get(), get(), get()) }
-        single { JobRepository(get(), get()) }
-        single { StepRunRepository(get(), get()) }
-        single { ProjectRepository(get(), get()) }
-        single { FlowRunRepository(get()) }
-        single { UserRepository(get()) }
-        single { GroupRepository(get()) }
+        singleOf(::FlowRepository)
+        singleOf(::JobRepository)
+        singleOf(::StepRunRepository)
+        singleOf(::ProjectRepository)
+        singleOf(::FlowRunRepository)
+        singleOf(::UserRepository)
+        singleOf(::GroupRepository)
 
         // UseCases
-        single { ParseFlowFileUseCase() }
-        single { GetCurrentJobUseCase(get()) }
-        single { GetExternalApplicationDataUseCase(get()) }
+        singleOf(::ParseFlowFileUseCase)
+        singleOf(::GetCurrentJobUseCase)
+        singleOf(::GetExternalApplicationDataUseCase)
+        singleOf(::IsLoggedInUseCase)
 
         // Interactors
-        single {
-            FlowRunnerInteractor(
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
-                get(),
-                get()
-            )
-        }
-        single { LoginInteractor(get(), get()) }
-        single { GroupsInteractor(get(), get(), get()) }
-        single { FlowInteractor(get(), get(), get(), get(), get(), get(), get()) }
-        single { ProjectsInteractor(get()) }
-        single { TestRunsInteractor(get(), get(), get(), get()) }
-        single { TestRunInteractor(get(), get()) }
-        single { UploadTestInteractor(get(), get(), get(), get()) }
-        single { ProjectDashboardInteractor(get(), get(), get(), get(), get()) }
-        single { ProjectEditorInteractor(get()) }
-        single { GroupEditorInteractor(get()) }
+        singleOf(::LoginInteractor)
+        singleOf(::GroupsInteractor)
+        singleOf(::FlowInteractor)
+        singleOf(::ProjectsInteractor)
+        singleOf(::TestRunsInteractor)
+        singleOf(::TestRunInteractor)
+        singleOf(::UploadTestInteractor)
+        singleOf(::ProjectDashboardInteractor)
+        singleOf(::ProjectEditorInteractor)
+        singleOf(::GroupEditorInteractor)
+        singleOf(::GatewayReceiverInteractor)
+        singleOf(::SettingsInteractor)
 
-        // Cell factories
-        single { FlowCellFactory(get(), get()) }
-        single { GroupsCellModelFactory(get()) }
-        single { ProjectsCellFactory(get()) }
-        single { TestRunsCellFactory(get()) }
-        single { TestRunCellFactory(get()) }
-        single { ProjectDashboardCellFactory(get(), get()) }
-
+        // Flow runner
+        singleOf(::FlowRunnerInteractor)
         single { (driver: Driver<AccessibilityNodeInfo>) ->
             FlowRunnerManager(
                 get(),
@@ -162,6 +151,19 @@ object AndroidAppModule {
                 driver
             )
         }
+
+        // Gateway server
+        singleOf(::GatewayServer)
+        singleOf(::StatusController)
+        singleOf(::StartTestController)
+
+        // Cell factories
+        singleOf(::FlowCellFactory)
+        singleOf(::GroupsCellModelFactory)
+        singleOf(::ProjectsCellFactory)
+        singleOf(::TestRunsCellFactory)
+        singleOf(::TestRunCellFactory)
+        singleOf(::ProjectDashboardCellFactory)
 
         // ViewModels
         factory { (router: Router, args: StartArgs) ->
@@ -262,6 +264,7 @@ object AndroidAppModule {
         }
         factory { (vm: RootViewModel, router: Router) ->
             SettingsViewModel(
+                get(),
                 get(),
                 get(),
                 vm,

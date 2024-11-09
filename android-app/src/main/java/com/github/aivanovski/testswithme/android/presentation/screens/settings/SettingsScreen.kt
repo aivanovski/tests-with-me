@@ -27,8 +27,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.QuarterMargin
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.TwoLineMediumItemHeight
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsIntent
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsIntent.OnHttpServerStateChanged
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsIntent.OnSslValidationStateChanged
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsState
 
@@ -64,8 +66,21 @@ private fun SettingsScreen(
                     SwitchItem(
                         title = stringResource(R.string.validate_ssl_certificates),
                         description = stringResource(R.string.requires_application_restart),
-                        isEnabled = state.isSslValidationEnabled,
-                        onIntent = onIntent
+                        isEnabled = true,
+                        isChecked = state.isSslValidationChecked,
+                        onCheckChanged = rememberCallback { isChecked: Boolean ->
+                            onIntent.invoke(OnSslValidationStateChanged(isChecked))
+                        }
+                    )
+
+                    SwitchItem(
+                        title = stringResource(R.string.driver_gateway_title),
+                        description = state.gatewayDescription,
+                        isEnabled = state.isGatewaySwitchEnabled,
+                        isChecked = state.isGatewayChecked,
+                        onCheckChanged = rememberCallback { isChecked ->
+                            onIntent.invoke(OnHttpServerStateChanged(isChecked))
+                        }
                     )
                 }
             }
@@ -78,7 +93,8 @@ private fun SwitchItem(
     title: String,
     description: String,
     isEnabled: Boolean,
-    onIntent: (intent: SettingsIntent) -> Unit
+    isChecked: Boolean,
+    onCheckChanged: (isChecked: Boolean) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -91,17 +107,18 @@ private fun SwitchItem(
             .defaultMinSize(minHeight = TwoLineMediumItemHeight)
     ) {
         var isEnabledState by remember {
-            mutableStateOf(isEnabled)
+            mutableStateOf(isChecked)
         }
 
         val onChecked = rememberCallback { isChecked: Boolean ->
             isEnabledState = isChecked
-            onIntent.invoke(OnSslValidationStateChanged(isChecked))
+            onCheckChanged.invoke(isChecked)
         }
 
         Column(
             modifier = Modifier
                 .weight(weight = 1f)
+                .padding(end = SmallMargin)
         ) {
             Text(
                 text = title,
@@ -120,6 +137,7 @@ private fun SwitchItem(
 
         Switch(
             checked = isEnabledState,
+            enabled = isEnabled,
             onCheckedChange = onChecked
         )
     }
@@ -134,7 +152,11 @@ fun SettingsScreenDataPreview() {
         SettingsScreen(
             state = SettingsState(
                 isLoading = false,
-                isSslValidationEnabled = true
+                isSslValidationChecked = true,
+                gatewayDescription = stringResource(
+                    R.string.driver_gateway_description,
+                    stringResource(R.string.running_on_port)
+                )
             ),
             onIntent = {}
         )
@@ -150,7 +172,7 @@ fun SettingsScreenLoadingPreview() {
         SettingsScreen(
             state = SettingsState(
                 isLoading = true,
-                isSslValidationEnabled = true
+                isSslValidationChecked = true
             ),
             onIntent = {}
         )

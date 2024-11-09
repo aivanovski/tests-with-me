@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -37,7 +36,6 @@
             android:name=".NotificationService"
             android:foregroundServiceType="specialUse" />
 
-
         <service
             android:name=".domain.driver.DriverService"
             android:exported="true"
@@ -53,8 +51,11 @@
 
         </service>
 
+        <receiver
+            android:name=".domain.driverServer.GatewayCommandReceiver"
+            android:enabled="true"
+            android:exported="true" />
 
     </application>
-
 
 </manifest>

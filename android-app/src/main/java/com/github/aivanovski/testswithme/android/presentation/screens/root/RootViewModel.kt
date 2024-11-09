@@ -40,21 +40,11 @@ class RootViewModel(
     private val menuEventProvider = EventProviderImpl<MenuItem>()
 
     fun getStartScreens(): List<Screen> {
-        val isLoggedIn = (settings.authToken != null)
-
-        val screens = mutableListOf<Screen>()
-
-        if (isLoggedIn) {
-            if (args.isShowTestRuns) {
-                screens.add(Screen.TestRuns)
-            } else {
-                screens.add(Screen.Projects)
-            }
+        return if (args.isShowTestRuns) {
+            listOf(Screen.TestRuns)
         } else {
-            screens.add(Screen.Login(LoginScreenArgs(LoginScreenMode.LOG_IN)))
+            listOf(Screen.Projects)
         }
-
-        return screens
     }
 
     fun sendIntent(intent: RootIntent) {

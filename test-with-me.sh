@@ -6,7 +6,23 @@ show_help() {
     echo "Options:"
     echo "  -f, --send-file <path>   Specify the path to the file or directory to be sent"
     echo "  -t, --print-ui-tree      Send command to print UI Tree"
+    echo "  -s, --start-server       Start test server on connected Device 7070 port"
+    echo "  -p, --stop-server        Stop test server on convected Device"
     echo "  -h, --help               Display this help message"
+}
+
+start_test_server() {
+    echo "Starting test server..."
+    adb shell am broadcast \
+        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.domain.driverServer.DriverServerCommandReceiver \
+        --es "command" "start"
+}
+
+stop_test_server() {
+    echo "Stopping test server..."
+    adb shell am broadcast \
+        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.domain.driverServer.DriverServerCommandReceiver \
+        --es "command" "stop"
 }
 
 print_ui_tree() {
@@ -59,6 +75,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--print-ui-tree)
             print_ui_tree
+            exit 0
+            ;;
+        -s|--start-server)
+            start_test_server
+            exit 0
+            ;;
+        -p|--stop-server)
+            stop_test_server
             exit 0
             ;;
         -h|--help)

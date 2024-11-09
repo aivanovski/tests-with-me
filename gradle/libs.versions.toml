@@ -32,6 +32,7 @@ materialIcons = "1.6.8"
 hibernate = "5.6.0.Final"
 h2 = "2.2.224"
 coil = "2.6.0"
+dadb = "1.2.8"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -102,3 +103,4 @@ decompose-extensions = { module = "com.arkivanov.decompose:extensions-compose-an
 db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
 db-hibernate = { module = "org.hibernate:hibernate-core", version.ref = "hibernate" }
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+dadb = { module = "dev.mobile:dadb", version.ref = "dadb" }

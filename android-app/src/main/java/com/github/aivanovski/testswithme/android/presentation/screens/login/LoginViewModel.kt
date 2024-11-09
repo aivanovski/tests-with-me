@@ -58,7 +58,13 @@ class LoginViewModel(
         }
 
         rootViewModel.subscribeToMenuEvent(this) { item ->
-            router.navigateTo(Screen.Settings)
+            when (item) {
+                MenuItem.SETTINGS -> {
+                    router.navigateTo(Screen.Settings)
+                }
+
+                else -> throw IllegalStateException()
+            }
         }
     }
 
