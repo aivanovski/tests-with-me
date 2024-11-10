@@ -10,6 +10,7 @@ import com.github.aivanovski.testswithme.entity.YamlFlow
 fun YamlFlow.convertToFlowEntry(
     flowUid: String,
     projectUid: String,
+    name: String,
     sourceType: SourceType
 ): FlowEntry {
     return FlowEntry(

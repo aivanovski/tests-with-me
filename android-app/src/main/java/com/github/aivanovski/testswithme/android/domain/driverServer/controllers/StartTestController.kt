@@ -3,11 +3,12 @@ package com.github.aivanovski.testswithme.android.domain.driverServer.controller
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.ErrorMessage
 import com.github.aivanovski.testswithme.android.driverServerApi.request.StartTestRequest
-import com.github.aivanovski.testswithme.android.driverServerApi.response.ErrorMessage
 import com.github.aivanovski.testswithme.android.driverServerApi.response.StartTestResponse
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
-import com.github.aivanovski.testswithme.android.entity.exception.InvalidBase64String
+import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
+import com.github.aivanovski.testswithme.android.entity.exception.InvalidBase64StringException
 import com.github.aivanovski.testswithme.android.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrap
@@ -21,7 +22,7 @@ class StartTestController(
     private val flowRunnerInteractor: FlowRunnerInteractor
 ) {
 
-    suspend fun startTest(request: StartTestRequest): Either<AppException, StartTestResponse> =
+    suspend fun startTest(request: StartTestRequest): Either<GatewayException, StartTestResponse> =
         withContext(Dispatchers.IO) {
             either {
                 val processResult = processRequest(request)
@@ -54,12 +55,17 @@ class StartTestController(
     private suspend fun processRequest(request: StartTestRequest): Either<AppException, String> =
         either {
             val base64Content = request.base64Content
+            val fileName = request.name
+
             val content = Base64Utils.decode(base64Content)
                 .mapLeft { exception -> ParsingException(cause = exception) }
                 .bind()
-                ?: raise(InvalidBase64String())
+                ?: raise(InvalidBase64StringException())
 
-            val flow = flowRunnerInteractor.parseFlow(base64Content).bind()
+            val flow = flowRunnerInteractor.parseFlow(
+                base64Content = base64Content,
+                name = fileName
+            ).bind()
 
             flowRunnerInteractor.saveFlowContent(
                 flowUid = flow.entry.uid,

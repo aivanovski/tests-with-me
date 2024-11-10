@@ -221,17 +221,27 @@ class FlowRunnerInteractor(
             flowRepository.saveFlowContent(flowUid, content)
         }
 
-    suspend fun parseFlow(base64Content: String): Either<AppException, FlowWithSteps> =
+    suspend fun parseFlow(
+        base64Content: String,
+        name: String? = null
+    ): Either<AppException, FlowWithSteps> =
         withContext(IO) {
             either {
                 val yamlFlow = parseFlowUseCase.parseBase64File(base64Content).bind()
 
+                val flowName = if (yamlFlow.name.isNotEmpty()) {
+                    yamlFlow.name
+                } else {
+                    name ?: StringUtils.EMPTY
+                }
+
                 val newUid = UUID.randomUUID().toString()
-                val flowUid = "Local:${yamlFlow.name}:$newUid"
+                val flowUid = "Local:$flowName:$newUid"
                 val flow = yamlFlow.convertToFlowEntry(
                     flowUid = flowUid,
                     projectUid = "Local", // TODO: should be null
-                    sourceType = SourceType.LOCAL
+                    sourceType = SourceType.LOCAL,
+                    name = flowName
                 )
                 val steps = yamlFlow.steps.convertToStepEntries(
                     flowUid = flowUid

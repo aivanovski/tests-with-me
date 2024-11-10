@@ -1,4 +1,4 @@
-package com.github.aivanovski.testswithme.android.driverServerApi.response
+package com.github.aivanovski.testswithme.android.driverServerApi.dto
 
 import kotlinx.serialization.Serializable
 

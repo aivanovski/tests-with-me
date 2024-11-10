@@ -8,18 +8,15 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.view.accessibility.AccessibilityEvent
 import com.github.aivanovski.testswithme.android.NotificationService
-import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
+import com.github.aivanovski.testswithme.android.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.android.domain.flow.AccessibilityDriverImpl
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
-import org.koin.core.parameter.parametersOf
 
 class DriverService : AccessibilityService() {
 
     private var serviceConnection: ServiceConnection? = null
     private val driver = AccessibilityDriverImpl(this, this)
-    private val runnerManager: FlowRunnerManager by inject(
-        params = parametersOf(driver)
-    )
+    private var runnerManager: FlowRunnerManager? = null
 
     override fun onStartCommand(
         intent: Intent?,
@@ -31,18 +28,25 @@ class DriverService : AccessibilityService() {
 
     override fun onCreate() {
         super.onCreate()
-        runnerManager.init()
+        runnerManager = FlowRunnerManager(
+            interactor = get(),
+            settings = get(),
+            context = this,
+            driver = driver
+        ).apply {
+            init()
+        }
 
         val serviceConnection = object : ServiceConnection {
             override fun onServiceConnected(
                 name: ComponentName?,
                 service: IBinder?
             ) {
-                runnerManager.onConnectedToNotificationService()
+                runnerManager?.onConnectedToNotificationService()
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
-                runnerManager.onDisconnectedFromNotificationService()
+                runnerManager?.onDisconnectedFromNotificationService()
                 serviceConnection = null
             }
         }
@@ -55,7 +59,8 @@ class DriverService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        runnerManager.stop()
+        runnerManager?.stop()
+        runnerManager = null
         serviceConnection?.let { unbindService(it) }
     }
 

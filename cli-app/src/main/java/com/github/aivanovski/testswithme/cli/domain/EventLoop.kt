@@ -2,16 +2,24 @@ package com.github.aivanovski.testswithme.cli.domain
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.DriverStatusDto
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.ExecutionResultDto
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.JobDto
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.JobStatusDto
 import com.github.aivanovski.testswithme.android.driverServerApi.request.StartTestRequest
-import com.github.aivanovski.testswithme.android.driverServerApi.response.DriverStatus
-import com.github.aivanovski.testswithme.android.driverServerApi.response.JobDtoStatus
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProvider
+import com.github.aivanovski.testswithme.cli.domain.printer.OutputLevel
 import com.github.aivanovski.testswithme.cli.domain.printer.OutputPrinter
+import com.github.aivanovski.testswithme.cli.entity.ConnectionState
 import com.github.aivanovski.testswithme.cli.entity.exception.AppException
+import com.github.aivanovski.testswithme.cli.extensions.isReadyToStartTest
+import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.utils.StringUtils
 import java.nio.file.Path
+import java.util.Collections.synchronizedList
+import java.util.LinkedList
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.io.path.Path
@@ -20,25 +28,26 @@ import kotlin.io.path.pathString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class EventLoop(
     private val fsProvider: FileSystemProvider,
-    private val printer: OutputPrinter
+    private val printer: OutputPrinter,
+    private val connection: DeviceConnection
 ) {
 
     private val scope = CoroutineScope(Dispatchers.Default)
-    private val messageQueue: Queue<Message> = ConcurrentLinkedQueue()
+    private val messageQueue = synchronizedList(LinkedList<Message>())
+    private val pendingMessages: Queue<Message> = ConcurrentLinkedQueue()
     private val watcher = FileWatcherImpl(printer)
 
     @Volatile
     private var lastSentFile: SentFile? = null
-
-    @Volatile
-    private var isDriverReady = false
 
     @Volatile
     private var isActive = true
@@ -46,18 +55,26 @@ class EventLoop(
     @Volatile
     private var delayJob: Job? = null
 
-    fun loop(
-        filePath: String,
-        connection: DeviceConnection
-    ) {
+    @Volatile
+    private var wasReady: Boolean = false
+
+    fun loop(filePath: String) {
         val file = Path(filePath)
 
         printer.printLine("Watch file: ${file.fileName}")
+
+        pendingMessages.add(Message.SendStartTestRequest(file))
 
         watcher.watch(
             file = file,
             onContentChanged = { path -> handleFileChanged(path) }
         )
+
+        val stateJob = scope.launch {
+            connection.state.collectLatest { state ->
+                handleConnectionStateChanged(state)
+            }
+        }
 
         val heartbeatJob = scope.launch {
             while (isActive) {
@@ -70,30 +87,39 @@ class EventLoop(
         }
 
         val loopJob = scope.launch {
+            var heartBeatRetry = 0
+
             while (isActive) {
                 while (messageQueue.isNotEmpty() && isActive) {
-                    val message = messageQueue.poll()
+                    val message = messageQueue.removeFirst()
                     printer.debugLine("Process message: $message")
 
-                    val result = handleMessage(connection, message)
+                    val result = processMessage(message)
 
                     if (result.isLeft()) {
                         if (message == Message.SendHeartbeatRequest) {
-                            retryMessage(
-                                connection = connection,
-                                message = message,
-                                onSuccess = {
-                                    printer.printLine("Connected")
-                                },
-                                onFailure = {
-                                    printer.debugLine("Max heartbeat retry limit reached")
-                                    isActive = false
-                                }
+                            connection.state.value = ConnectionState(
+                                isConnected = false,
+                                isDriverReady = false
                             )
+                            messageQueue.add(0, Message.SendHeartbeatRequest)
+
+                            if (heartBeatRetry < MAX_RETRY_COUNT) {
+                                heartBeatRetry++
+                            } else {
+                                exitLoop()
+                            }
                         } else {
                             printer.debugLine("Failed to process message: $message")
-                            isActive = false
+
+                            if (OutputLevel.isDebug()) {
+                                result.unwrapError().printStackTrace()
+                            }
+
+                            exitLoop()
                         }
+                    } else {
+                        heartBeatRetry = 0
                     }
                 }
 
@@ -107,14 +133,47 @@ class EventLoop(
         }
 
         runBlocking {
-            joinAll(loopJob, heartbeatJob)
+            joinAll(loopJob, heartbeatJob, stateJob)
         }
 
         printer.debugLine("Event loop is finished")
     }
 
+    private fun handleConnectionStateChanged(state: ConnectionState) {
+        when {
+            state.isConnected && state.isDriverReady -> {
+                printer.printLine("Connected")
+            }
+
+            state.isConnected && !state.isDriverReady -> {
+                printer.printLine("Driver is not running")
+            }
+
+            else -> {
+                printer.printLine("Disconnected")
+            }
+        }
+
+        val isReady = state.isReadyToStartTest()
+        if (wasReady != isReady && isReady) {
+            messageQueue.addAll(pendingMessages)
+            pendingMessages.clear()
+        }
+
+        wasReady = isReady
+    }
+
     private fun handleFileChanged(file: Path) {
-        if (!isDriverReady) {
+        val isAlreadyPending =
+            pendingMessages.any { message -> message is Message.SendStartTestRequest }
+        if (isAlreadyPending) {
+            return
+        }
+
+        val isAbleToStartTest = connection.state.value.isReadyToStartTest()
+
+        if (!isAbleToStartTest) {
+            pendingMessages.add(Message.SendStartTestRequest(file))
             return
         }
 
@@ -122,25 +181,21 @@ class EventLoop(
         delayJob = scope.launch {
             delay(2000L)
 
-            messageQueue.add(Message.SendFile(file))
+            messageQueue.add(Message.SendStartTestRequest(file))
             delayJob = null
         }
     }
 
-    private suspend fun handleMessage(
-        connection: DeviceConnection,
-        message: Message
-    ): Either<AppException, Unit> =
+    private suspend fun processMessage(message: Message): Either<AppException, Unit> =
         either {
             when (message) {
-                is Message.SendHeartbeatRequest -> sendHeartbeatRequest(connection).bind()
-                is Message.SendFile -> sendFileRequest(connection, message.file).bind()
+                is Message.SendHeartbeatRequest -> sendHeartbeatRequest().bind()
+                is Message.SendStartTestRequest -> sendStartTestRequest(message.file).bind()
+                is Message.SendGetJobRequest -> sendGetJobRequest(message.jobId).bind()
             }
         }
 
-    private suspend fun sendHeartbeatRequest(
-        connection: DeviceConnection
-    ): Either<AppException, Unit> =
+    private suspend fun sendHeartbeatRequest(): Either<AppException, Unit> =
         either {
             val status = connection.api.getStatus().bind()
             printer.debugLine("Status: $status")
@@ -150,36 +205,45 @@ class EventLoop(
                 val job = status.jobs.firstOrNull { job -> job.id == sentFile.jobId }
 
                 if (job != null &&
-                    (job.status == JobDtoStatus.FINISHED || job.status == JobDtoStatus.CANCELLED)
+                    (job.isSuccessfullyFinished() || job.isFailed())
                 ) {
-                    val message = when (job.status) {
-                        JobDtoStatus.FINISHED -> "Test Passed"
-                        JobDtoStatus.CANCELLED -> "Test Failed"
-                        else -> throw IllegalStateException()
-                    }
-
-                    printer.printLine(message)
+                    messageQueue.add(Message.SendGetJobRequest(jobId = sentFile.jobId))
                     lastSentFile = null
                 }
             }
 
-            val isDriverRunning = (status.driverStatus == DriverStatus.RUNNING)
-            if (isDriverRunning != isDriverReady) {
-                isDriverReady = isDriverRunning
-                if (isDriverReady) {
-                    printer.printLine("Test Driver is running")
-                } else {
-                    printer.printLine(
-                        "Test Driver is not running, please enable it in device Accessibility Settings"
-                    )
+            connection.state.value = ConnectionState(
+                isConnected = true,
+                isDriverReady = (status.driverStatus == DriverStatusDto.RUNNING)
+            )
+        }
+
+    private suspend fun sendGetJobRequest(jobId: String): Either<AppException, Unit> =
+        either {
+            val response = connection.api.getJob(jobId).bind()
+
+            val job = response.job
+
+            if (job.isSuccessfullyFinished()) {
+                printer.printLine("Test Passed")
+            } else {
+                printer.printLine("Test Failed")
+
+                val failedStep = response.flow.steps.firstOrNull { stepRun ->
+                    val result = stepRun.result
+                    result != null && result.startsWith("Either.Left")
+                }
+
+                if (failedStep != null) {
+                    printer.printLine("    Step at index ${failedStep.index + 1} is failed")
+                    if (failedStep.result != null) {
+                        printer.printLine("    ${failedStep.result}")
+                    }
                 }
             }
         }
 
-    private suspend fun sendFileRequest(
-        connection: DeviceConnection,
-        file: Path
-    ): Either<AppException, Unit> =
+    private suspend fun sendStartTestRequest(file: Path): Either<AppException, Unit> =
         either {
             lastSentFile = null
 
@@ -234,30 +298,19 @@ class EventLoop(
             printer.debugLine("Response: $response")
         }
 
-    private suspend fun retryMessage(
-        connection: DeviceConnection,
-        message: Message,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    ): Either<AppException, Unit> =
-        either {
-            var retryCount = 1
+    private fun exitLoop() {
+        isActive = false
+        scope.cancel()
+    }
 
-            while (retryCount < MAX_RETRY_COUNT) {
-                val retryResult = handleMessage(connection, message)
+    private fun JobDto.isSuccessfullyFinished(): Boolean {
+        return status == JobStatusDto.FINISHED && executionResult == ExecutionResultDto.SUCCESS
+    }
 
-                if (retryResult.isRight()) {
-                    onSuccess.invoke()
-                    break
-                }
-
-                retryCount++
-            }
-
-            if (retryCount == MAX_RETRY_COUNT) {
-                onFailure.invoke()
-            }
-        }
+    private fun JobDto.isFailed(): Boolean {
+        return (status == JobStatusDto.FINISHED && executionResult == ExecutionResultDto.FAILED) ||
+            status == JobStatusDto.CANCELLED
+    }
 
     data class SentFile(
         val jobId: String,
@@ -266,7 +319,8 @@ class EventLoop(
 
     sealed interface Message {
         data object SendHeartbeatRequest : Message
-        data class SendFile(val file: Path) : Message
+        data class SendStartTestRequest(val file: Path) : Message
+        data class SendGetJobRequest(val jobId: String) : Message
     }
 
     companion object {
