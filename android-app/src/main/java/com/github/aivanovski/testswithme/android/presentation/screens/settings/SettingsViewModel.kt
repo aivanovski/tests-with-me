@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.driverServerApi.DriverServerEndpoints
+import com.github.aivanovski.testswithme.android.driverServerApi.GatewayEndpoints
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
@@ -139,7 +139,7 @@ class SettingsViewModel(
     }
 
     private fun formatGatewayDescription(isGatewayRunning: Boolean): String {
-        val port = DriverServerEndpoints.PORT
+        val port = GatewayEndpoints.PORT
 
         val status = if (isGatewayRunning) {
             resourceProvider.getString(R.string.running_on_port, port.toString())

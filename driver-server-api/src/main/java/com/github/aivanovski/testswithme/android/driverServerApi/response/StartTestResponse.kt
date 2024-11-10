@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.driverServerApi.response
 
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.ErrorMessage
 import kotlinx.serialization.Serializable
 
 @Serializable

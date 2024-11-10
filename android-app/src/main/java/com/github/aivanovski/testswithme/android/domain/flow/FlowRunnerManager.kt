@@ -88,7 +88,7 @@ class FlowRunnerManager(
     }
 
     override fun onSettingChanged(key: SettingKey) {
-        Timber.d("onSettingChagned: key=%s", key)
+        Timber.d("onSettingChanged: key=%s, startJobUid=%s", key, settings.startJobUid)
 
         if (key == SettingKey.START_JOB_UID && settings.startJobUid != null) {
             scope.launch {

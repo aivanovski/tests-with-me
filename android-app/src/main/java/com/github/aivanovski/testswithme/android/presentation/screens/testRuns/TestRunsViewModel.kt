@@ -144,8 +144,10 @@ class TestRunsViewModel(
                 return@flow
             }
 
-            data = loadDataResult.unwrap()
             val data = loadDataResult.unwrap()
+                .apply {
+                    data = this
+                }
 
             if (data.localRuns.isNotEmpty()) {
                 val viewModels = cellFactory.createCellViewModels(

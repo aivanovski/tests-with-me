@@ -24,7 +24,7 @@ class MainInteractor(
             if (args.contains(OptionType.DEBUG.shortName) ||
                 args.contains(OptionType.DEBUG.fullName)
             ) {
-                printer.setOutputLevel(OutputLevel.DEBUG)
+                OutputLevel.setOutputLevel(OutputLevel.DEBUG)
             }
 
             if (args.isEmpty()) {
@@ -42,7 +42,8 @@ class MainInteractor(
 
             EventLoop(
                 fsProvider = fsProvider,
-                printer = printer
-            ).loop(arguments.filePath, connection)
+                printer = printer,
+                connection = connection
+            ).loop(arguments.filePath)
         }
 }

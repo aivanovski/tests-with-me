@@ -24,7 +24,11 @@ class TestRunsInteractor(
     suspend fun loadData(): Either<AppException, TestRunsData> =
         withContext(Dispatchers.IO) {
             either {
-                val projects = projectRepository.getProjects().bind()
+                val projects = if (isLoggedInUseCase.isLoggedIn()) {
+                    projectRepository.getProjects().bind()
+                } else {
+                    emptyList()
+                }
 
                 val jobHistory = jobRepository.getAllHistory()
                 val steps = stepRunRepository.getAll()

@@ -1,7 +1,6 @@
 package com.github.aivanovski.testswithme.android.di
 
 import android.annotation.SuppressLint
-import android.view.accessibility.AccessibilityNodeInfo
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testswithme.android.data.db.AppDatabase
@@ -25,10 +24,10 @@ import com.github.aivanovski.testswithme.android.data.settings.SettingsImpl
 import com.github.aivanovski.testswithme.android.domain.VersionParser
 import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayReceiverInteractor
 import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayServer
+import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.JobController
 import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StartTestController
 import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StatusController
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
-import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
@@ -74,7 +73,6 @@ import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.c
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
-import com.github.aivanovski.testswithme.flow.driver.Driver
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.okhttp.OkHttp
@@ -143,19 +141,12 @@ object AndroidAppModule {
 
         // Flow runner
         singleOf(::FlowRunnerInteractor)
-        single { (driver: Driver<AccessibilityNodeInfo>) ->
-            FlowRunnerManager(
-                get(),
-                get(),
-                get(),
-                driver
-            )
-        }
 
         // Gateway server
         singleOf(::GatewayServer)
         singleOf(::StatusController)
         singleOf(::StartTestController)
+        singleOf(::JobController)
 
         // Cell factories
         singleOf(::FlowCellFactory)

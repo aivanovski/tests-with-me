@@ -3,26 +3,31 @@ package com.github.aivanovski.testswithme.cli.data.device
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.cli.data.network.GatewayClient
+import com.github.aivanovski.testswithme.cli.entity.ConnectionState
 import com.github.aivanovski.testswithme.cli.entity.exception.DeviceConnectionException
 import com.github.aivanovski.testswithme.utils.StringUtils.SPACE
 import dadb.Dadb
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class DeviceConnection(
     val api: GatewayClient,
+    initialState: ConnectionState,
     private val device: Dadb,
     private val portForwardingConnection: AutoCloseable
 ) : AutoCloseable {
 
-    private val isClosed = AtomicBoolean(false)
+    @Volatile
+    private var isClosed = false
+
+    val state = MutableStateFlow(initialState)
 
     override fun close() {
-        if (isClosed.get()) {
+        if (isClosed) {
             return
         }
 
         println("Closing connection...")
-        isClosed.set(true)
+        isClosed = true
         try {
             portForwardingConnection.close()
             device.close()

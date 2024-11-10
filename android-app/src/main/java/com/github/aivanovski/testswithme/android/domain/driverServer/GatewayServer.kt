@@ -1,6 +1,6 @@
 package com.github.aivanovski.testswithme.android.domain.driverServer
 
-import com.github.aivanovski.testswithme.android.driverServerApi.DriverServerEndpoints.PORT
+import com.github.aivanovski.testswithme.android.driverServerApi.GatewayEndpoints.PORT
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
