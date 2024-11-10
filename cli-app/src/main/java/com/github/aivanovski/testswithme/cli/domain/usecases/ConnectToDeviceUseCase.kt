@@ -13,6 +13,7 @@ import com.github.aivanovski.testswithme.cli.entity.exception.DeviceConnectionEx
 import com.github.aivanovski.testswithme.cli.entity.exception.FailedToConnectToGatewayServer
 import com.github.aivanovski.testswithme.cli.entity.exception.FailedToFindDeviceException
 import dadb.Dadb
+import kotlinx.coroutines.delay
 
 class ConnectToDeviceUseCase(
     private val apiClient: GatewayClient
@@ -51,6 +52,9 @@ class ConnectToDeviceUseCase(
             var status = getStatus(connection)
             if (status == null) {
                 connection.startHttpServer().bind()
+
+                delay(1000L)
+
                 status = getStatus(connection)
             }
 
