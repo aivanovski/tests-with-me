@@ -18,6 +18,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projects.m
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.model.ProjectsState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarState
+import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuItem
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetBottomBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
@@ -53,10 +54,13 @@ class ProjectsViewModel(
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
         rootViewModel.sendIntent(SetBottomBarState(createBottomBarState()))
-        rootViewModel.sendIntent(SetMenuState(MenuState.LOG_OUT))
+        rootViewModel.sendIntent(SetMenuState(createMenuState()))
 
         if (!isSubscribed) {
             isSubscribed = true
+            rootViewModel.subscribeToMenuEvent(this) { menuItem ->
+                handleMenuItemClick(menuItem)
+            }
 
             viewModelScope.launch {
                 intents.receiveAsFlow()
@@ -67,6 +71,11 @@ class ProjectsViewModel(
                     }
             }
         }
+    }
+
+    override fun destroy() {
+        super.destroy()
+        rootViewModel.unsubscribeFromMenuEvent(this)
     }
 
     override fun handleCellIntent(intent: BaseCellIntent) {
@@ -125,6 +134,17 @@ class ProjectsViewModel(
         return flow {
             emit(ProjectsState(terminalState = TerminalState.Loading))
 
+            if (!interactor.isLoggedIn()) {
+                emit(
+                    ProjectsState(
+                        terminalState = TerminalState.Empty(
+                            message = resourceProvider.getString(R.string.not_logged_in_message)
+                        )
+                    )
+                )
+                return@flow
+            }
+
             val loadDataResult = interactor.loadData()
             if (loadDataResult.isLeft()) {
                 val state = loadDataResult
@@ -153,6 +173,13 @@ class ProjectsViewModel(
         }
     }
 
+    private fun handleMenuItemClick(menuItem: MenuItem) {
+        when (menuItem) {
+            MenuItem.SETTINGS -> router.navigateTo(Screen.Settings)
+            else -> throw IllegalStateException()
+        }
+    }
+
     private fun createTopBarState(): TopBarState {
         return TopBarState(
             title = resourceProvider.getString(R.string.projects),
@@ -165,5 +192,17 @@ class ProjectsViewModel(
             isVisible = true,
             selectedIndex = 0
         )
+    }
+
+    private fun createMenuState(): MenuState {
+        val items = mutableListOf(
+            MenuItem.SETTINGS
+        )
+
+        if (interactor.isLoggedIn()) {
+            items.add(MenuItem.LOG_OUT)
+        }
+
+        return MenuState(items)
     }
 }

@@ -5,6 +5,10 @@ sealed interface SettingsIntent {
     data object Initialize : SettingsIntent
 
     data class OnSslValidationStateChanged(
-        val isEnabled: Boolean
+        val isChecked: Boolean
+    ) : SettingsIntent
+
+    data class OnHttpServerStateChanged(
+        val isChecked: Boolean
     ) : SettingsIntent
 }

@@ -66,7 +66,13 @@ android {
 
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes.addAll(
+                listOf(
+                    "/META-INF/{AL2.0,LGPL2.1}",
+                    "META-INF/INDEX.LIST",
+                    "META-INF/io.netty.versions.properties"
+                )
+            )
         }
     }
 }
@@ -112,6 +118,10 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.negotiation)
+    implementation(libs.ktor.serialization.json)
 
     // Image loading
     implementation(libs.coil)
@@ -130,4 +140,5 @@ dependencies {
 
     // TestsWithMe API
     implementation(project(":web-api"))
+    implementation(project(":driver-server-api"))
 }
