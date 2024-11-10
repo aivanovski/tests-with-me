@@ -6,7 +6,7 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
@@ -51,7 +51,7 @@ class GroupsViewModel(
     private val args: GroupsScreenArgs
 ) : BaseViewModel() {
 
-    val state = MutableStateFlow(GroupsState(terminalState = TerminalState.Loading))
+    val state = MutableStateFlow(GroupsState(screenState = ScreenState.Loading))
     private val intents = Channel<GroupsIntent>()
 
     private var isSubscribed = false
@@ -187,7 +187,7 @@ class GroupsViewModel(
 
     private fun loadData(): Flow<GroupsState> {
         return flow {
-            emit(GroupsState(terminalState = TerminalState.Loading))
+            emit(GroupsState(screenState = ScreenState.Loading))
 
             val loadDataResult = interactor.loadData(
                 projectUid = args.projectUid,
@@ -198,7 +198,7 @@ class GroupsViewModel(
                     .formatError(resourceProvider)
                     .toTerminalState()
 
-                emit(GroupsState(terminalState = terminalState))
+                emit(GroupsState(screenState = terminalState))
                 return@flow
             }
 
@@ -215,10 +215,10 @@ class GroupsViewModel(
                 val viewModels = cellFactory.createCellViewModels(data, intentProvider)
                 emit(GroupsState(viewModels = viewModels))
             } else {
-                val emptyState = TerminalState.Empty(
+                val emptyState = ScreenState.Empty(
                     message = resourceProvider.getString(R.string.this_group_is_empty)
                 )
-                emit(GroupsState(terminalState = emptyState))
+                emit(GroupsState(screenState = emptyState))
             }
         }
     }

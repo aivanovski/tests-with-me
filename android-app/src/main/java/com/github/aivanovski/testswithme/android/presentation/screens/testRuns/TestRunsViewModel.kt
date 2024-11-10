@@ -7,7 +7,7 @@ import com.github.aivanovski.testswithme.android.entity.SourceType
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
@@ -132,7 +132,7 @@ class TestRunsViewModel(
 
     private fun loadData(): Flow<TestRunsState> {
         return flow {
-            emit(TestRunsState(terminalState = TerminalState.Loading))
+            emit(TestRunsState(screenState = ScreenState.Loading))
 
             val loadDataResult = interactor.loadData()
             if (loadDataResult.isLeft()) {
@@ -140,7 +140,7 @@ class TestRunsViewModel(
                     .formatError(resourceProvider)
                     .toTerminalState()
 
-                emit(TestRunsState(terminalState = terminalState))
+                emit(TestRunsState(screenState = terminalState))
                 return@flow
             }
 
@@ -157,7 +157,7 @@ class TestRunsViewModel(
                 emit(TestRunsState(viewModels = viewModels))
             } else {
                 val message = resourceProvider.getString(R.string.no_tests)
-                emit(TestRunsState(terminalState = TerminalState.Empty(message)))
+                emit(TestRunsState(screenState = ScreenState.Empty(message)))
             }
         }
     }

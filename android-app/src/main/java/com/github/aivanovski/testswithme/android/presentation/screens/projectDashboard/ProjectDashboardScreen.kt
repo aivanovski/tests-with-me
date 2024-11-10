@@ -18,7 +18,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderWithIconCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newShapedSpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
@@ -75,7 +75,7 @@ private fun ProjectDashboardScreen(
             }
         )
 
-        if (state.terminalState is TerminalState.Empty) {
+        if (state.screenState is ScreenState.Empty) {
             FloatingActionButton(
                 onClick = onAddClick,
                 modifier = Modifier
@@ -136,7 +136,7 @@ fun ProjectDashboardScreenEmptyPreview() {
 @Composable
 private fun newEmptyState() =
     ProjectDashboardState(
-        terminalState = TerminalState.Empty(
+        screenState = ScreenState.Empty(
             message = stringResource(R.string.no_tests_in_project_message)
         )
     )
@@ -144,7 +144,7 @@ private fun newEmptyState() =
 @Composable
 private fun newDataState() =
     ProjectDashboardState(
-        terminalState = null,
+        screenState = null,
         viewModels = listOf(
             newSpaceCellViewModel(height = ElementMargin),
             newShapedSpaceCellViewModel(SmallMargin, CornersShape.TOP),

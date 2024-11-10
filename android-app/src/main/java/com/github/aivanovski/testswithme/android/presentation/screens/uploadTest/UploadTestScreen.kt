@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.R
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppDropdownMenu
 import com.github.aivanovski.testswithme.android.presentation.core.compose.CenteredBox
 import com.github.aivanovski.testswithme.android.presentation.core.compose.EmptyMessage
@@ -59,17 +59,17 @@ private fun UploadTestScreen(
     }
 
     when (state.terminalState) {
-        TerminalState.Loading -> {
+        ScreenState.Loading -> {
             ProgressIndicator()
         }
 
-        is TerminalState.Error -> {
+        is ScreenState.Error -> {
             CenteredBox {
                 ErrorMessage(message = state.terminalState.message)
             }
         }
 
-        is TerminalState.Empty -> {
+        is ScreenState.Empty -> {
             CenteredBox {
                 EmptyMessage(message = state.terminalState.message)
             }

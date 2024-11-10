@@ -18,21 +18,21 @@ fun CellsScreen(
     state: CellsScreenState,
     cellFactory: CellFactory
 ) {
-    val terminalState = state.terminalState
+    val terminalState = state.screenState
 
     if (terminalState != null) {
         when (terminalState) {
-            TerminalState.Loading -> {
+            ScreenState.Loading -> {
                 ProgressIndicator()
             }
 
-            is TerminalState.Empty -> {
+            is ScreenState.Empty -> {
                 CenteredBox {
                     EmptyMessage(message = terminalState.message)
                 }
             }
 
-            is TerminalState.Error -> {
+            is ScreenState.Error -> {
                 CenteredBox {
                     ErrorMessage(message = terminalState.message)
                 }

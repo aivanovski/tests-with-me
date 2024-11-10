@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
@@ -146,5 +146,5 @@ private fun newDataState() =
 @Composable
 private fun newErrorState() =
     GroupsState(
-        terminalState = TerminalState.Error(newErrorMessage())
+        screenState = ScreenState.Error(newErrorMessage())
     )
