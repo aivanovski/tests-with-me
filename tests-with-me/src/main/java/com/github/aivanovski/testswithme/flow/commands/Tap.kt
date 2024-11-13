@@ -3,12 +3,13 @@ package com.github.aivanovski.testswithme.flow.commands
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.entity.UiElementSelector
-import com.github.aivanovski.testswithme.entity.exception.FailedToFindNodeException
-import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.extensions.findNode
 import com.github.aivanovski.testswithme.extensions.getNodeParents
 import com.github.aivanovski.testswithme.extensions.matches
 import com.github.aivanovski.testswithme.extensions.toReadableFormat
+import com.github.aivanovski.testswithme.extensions.toSerializableTree
+import com.github.aivanovski.testswithme.flow.error.FlowError
+import com.github.aivanovski.testswithme.flow.error.FlowError.FailedToFindUiNodeError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 
 class Tap(
@@ -25,12 +26,12 @@ class Tap(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> =
+    ): Either<FlowError, Unit> =
         either {
             val uiRoot = context.driver.getUiTree().bind()
 
             val node = uiRoot.findNode { node -> node.matches(element) }
-                ?: raise(FailedToFindNodeException(element))
+                ?: raise(FailedToFindUiNodeError(element, uiRoot.toSerializableTree()))
 
             val nodeSelector = getSelectorForNode()
 
@@ -38,7 +39,7 @@ class Tap(
                 val parents = uiRoot.getNodeParents(node)
 
                 val clickableParent = parents.lastOrNull { parent -> parent.matches(nodeSelector) }
-                    ?: raise(FailedToFindNodeException(nodeSelector))
+                    ?: raise(FailedToFindUiNodeError(nodeSelector, uiRoot.toSerializableTree()))
 
                 clickableParent
             } else {

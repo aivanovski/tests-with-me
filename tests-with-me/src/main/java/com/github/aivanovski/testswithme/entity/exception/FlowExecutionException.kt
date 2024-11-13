@@ -1,6 +1,9 @@
 package com.github.aivanovski.testswithme.entity.exception
 
+import com.github.aivanovski.testswithme.flow.error.FlowError
+
 open class FlowExecutionException(
+    val error: FlowError? = null,
     message: String? = null,
     cause: Exception? = null
 ) : Exception(message, cause)

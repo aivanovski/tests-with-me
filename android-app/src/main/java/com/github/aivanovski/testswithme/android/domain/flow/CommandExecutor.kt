@@ -9,7 +9,6 @@ import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
-import com.github.aivanovski.testswithme.android.entity.exception.FlowException
 import com.github.aivanovski.testswithme.entity.exception.ExternalException
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.entity.exception.StepVerificationException
@@ -28,12 +27,12 @@ class CommandExecutor(
     private val lifecycleListener: FlowLifecycleListener
 ) {
 
-    suspend fun executeStandalone(command: StepCommand): Either<AppException, Any> =
+    suspend fun executeStandalone(command: StepCommand): Either<FlowExecutionException, Any> =
         either {
             val result = when {
                 command is ExecutableStepCommand<*> -> {
                     command.execute(context)
-                        .mapLeft { exception -> FlowException(exception) }
+                        .mapLeft { error -> FlowExecutionException(error = error) }
                         .bind()
                 }
 
@@ -62,6 +61,7 @@ class CommandExecutor(
             val result = when {
                 command is ExecutableStepCommand<*> -> {
                     command.execute(context)
+                        .mapLeft { error -> FlowExecutionException(error = error) }
                 }
 
                 command is CompositeStepCommand -> {
@@ -167,6 +167,7 @@ class CommandExecutor(
                 )
 
                 val commandResult = command.execute(context)
+                    .mapLeft { error -> FlowExecutionException(error = error) }
 
                 val nextAction = interactor.onStepFinished(job.uid, stepEntry, commandResult)
                     .mapLeft { exception -> StepVerificationException(exception) }
@@ -191,7 +192,7 @@ class CommandExecutor(
                         if (commandResult.isLeft()) {
                             raise(commandResult.unwrapError())
                         } else {
-                            raise(FlowExecutionException("Child flow was sopped"))
+                            raise(FlowExecutionException(message = "Child flow was sopped"))
                         }
                     }
 
@@ -205,6 +206,6 @@ class CommandExecutor(
                 }
             }
 
-            return lastResult ?: raise(FlowExecutionException("No steps were executed"))
+            return lastResult ?: raise(FlowExecutionException(message = "No steps were executed"))
         }
 }

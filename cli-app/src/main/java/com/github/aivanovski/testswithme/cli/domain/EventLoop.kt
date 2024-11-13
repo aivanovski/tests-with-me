@@ -230,14 +230,23 @@ class EventLoop(
                 printer.printLine("Test Failed")
 
                 val failedStep = response.flow.steps.firstOrNull { stepRun ->
-                    val result = stepRun.result
-                    result != null && result.startsWith("Either.Left")
+                    stepRun.result?.isSuccess == false
                 }
 
                 if (failedStep != null) {
-                    printer.printLine("    Step at index ${failedStep.index + 1} is failed")
-                    if (failedStep.result != null) {
-                        printer.printLine("    ${failedStep.result}")
+                    val message = failedStep.result?.errorMessage ?: emptyList()
+
+                    val header = if (message.isNotEmpty()) {
+                        "Step at index ${failedStep.index + 1} is failed with message:"
+                    } else {
+                        "Step at index ${failedStep.index + 1} is failed"
+                    }
+
+                    printer.printLine(header)
+                    if (message.isNotEmpty()) {
+                        for (line in message) {
+                            printer.printLine("$INDENT$line")
+                        }
                     }
                 }
             }
@@ -324,6 +333,7 @@ class EventLoop(
     }
 
     companion object {
+        private const val INDENT = "    "
         private const val MAX_RETRY_COUNT = 3
     }
 }

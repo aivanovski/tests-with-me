@@ -3,12 +3,13 @@ package com.github.aivanovski.testswithme.flow.commands
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.entity.UiElementSelector
-import com.github.aivanovski.testswithme.entity.exception.FailedToFindNodeException
-import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.extensions.findNode
 import com.github.aivanovski.testswithme.extensions.matches
 import com.github.aivanovski.testswithme.extensions.toReadableFormat
+import com.github.aivanovski.testswithme.extensions.toSerializableTree
 import com.github.aivanovski.testswithme.flow.commands.assertion.Assertion
+import com.github.aivanovski.testswithme.flow.error.FlowError
+import com.github.aivanovski.testswithme.flow.error.FlowError.FailedToFindUiNodeError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 
 class Assert(
@@ -34,7 +35,7 @@ class Assert(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> =
+    ): Either<FlowError, Unit> =
         either {
             val uiRoot = context.driver.getUiTree().bind()
 
@@ -42,7 +43,7 @@ class Assert(
                 uiRoot
             } else {
                 val parentNode = uiRoot.findNode { node -> node.matches(parent) }
-                    ?: raise(FailedToFindNodeException(parent))
+                    ?: raise(FailedToFindUiNodeError(parent, uiRoot.toSerializableTree()))
 
                 parentNode
             }

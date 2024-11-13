@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.flow.commands.assertion
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.UiElementSelector
 import com.github.aivanovski.testswithme.entity.UiNode
-import com.github.aivanovski.testswithme.entity.exception.AssertionException
+import com.github.aivanovski.testswithme.flow.error.FlowError.AssertionError
 
 interface Assertion {
 
@@ -11,5 +11,5 @@ interface Assertion {
     fun assert(
         uiRoot: UiNode<*>,
         elements: List<UiElementSelector>
-    ): Either<AssertionException, Unit>
+    ): Either<AssertionError, Unit>
 }

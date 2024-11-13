@@ -4,11 +4,13 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.entity.Duration
 import com.github.aivanovski.testswithme.entity.UiElementSelector
-import com.github.aivanovski.testswithme.entity.exception.FailedToFindNodeException
-import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.entity.UiNode
 import com.github.aivanovski.testswithme.extensions.hasElement
 import com.github.aivanovski.testswithme.extensions.toMilliseconds
 import com.github.aivanovski.testswithme.extensions.toReadableFormat
+import com.github.aivanovski.testswithme.extensions.toSerializableTree
+import com.github.aivanovski.testswithme.flow.error.FlowError
+import com.github.aivanovski.testswithme.flow.error.FlowError.FailedToFindUiNodeError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import kotlinx.coroutines.delay
 
@@ -29,19 +31,21 @@ class WaitUntil(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> =
+    ): Either<FlowError, Unit> =
         either {
             val startTime = System.currentTimeMillis()
+
+            var uiRoot: UiNode<NodeType>? = null
 
             while ((System.currentTimeMillis() - startTime) <= timeout.toMilliseconds()) {
                 delay(step.toMilliseconds())
 
-                val uiRoot = context.driver.getUiTree().bind()
+                uiRoot = context.driver.getUiTree().bind()
                 if (uiRoot.hasElement(element)) {
                     return@either
                 }
             }
 
-            raise(FailedToFindNodeException(element))
+            raise(FailedToFindUiNodeError(element, uiRoot?.toSerializableTree()))
         }
 }
