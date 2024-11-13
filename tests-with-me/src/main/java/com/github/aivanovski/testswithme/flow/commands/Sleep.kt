@@ -2,9 +2,9 @@ package com.github.aivanovski.testswithme.flow.commands
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Duration
-import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.extensions.toMilliseconds
 import com.github.aivanovski.testswithme.extensions.toReadableFormat
+import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import kotlinx.coroutines.delay
 
@@ -18,7 +18,7 @@ class Sleep(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> {
+    ): Either<FlowError, Unit> {
         delay(duration.toMilliseconds())
         return Either.Right(Unit)
     }

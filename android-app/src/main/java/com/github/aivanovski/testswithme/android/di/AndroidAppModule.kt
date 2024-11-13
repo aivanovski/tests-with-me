@@ -73,6 +73,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.c
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.okhttp.OkHttp
@@ -96,6 +97,7 @@ object AndroidAppModule {
         single<FileCache> { FileCacheImpl(get()) }
         single { ThemeProvider() }
         single { VersionParser() }
+        single { JsonSerializer() }
 
         // Database
         single { AppDatabase.buildDatabase(get()) }

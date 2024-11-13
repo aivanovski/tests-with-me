@@ -2,6 +2,7 @@ package com.github.aivanovski.testswithme.extensions
 
 import com.github.aivanovski.testswithme.entity.UiElementSelector
 import com.github.aivanovski.testswithme.entity.UiNode
+import com.github.aivanovski.testswithme.utils.StringUtils
 import java.lang.StringBuilder
 import java.util.LinkedList
 
@@ -10,6 +11,42 @@ private const val DUMP_SEPARATOR_INDICATOR = "["
 
 fun UiNode<*>.matches(selector: UiElementSelector): Boolean {
     return entity.matches(selector)
+}
+
+fun UiNode<*>.toSerializableTree(): UiNode<Unit> {
+    return this.map { _ -> Unit }
+}
+
+fun <T, R> UiNode<T>.map(transform: (T) -> R): UiNode<R> {
+    val newRoot = UiNode(
+        source = transform.invoke(this.source),
+        entity = this.entity,
+        nodes = mutableListOf()
+    )
+
+    val queue = LinkedList<Pair<UiNode<R>, UiNode<T>>>()
+    for (node in this.nodes) {
+        queue.add(newRoot to node)
+    }
+
+    while (queue.isNotEmpty()) {
+        val (newParent, node) = queue.removeFirst()
+
+        val newNode = UiNode(
+            source = transform.invoke(node.source),
+            entity = node.entity,
+            nodes = mutableListOf()
+        )
+        newParent.nodes.add(newNode)
+
+        if (node.nodes.isNotEmpty()) {
+            for (child in node.nodes) {
+                queue.add(newNode to child)
+            }
+        }
+    }
+
+    return newRoot
 }
 
 fun <T> UiNode<T>.traverseAndCollect(predicate: (UiNode<T>) -> Boolean): List<UiNode<T>> {
@@ -68,12 +105,12 @@ fun UiNode<*>.hasElement(element: UiElementSelector): Boolean {
     return matchedNodes.isNotEmpty()
 }
 
-fun <T> UiNode<T>.dumpToString(): String {
+fun <T> UiNode<T>.dumpToString(initialIndent: String = StringUtils.EMPTY): String {
     val lines = mutableListOf<String>()
 
     visitWithDepth { node, depth ->
         val indent = "  ".repeat(depth)
-        lines.add("$indent${node.formatShortDescription()}")
+        lines.add("$initialIndent$indent${node.formatShortDescription()}")
     }
 
     return lines.joinToString(separator = "\n")

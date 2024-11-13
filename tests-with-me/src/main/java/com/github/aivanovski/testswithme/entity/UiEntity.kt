@@ -1,5 +1,8 @@
 package com.github.aivanovski.testswithme.entity
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class UiEntity(
     val resourceId: String?,
     val packageName: String?,

@@ -15,11 +15,13 @@ import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityException
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.entity.exception.InvalidParameterException
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
 
 class JobController(
     private val jobRepository: JobRepository,
     private val flowRepository: FlowRepository,
-    private val stepRunRepository: StepRunRepository
+    private val stepRunRepository: StepRunRepository,
+    private val jsonSerializer: JsonSerializer
 ) {
 
     suspend fun getJob(jobUid: String): Either<GatewayException, GetJobResponse> =
@@ -37,7 +39,10 @@ class JobController(
 
             GetJobResponse(
                 job = data.job.toDto(),
-                flow = data.flow.toDto(stepUidToStepRunMap)
+                flow = data.flow.toDto(
+                    jsonSerializer = jsonSerializer,
+                    stepUidToStepRunMap = stepUidToStepRunMap
+                )
             )
         }
 

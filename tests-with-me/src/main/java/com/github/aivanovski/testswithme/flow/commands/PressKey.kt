@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.flow.commands
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.KeyCode
-import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 
 class PressKey(
@@ -20,7 +20,7 @@ class PressKey(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> {
+    ): Either<FlowError, Unit> {
         return context.driver.pressKey(key)
     }
 }

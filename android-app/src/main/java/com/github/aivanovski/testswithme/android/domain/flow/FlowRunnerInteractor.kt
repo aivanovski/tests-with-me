@@ -30,11 +30,11 @@ import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
-import com.github.aivanovski.testswithme.android.entity.exception.FlowException
-import com.github.aivanovski.testswithme.entity.FlowStep
-import com.github.aivanovski.testswithme.entity.exception.AssertionException
-import com.github.aivanovski.testswithme.entity.exception.FailedToGetUiNodesException
-import com.github.aivanovski.testswithme.entity.exception.NodeException
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.entity.StepResult
+import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.extensions.isFlakyException
+import com.github.aivanovski.testswithme.extensions.isStepFlaky
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.Base64Utils
@@ -56,7 +56,8 @@ class FlowRunnerInteractor(
     private val getCurrentJobUseCase: GetCurrentJobUseCase,
     private val parseFlowUseCase: ParseFlowFileUseCase,
     private val getAppDataUseCase: GetExternalApplicationDataUseCase,
-    private val fileCache: FileCache
+    private val fileCache: FileCache,
+    private val jsonSerializer: JsonSerializer
 ) {
 
     fun saveReport(
@@ -310,7 +311,14 @@ class FlowRunnerInteractor(
                 }
                     ?: raise(AppException("Failed to find step to upload"))
 
-                val isSuccess = (stepToUpload.result?.startsWith("Either.Right(") ?: false)
+                val stepResult = if (!stepToUpload.result.isNullOrEmpty()) {
+                    jsonSerializer.deserialize<StepResult>(stepToUpload.result)
+                        .mapLeft { exception -> AppException(cause = exception) }
+                        .bind()
+                } else {
+                    null
+                }
+                val isSuccess = (stepResult != null && stepResult.isSuccess)
 
                 val flowRun = PostFlowRunRequest(
                     flowId = job.flowUid,
@@ -376,7 +384,7 @@ class FlowRunnerInteractor(
     suspend fun onStepFinished(
         jobUid: String,
         entry: StepEntry,
-        result: Either<Exception, Any>
+        result: Either<FlowExecutionException, Any>
     ): Either<AppException, OnStepFinishedAction> =
         withContext(IO) {
             either {
@@ -397,7 +405,7 @@ class FlowRunnerInteractor(
     private suspend fun verifyLocally(
         jobUid: String,
         stepEntry: StepEntry,
-        result: Either<Exception, Any>
+        result: Either<FlowExecutionException, Any>
     ): Either<AppException, OnStepFinishedAction> =
         either {
             val nextStepEntry = flowRepository.getNextStep(stepEntry.uid).bind()
@@ -440,7 +448,7 @@ class FlowRunnerInteractor(
             }
 
             val updatedStepRun = stepRun.copy(
-                result = result.toString(),
+                result = jsonSerializer.serialize(createStepResult(result)),
                 attemptCount = attemptCount,
                 syncStatus = syncStatus
             )
@@ -490,33 +498,48 @@ class FlowRunnerInteractor(
     private fun canRetry(
         entry: StepEntry,
         attemptCount: Int,
-        result: Either<Exception, Any>
+        result: Either<FlowExecutionException, Any>
     ): Boolean {
         if (result.isRight()) {
             return false
         }
 
-        val exception = result.unwrapError()
-        val isFlaky = (entry.command.isStepFlaky() || exception.isFlakyException())
+        val error = result.unwrapError().error
+        val isFlaky = (
+            entry.command.isStepFlaky() ||
+                (error != null && error.isFlakyException())
+            )
 
-        return isFlaky && attemptCount < 3
+        return isFlaky && attemptCount < FLAKY_STEP_RETRY_COUNT
     }
 
-    private fun FlowStep.isStepFlaky(): Boolean {
-        return this is FlowStep.AssertVisible ||
-            this is FlowStep.AssertNotVisible ||
-            this is FlowStep.TapOn
-    }
-
-    private fun Exception.isFlakyException(): Boolean {
-        return this is FlowException &&
-            (
-                this.cause is NodeException ||
-                    this.cause is FailedToGetUiNodesException ||
-                    this.cause is AssertionException
+    private fun createStepResult(result: Either<FlowExecutionException, Any>): StepResult {
+        return when (result) {
+            is Either.Right -> {
+                StepResult(
+                    isSuccess = true,
+                    result = result.value.toString(),
+                    error = null
                 )
+            }
+
+            is Either.Left -> {
+                val error = result.value.error
+
+                StepResult(
+                    isSuccess = false,
+                    result = if (error == null) {
+                        result.value.toString()
+                    } else {
+                        null
+                    },
+                    error = error
+                )
+            }
+        }
     }
 
     companion object {
+        private const val FLAKY_STEP_RETRY_COUNT = 3
     }
 }

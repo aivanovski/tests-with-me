@@ -1,7 +1,7 @@
 package com.github.aivanovski.testswithme.flow.commands
 
 import arrow.core.Either
-import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import java.lang.StringBuilder
 
@@ -33,7 +33,7 @@ class Broadcast(
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
-    ): Either<FlowExecutionException, Unit> {
+    ): Either<FlowError, Unit> {
         return context.driver.sendBroadcast(
             packageName = packageName,
             action = action,
