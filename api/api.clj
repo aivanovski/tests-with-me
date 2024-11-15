@@ -3,8 +3,8 @@
             [cheshire.core :as json])
   (:import java.util.Base64))
 
-(def URL "http://127.0.0.1:8080")
-(def TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vMC4wLjAuMDo4MDgwL2hlbGxvIiwiaXNzIjoiaHR0cDovLzAuMC4wLjA6ODA4MC8iLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNzI2NDkyMTkwfQ.QtMNxlGy7K2_HlJljlQEjfvpAfLm02ZK3KKgpfkVoWQ")
+(def URL "https://127.0.0.1:8443")
+(def TOKEN "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vMC4wLjAuMDo4NDQzIiwiaXNzIjoiaHR0cHM6Ly8wLjAuMC4wOjg0NDMiLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNzM0Mjc5ODAzfQ.4od5izKAoPV-nyRtbr9mPQqWmr52YeOO3q8BVcgtfts")
 (def HEADER_CONTENT_TYPE {:content-type "application/json"})
 (def HEADER_AUTH {:authorization (str "Bearer " TOKEN)})
 (def PRINT_HEADERS true)
@@ -13,6 +13,11 @@
   (String. (.decode (Base64/getDecoder) (.getBytes str))))
 (defn encode-base64 [str]
   (.encodeToString (Base64/getEncoder) (.getBytes str)))
+
+(defn http-client
+  []
+  (http/client
+    {:ssl-context (http/->SSLContext {:insecure true})}))
 
 (defn print-response
   [response]
@@ -36,9 +41,31 @@
         url (str URL (:endpoint params))
         response
         (case (:type params)
-          :GET (http/get url (merge other-params {:throw false}))
-          :POST (http/post url (merge other-params {:throw false}))
-          :PUT (http/put url (merge other-params {:throw false})))]
+
+          :GET (http/get
+                 url
+                 (merge
+                   other-params
+                   {:throw false
+                    :method :get
+                    :client (http-client)}))
+
+          :POST (http/post
+                  url
+                  (merge
+                    other-params
+                    {:throw false
+                     :method :post
+                     :client (http-client)}))
+
+          :PUT (http/put
+                 url
+                 (merge
+                   other-params
+                   {:throw false
+                    :method :put
+                    :client (http-client)})))]
+
     (print-response response)))
 
 (defn sign-up-request
