@@ -63,6 +63,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projects.c
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.SettingsCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.TestRunCellFactory
@@ -95,9 +96,9 @@ object AndroidAppModule {
         single<Settings> { SettingsImpl(get()) }
         single<ResourceProvider> { ResourceProviderImpl(get()) }
         single<FileCache> { FileCacheImpl(get()) }
-        single { ThemeProvider() }
-        single { VersionParser() }
-        single { JsonSerializer() }
+        singleOf(::ThemeProvider)
+        singleOf(::VersionParser)
+        singleOf(::JsonSerializer)
 
         // Database
         single { AppDatabase.buildDatabase(get()) }
@@ -110,7 +111,7 @@ object AndroidAppModule {
 
         // Network
         single { provideHttpRequestExecutor(get()) }
-        single { ApiClient(get(), get()) }
+        singleOf(::ApiClient)
 
         // Repositories
         singleOf(::FlowRepository)
@@ -157,6 +158,7 @@ object AndroidAppModule {
         singleOf(::TestRunsCellFactory)
         singleOf(::TestRunCellFactory)
         singleOf(::ProjectDashboardCellFactory)
+        singleOf(::SettingsCellFactory)
 
         // ViewModels
         factory { (router: Router, args: StartArgs) ->
@@ -257,6 +259,7 @@ object AndroidAppModule {
         }
         factory { (vm: RootViewModel, router: Router) ->
             SettingsViewModel(
+                get(),
                 get(),
                 get(),
                 get(),

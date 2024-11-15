@@ -1,8 +1,8 @@
 package com.github.aivanovski.testswithme.android.presentation.core.cells
 
 open class BaseCellViewModel(
-    open val model: BaseCellModel
-) {
+    override val model: BaseCellModel
+) : CellViewModel {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

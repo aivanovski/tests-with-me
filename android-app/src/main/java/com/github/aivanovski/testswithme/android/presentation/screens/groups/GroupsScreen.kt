@@ -12,11 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
@@ -103,7 +103,7 @@ private fun FlowListScreen(
 }
 
 @Composable
-private fun CreateCell(cellViewModel: BaseCellViewModel) {
+private fun CreateCell(cellViewModel: CellViewModel) {
     return when (cellViewModel) {
         is GroupCellViewModel -> GroupCell(cellViewModel)
         is FlowCellViewModel -> FlowCell(cellViewModel)
@@ -136,9 +136,9 @@ fun DataLightPreview() {
 private fun newDataState() =
     GroupsState(
         viewModels = listOf(
-            newSpaceCellViewModel(ElementMargin),
+            newSpaceCell(ElementMargin),
             newGroupCellViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newFlowCellViewModel()
         )
     )
@@ -146,5 +146,5 @@ private fun newDataState() =
 @Composable
 private fun newErrorState() =
     GroupsState(
-        terminalState = TerminalState.Error(newErrorMessage())
+        screenState = ScreenState.Error(newErrorMessage())
     )

@@ -12,10 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
@@ -77,7 +77,7 @@ private fun ProjectsScreen(
 }
 
 @Composable
-private fun CreateCell(viewModel: BaseCellViewModel) {
+private fun CreateCell(viewModel: CellViewModel) {
     when (viewModel) {
         is ProjectCellViewModel -> ProjectCell(viewModel)
         else -> CreateCoreCell(viewModel)
@@ -98,9 +98,9 @@ fun ProjectsScreenPreview() {
 private fun newDataState() =
     ProjectsState(
         viewModels = listOf(
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newProjectViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newProjectViewModel()
         )
     )

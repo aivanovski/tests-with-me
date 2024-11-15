@@ -101,10 +101,13 @@
     <!-- Settings -->
     <string name="validate_ssl_certificates">Validate SSL certificates</string>
     <string name="requires_application_restart">Requires application restart</string>
-    <string name="driver_gateway_title">Driver HTTP Gateway</string>
-    <string name="driver_gateway_description">%s \nGateway is HTTP server that allows to run test from PC</string>
     <string name="running_on_port">Running on port %s</string>
     <string name="stopped">Stopped</string>
+    <string name="test_driver_title">Test Driver</string>
+    <string name="test_driver_description">Enable this to run tests using the Test Driver. This driver functions as an Accessibility Service, allowing it to interact with your device and perform tests. This setting must be turned on to execute test cases.</string>
+    <string name="driver_gateway_title">Driver Gateway</string>
+    <string name="driver_gateway_description">Enable this to start the Driver Gateway, an HTTP server running on port 7077. It allows external clients, like a Command Line Interface (CLI) application, to communicate with the Test Driver and send tests for execution.</string>
+    <string name="driver_is">Driver is %s</string>
 
     <!--    <string name=""></string>-->
 </resources>

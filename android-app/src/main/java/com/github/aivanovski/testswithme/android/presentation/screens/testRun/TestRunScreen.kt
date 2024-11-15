@@ -12,11 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.HeaderCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
@@ -85,7 +85,7 @@ private fun TestRunScreen(
 }
 
 @Composable
-private fun CreateCell(cellViewModel: BaseCellViewModel) {
+private fun CreateCell(cellViewModel: CellViewModel) {
     when (cellViewModel) {
         is SpaceCellViewModel -> SpaceCell(cellViewModel)
         is TextCellViewModel -> TextCell(cellViewModel)
@@ -107,9 +107,9 @@ fun TestRunScreenPreview() {
 
 private fun newDataState(): TestRunState =
     TestRunState(
-        terminalState = null,
+        screenState = null,
         viewModels = listOf(
-            newHeaderCellViewModel(),
+            newHeaderCell(),
             newShortTextCell(),
             newLongTextCell()
         )

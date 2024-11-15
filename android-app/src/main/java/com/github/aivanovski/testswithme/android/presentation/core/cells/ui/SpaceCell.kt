@@ -26,12 +26,12 @@ fun SpaceCell(viewModel: SpaceCellViewModel) {
 fun SpaceCellLightPreview() {
     ThemedPreview(theme = LightTheme) {
         Column {
-            SpaceCell(newSpaceCellViewModel(ElementMargin))
+            SpaceCell(newSpaceCell(ElementMargin))
         }
     }
 }
 
-fun newSpaceCellViewModel(height: Dp): SpaceCellViewModel {
+fun newSpaceCell(height: Dp): SpaceCellViewModel {
     return SpaceCellViewModel(
         model = SpaceCellModel(
             height = height

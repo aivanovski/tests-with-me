@@ -14,14 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.R
-import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderWithIconCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newShapedSpaceCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTableCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTextChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTitleCellViewModel
@@ -75,7 +75,7 @@ private fun ProjectDashboardScreen(
             }
         )
 
-        if (state.terminalState is TerminalState.Empty) {
+        if (state.screenState is ScreenState.Empty) {
             FloatingActionButton(
                 onClick = onAddClick,
                 modifier = Modifier
@@ -96,7 +96,7 @@ private fun ProjectDashboardScreen(
 }
 
 @Composable
-private fun CreateCell(cellViewModel: BaseCellViewModel) {
+private fun CreateCell(cellViewModel: CellViewModel) {
     when (cellViewModel) {
         is GroupCellViewModel -> GroupCell(cellViewModel)
         is LargeBarCellViewModel -> LargeBarCell(cellViewModel)
@@ -136,7 +136,7 @@ fun ProjectDashboardScreenEmptyPreview() {
 @Composable
 private fun newEmptyState() =
     ProjectDashboardState(
-        terminalState = TerminalState.Empty(
+        screenState = ScreenState.Empty(
             message = stringResource(R.string.no_tests_in_project_message)
         )
     )
@@ -144,9 +144,9 @@ private fun newEmptyState() =
 @Composable
 private fun newDataState() =
     ProjectDashboardState(
-        terminalState = null,
+        screenState = null,
         viewModels = listOf(
-            newSpaceCellViewModel(height = ElementMargin),
+            newSpaceCell(height = ElementMargin),
             newShapedSpaceCellViewModel(SmallMargin, CornersShape.TOP),
             newTitleCellViewModel(
                 title = "Completion",
@@ -162,25 +162,25 @@ private fun newDataState() =
                 shape = CornersShape.NONE
             ),
             newShapedSpaceCellViewModel(SmallMargin, CornersShape.BOTTOM),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
 
             newHeaderWithIconCellViewModel(
                 title = "Remained Tests",
                 iconText = "All"
             ),
             newFlowCellViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newFlowCellViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
 
             newHeaderWithIconCellViewModel(
                 title = "Tests",
                 iconText = "View"
             ),
             newGroupCellViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newGroupCellViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newFlowCellViewModel()
         )
     )

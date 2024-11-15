@@ -11,7 +11,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
@@ -118,7 +118,7 @@ class ProjectDashboardViewModel(
 
     private fun loadData(versionName: String? = null): Flow<ProjectDashboardState> {
         return flow {
-            emit(ProjectDashboardState(terminalState = TerminalState.Loading))
+            emit(ProjectDashboardState(screenState = ScreenState.Loading))
 
             val loadDataResult = interactor.loadData(
                 projectUid = args.projectUid,
@@ -129,7 +129,7 @@ class ProjectDashboardViewModel(
                     .formatErrorMessage(resourceProvider)
                     .toTerminalState()
 
-                emit(ProjectDashboardState(terminalState = terminalState))
+                emit(ProjectDashboardState(screenState = terminalState))
                 return@flow
             }
 
@@ -146,10 +146,10 @@ class ProjectDashboardViewModel(
                 )
                 emit(ProjectDashboardState(viewModels = viewModels))
             } else {
-                val empty = TerminalState.Empty(
+                val empty = ScreenState.Empty(
                     message = resourceProvider.getString(R.string.no_tests_in_project_message)
                 )
-                emit(ProjectDashboardState(terminalState = empty))
+                emit(ProjectDashboardState(screenState = empty))
             }
         }
     }

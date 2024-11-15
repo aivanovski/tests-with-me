@@ -5,8 +5,10 @@ import com.github.aivanovski.testswithme.android.entity.exception.UnsupportedCel
 import com.github.aivanovski.testswithme.android.entity.exception.UnsupportedCellViewModelException
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.DividerCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.EmptyTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderWithDescriptionCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellModel
@@ -18,8 +20,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.T
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ButtonCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.DividerCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.EmptyTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.HeaderCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.HeaderWithDescriptionCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconChipRowCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconThreeTextCell
@@ -31,8 +35,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.Text
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextWithChipCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ButtonCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.DividerCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.EmptyTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderWithDescriptionCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.IconChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.IconTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.IconThreeTextCellViewModel
@@ -45,10 +51,11 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.viewMod
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleCellViewModel
 
 @Composable
-fun CreateCoreCell(viewModel: BaseCellViewModel) {
+fun CreateCoreCell(viewModel: CellViewModel) {
     when (viewModel) {
         is ButtonCellViewModel -> ButtonCell(viewModel)
         is HeaderCellViewModel -> HeaderCell(viewModel)
+        is HeaderWithDescriptionCellViewModel -> HeaderWithDescriptionCell(viewModel)
         is IconThreeTextCellViewModel -> IconThreeTextCell(viewModel)
         is IconTextCellViewModel -> IconTextCell(viewModel)
         is LabeledTableCellViewModel -> LabeledTableCell(viewModel)
@@ -60,6 +67,7 @@ fun CreateCoreCell(viewModel: BaseCellViewModel) {
         is TextChipRowCellViewModel -> TextChipRowCell(viewModel)
         is TitleCellViewModel -> TitleCell(viewModel)
         is EmptyTextCellViewModel -> EmptyTextCell(viewModel)
+        is DividerCellViewModel -> DividerCell(viewModel)
         else -> throw UnsupportedCellViewModelException(viewModel)
     }
 }
@@ -71,6 +79,7 @@ fun createCoreCellViewModel(
     return when (model) {
         is ButtonCellModel -> ButtonCellViewModel(model, intentProvider)
         is HeaderCellModel -> HeaderCellViewModel(model, intentProvider)
+        is HeaderWithDescriptionCellModel -> HeaderWithDescriptionCellViewModel(model)
         is IconThreeTextCellModel -> IconThreeTextCellViewModel(model, intentProvider)
         is IconTextCellModel -> IconTextCellViewModel(model, intentProvider)
         is LabeledTextCellModel -> LabeledTextCellViewModel(model)
@@ -82,6 +91,7 @@ fun createCoreCellViewModel(
         is TextChipRowCellModel -> TextChipRowCellViewModel(model, intentProvider)
         is TitleCellModel -> TitleCellViewModel(model)
         is EmptyTextCellModel -> EmptyTextCellViewModel(model)
+        is DividerCellModel -> DividerCellViewModel(model)
         else -> throw UnsupportedCellModelException(model)
     }
 }

@@ -7,7 +7,7 @@ import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
@@ -61,7 +61,7 @@ class FlowViewModel(
     private val args: FlowScreenArgs
 ) : BaseViewModel() {
 
-    val state = MutableStateFlow(FlowState(terminalState = TerminalState.Loading))
+    val state = MutableStateFlow(FlowState(screenState = ScreenState.Loading))
 
     private val _events = Channel<FlowUiEvent>(capacity = Channel.BUFFERED)
     val events: Flow<FlowUiEvent> = _events.receiveAsFlow()
@@ -267,7 +267,7 @@ class FlowViewModel(
 
     private fun loadData(): Flow<FlowState> {
         return flow {
-            emit(FlowState(terminalState = TerminalState.Loading))
+            emit(FlowState(screenState = ScreenState.Loading))
 
             val loadDataResult = interactor.loadData(args.mode)
             if (loadDataResult.isLeft()) {
@@ -275,7 +275,7 @@ class FlowViewModel(
                     .formatError(resourceProvider)
                     .toTerminalState()
 
-                emit(FlowState(terminalState = terminalState))
+                emit(FlowState(screenState = terminalState))
                 return@flow
             }
 
@@ -407,7 +407,7 @@ class FlowViewModel(
 
                     emit(
                         state.value.copy(
-                            terminalState = terminalState
+                            screenState = terminalState
                         )
                     )
                     return@flow
@@ -490,7 +490,7 @@ class FlowViewModel(
     }
 
     private fun FlowState.isInDataState(): Boolean {
-        return viewModels.isNotEmpty() && terminalState == null
+        return viewModels.isNotEmpty() && screenState == null
     }
 
     companion object {

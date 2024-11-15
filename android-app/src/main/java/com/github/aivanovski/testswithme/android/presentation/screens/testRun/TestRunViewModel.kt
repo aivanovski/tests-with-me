@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.testRun
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
@@ -83,7 +83,7 @@ class TestRunViewModel(
 
     private fun loadData(): Flow<TestRunState> {
         return flow {
-            emit(TestRunState(terminalState = TerminalState.Loading))
+            emit(TestRunState(screenState = ScreenState.Loading))
 
             val loadDataResult = interactor.loadData(args.jobUid)
             if (loadDataResult.isLeft()) {
@@ -91,7 +91,7 @@ class TestRunViewModel(
                     .formatError(resourceProvider)
                     .toTerminalState()
 
-                emit(TestRunState(terminalState = terminalState))
+                emit(TestRunState(screenState = terminalState))
                 return@flow
             }
 
@@ -120,7 +120,7 @@ class TestRunViewModel(
 
     private fun newInitialState(): TestRunState {
         return TestRunState(
-            terminalState = TerminalState.Loading,
+            screenState = ScreenState.Loading,
             viewModels = emptyList()
         )
     }

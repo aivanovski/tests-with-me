@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
@@ -27,6 +27,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.MediumMargin
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.OneLineItemHeight
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallIconSize
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
 
@@ -43,7 +44,7 @@ fun HeaderCell(viewModel: HeaderCellViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = ElementMargin)
-            .defaultMinSize(minHeight = 48.dp) // TODO: dimen
+            .defaultMinSize(minHeight = OneLineItemHeight)
     ) {
         Text(
             text = model.title,
@@ -94,23 +95,26 @@ fun HeaderCell(viewModel: HeaderCellViewModel) {
 fun HeaderCellPreview() {
     ThemedPreview(theme = LightTheme) {
         Column {
-            HeaderCell(newHeaderCellViewModel())
+            HeaderCell(newHeaderCell())
             Spacer(modifier = Modifier.height(ElementMargin))
             HeaderCell(newHeaderWithIconCellViewModel())
         }
     }
 }
 
-fun newHeaderCellViewModel(title: String = "Header") =
-    HeaderCellViewModel(
-        model = HeaderCellModel(
-            id = "id",
-            title = title,
-            iconText = null,
-            icon = null
-        ),
-        intentProvider = PreviewIntentProvider
-    )
+fun newHeaderCell(
+    title: String = "Header",
+    iconText: String? = null,
+    icon: ImageVector? = null
+) = HeaderCellViewModel(
+    model = HeaderCellModel(
+        id = "id",
+        title = title,
+        iconText = iconText,
+        icon = icon
+    ),
+    intentProvider = PreviewIntentProvider
+)
 
 fun newHeaderWithIconCellViewModel(
     title: String = "Header",
