@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.root
 
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.arkivanov.decompose.ComponentContext
@@ -26,6 +27,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest
 class RootScreenComponent(
     componentContext: ComponentContext,
     onExitNavigation: () -> Unit,
+    fragmentManager: FragmentManager,
     args: StartArgs
 ) : ComponentContext by componentContext,
     ViewModelStoreOwner by ViewModelStoreOwnerImpl() {
@@ -35,6 +37,7 @@ class RootScreenComponent(
     val navigation = StackNavigation<Screen>()
     val router = RouterImpl(
         rootComponent = this,
+        fragmentManager = fragmentManager,
         onExitNavigation = onExitNavigation
     )
 

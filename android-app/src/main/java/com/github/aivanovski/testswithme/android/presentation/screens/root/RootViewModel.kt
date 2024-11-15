@@ -9,6 +9,9 @@ import com.github.aivanovski.testswithme.android.presentation.core.EventListener
 import com.github.aivanovski.testswithme.android.presentation.core.EventProviderImpl
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenu
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.model.BottomSheetIcon
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.model.BottomSheetItem
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenMode
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarItem
@@ -87,14 +90,17 @@ class RootViewModel(
     }
 
     private fun onBottomBarClick(intent: RootIntent.OnBottomBarClick) {
-        val newIndex = bottomBarState.value.items.indexOf(intent.item)
-        bottomBarState.value = bottomBarState.value.copy(
-            selectedIndex = newIndex
-        )
+        if (intent.item != BottomBarItem.MORE) {
+            val newIndex = bottomBarState.value.items.indexOf(intent.item)
+            bottomBarState.value = bottomBarState.value.copy(
+                selectedIndex = newIndex
+            )
+        }
 
         when (intent.item) {
             BottomBarItem.PROJECTS -> router.setRoot(Screen.Projects)
             BottomBarItem.TEST_RUNS -> router.setRoot(Screen.TestRuns)
+            BottomBarItem.MORE -> showMoreMenu()
         }
     }
 
@@ -104,15 +110,6 @@ class RootViewModel(
 
     private fun onMenuClick(intent: RootIntent.OnMenuClick) {
         menuEventProvider.sendEvent(intent.menuItem)
-
-        when (intent.menuItem) {
-            MenuItem.LOG_OUT -> {
-                settings.authToken = null
-                router.setRoot(Screen.Login(LoginScreenArgs(LoginScreenMode.LOG_IN)))
-            }
-
-            else -> {}
-        }
     }
 
     private fun showToast(intent: RootIntent.ShowToast) {
@@ -124,5 +121,57 @@ class RootViewModel(
             title = resourceProvider.getString(R.string.app_name),
             isBackVisible = false
         )
+    }
+
+    private fun showMoreMenu() {
+        val menu = createMoreMenu()
+
+        router.showBottomSheet(
+            menu = createMoreMenu(),
+            onClick = { index ->
+                val item = MoreMenuItem.valueOf(menu.items[index].id)
+                onMoreMenuClicked(item)
+            }
+        )
+    }
+
+    private fun createMoreMenu(): BottomSheetMenu {
+        return BottomSheetMenu(
+            items = listOf(
+                BottomSheetItem(
+                    id = MoreMenuItem.LOGIN.name,
+                    icon = BottomSheetIcon.LOGIN,
+                    title = resourceProvider.getString(R.string.log_in_join)
+                ),
+                BottomSheetItem(
+                    id = MoreMenuItem.SETTINGS.name,
+                    icon = BottomSheetIcon.SETTINGS,
+                    title = resourceProvider.getString(R.string.settings)
+                )
+            )
+        )
+    }
+
+    private fun onMoreMenuClicked(item: MoreMenuItem) {
+        when (item) {
+            MoreMenuItem.LOGIN -> {
+                router.navigateTo(
+                    Screen.Login(
+                        args = LoginScreenArgs(
+                            mode = LoginScreenMode.LOG_IN
+                        )
+                    )
+                )
+            }
+
+            MoreMenuItem.SETTINGS -> {
+                router.navigateTo(Screen.Settings)
+            }
+        }
+    }
+
+    enum class MoreMenuItem {
+        LOGIN,
+        SETTINGS
     }
 }

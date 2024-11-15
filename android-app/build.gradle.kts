@@ -51,6 +51,7 @@ android {
     }
 
     buildFeatures {
+        viewBinding = true
         compose = true
     }
 
@@ -100,6 +101,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.viewMaterial)
     implementation(libs.androidx.icons)
 
     // Timber

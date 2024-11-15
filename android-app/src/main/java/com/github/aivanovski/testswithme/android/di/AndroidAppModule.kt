@@ -37,6 +37,9 @@ import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUs
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenu
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenuViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.cells.BottomSheetMenuCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.FlowInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.FlowViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory
@@ -159,8 +162,10 @@ object AndroidAppModule {
         singleOf(::TestRunCellFactory)
         singleOf(::ProjectDashboardCellFactory)
         singleOf(::SettingsCellFactory)
+        singleOf(::BottomSheetMenuCellFactory)
 
         // ViewModels
+        factory { (menu: BottomSheetMenu) -> BottomSheetMenuViewModel(get(), menu) }
         factory { (router: Router, args: StartArgs) ->
             RootViewModel(
                 get(),

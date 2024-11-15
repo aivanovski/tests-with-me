@@ -19,7 +19,7 @@ sealed interface Screen {
     ) : Screen
 
     @Serializable
-    object Projects : Screen
+    data object Projects : Screen
 
     @Serializable
     data class ProjectEditor(
@@ -27,7 +27,7 @@ sealed interface Screen {
     ) : Screen
 
     @Serializable
-    object TestRuns : Screen
+    data object TestRuns : Screen
 
     @Serializable
     data class ProjectDashboard(
