@@ -15,7 +15,6 @@ import com.github.aivanovski.testswithme.android.presentation.screens.flow.model
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarState
-import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuItem
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetBottomBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
@@ -55,13 +54,10 @@ class TestRunsViewModel(
 
         rootViewModel.sendIntent(SetTopBarState(createInitialTopBarState()))
         rootViewModel.sendIntent(SetBottomBarState(createBottomBarState()))
-        rootViewModel.sendIntent(SetMenuState(createMenuState()))
+        rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
         if (!isSubscribed) {
             isSubscribed = true
-            rootViewModel.subscribeToMenuEvent(this) { menuItem ->
-                handleMenuItemClick(menuItem)
-            }
 
             viewModelScope.launch {
                 intents.receiveAsFlow()
@@ -72,11 +68,6 @@ class TestRunsViewModel(
                     }
             }
         }
-    }
-
-    override fun destroy() {
-        super.destroy()
-        rootViewModel.unsubscribeFromMenuEvent(this)
     }
 
     override fun handleCellIntent(intent: BaseCellIntent) {
@@ -162,13 +153,6 @@ class TestRunsViewModel(
         }
     }
 
-    private fun handleMenuItemClick(menuItem: MenuItem) {
-        when (menuItem) {
-            MenuItem.SETTINGS -> router.navigateTo(Screen.Settings)
-            else -> throw IllegalStateException()
-        }
-    }
-
     private fun createInitialTopBarState(): TopBarState {
         return TopBarState(
             title = resourceProvider.getString(R.string.test_runs),
@@ -181,17 +165,5 @@ class TestRunsViewModel(
             isVisible = true,
             selectedIndex = 1
         )
-    }
-
-    private fun createMenuState(): MenuState {
-        val items = mutableListOf(
-            MenuItem.SETTINGS
-        )
-
-        if (interactor.isLoggedIn()) {
-            items.add(MenuItem.LOG_OUT)
-        }
-
-        return MenuState(items)
     }
 }

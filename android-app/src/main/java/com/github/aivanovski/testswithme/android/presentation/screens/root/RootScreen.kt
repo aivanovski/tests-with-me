@@ -201,21 +201,7 @@ private fun MenuContent(
                 }
             }
 
-            MenuItem.SETTINGS -> {
-                IconButton(
-                    onClick = {
-                        onIntent.invoke(RootIntent.OnMenuClick(MenuItem.SETTINGS))
-                    }
-                ) {
-                    Icon(
-                        imageVector = AppIcons.Settings,
-                        tint = AppTheme.theme.colors.primaryIcon,
-                        contentDescription = null
-                    )
-                }
-            }
-
-            MenuItem.LOG_OUT -> {
+            else -> {
                 IconButton(
                     onClick = { isMenuShown = !isMenuShown }
                 ) {
@@ -251,9 +237,7 @@ private fun MenuContent(
 @Composable
 private fun MenuItem.getTitle(): String {
     return when (this) {
-        MenuItem.LOG_OUT -> stringResource(R.string.log_out)
         MenuItem.DONE -> StringUtils.EMPTY
-        MenuItem.SETTINGS -> stringResource(R.string.settings)
     }
 }
 
@@ -284,7 +268,9 @@ private fun BottomBarContent(
                 label = { Text(item.getTitle()) },
                 selected = selectedItem == index,
                 onClick = {
-                    selectedItem = index
+                    if (state.items[index] != BottomBarItem.MORE) {
+                        selectedItem = index
+                    }
                     onBarClicked.invoke(index)
                 }
             )
@@ -296,6 +282,7 @@ private fun BottomBarItem.getIcon(): ImageVector {
     return when (this) {
         BottomBarItem.PROJECTS -> AppIcons.MenuProjects
         BottomBarItem.TEST_RUNS -> AppIcons.MenuTestRuns
+        BottomBarItem.MORE -> AppIcons.Menu
     }
 }
 
@@ -304,6 +291,7 @@ private fun BottomBarItem.getTitle(): String {
     return when (this) {
         BottomBarItem.PROJECTS -> stringResource(R.string.projects)
         BottomBarItem.TEST_RUNS -> stringResource(R.string.test_runs)
+        BottomBarItem.MORE -> stringResource(R.string.more)
     }
 }
 
@@ -336,9 +324,7 @@ private fun newTopBarState(): TopBarState =
 private fun newMenuState(): MenuState =
     MenuState(
         items = listOf(
-            MenuItem.DONE,
-            MenuItem.SETTINGS,
-            MenuItem.LOG_OUT
+            MenuItem.DONE
         )
     )
 
@@ -348,6 +334,7 @@ private fun newBottomBarState(): BottomBarState =
         selectedIndex = 0,
         items = listOf(
             BottomBarItem.PROJECTS,
-            BottomBarItem.TEST_RUNS
+            BottomBarItem.TEST_RUNS,
+            BottomBarItem.MORE
         )
     )

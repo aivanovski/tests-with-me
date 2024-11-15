@@ -17,11 +17,5 @@ data class MenuState(
                 MenuItem.DONE
             )
         )
-
-        val LOG_OUT = MenuState(
-            items = listOf(
-                MenuItem.LOG_OUT
-            )
-        )
     }
 }

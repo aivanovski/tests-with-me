@@ -58,10 +58,12 @@ fun AppTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = theme.materialColors.background.toArgb()
-            // Make text on status bar visible
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            if (view.context is Activity) {
+                val window = (view.context as Activity).window
+                window.statusBarColor = theme.materialColors.background.toArgb()
+                // Make text on status bar visible
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            }
         }
     }
 

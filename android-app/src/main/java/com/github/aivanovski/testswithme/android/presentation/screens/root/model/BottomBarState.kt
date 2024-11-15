@@ -15,7 +15,8 @@ data class BottomBarState(
             selectedIndex = 0,
             items = listOf(
                 BottomBarItem.PROJECTS,
-                BottomBarItem.TEST_RUNS
+                BottomBarItem.TEST_RUNS,
+                BottomBarItem.MORE
             )
         )
     }

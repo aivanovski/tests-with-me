@@ -1,10 +1,13 @@
 package com.github.aivanovski.testswithme.android.presentation.core.navigation
 
+import androidx.fragment.app.FragmentManager
 import com.arkivanov.decompose.router.stack.items
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenu
+import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenuFragment
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreenComponent
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -12,6 +15,7 @@ import timber.log.Timber
 
 class RouterImpl(
     private val rootComponent: RootScreenComponent,
+    private val fragmentManager: FragmentManager,
     private val onExitNavigation: () -> Unit
 ) : Router {
 
@@ -24,6 +28,17 @@ class RouterImpl(
 
     override fun navigateTo(screen: Screen) {
         rootComponent.navigation.push(screen)
+    }
+
+    override fun showBottomSheet(
+        args: BottomSheetMenu,
+        onClick: (itemIndex: Int) -> Unit
+    ) {
+        val dialog = BottomSheetMenuFragment.newInstance(
+            menu = args,
+            onClick = onClick
+        )
+        dialog.show(fragmentManager, BottomSheetMenuFragment.TAG)
     }
 
     override fun exit() {

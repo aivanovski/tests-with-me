@@ -3,8 +3,8 @@ package com.github.aivanovski.testswithme.android.presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.LocalContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
@@ -15,7 +15,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreen
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreenComponent
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val themeProvider: ThemeProvider by inject()
 
@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
 
         val component = RootScreenComponent(
             componentContext = defaultComponentContext(),
+            fragmentManager = supportFragmentManager,
             onExitNavigation = {
                 finish()
             },

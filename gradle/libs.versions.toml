@@ -29,6 +29,7 @@ jackson = "2.15.2"
 arrow = "1.2.4"
 decompose = "3.0.0"
 materialIcons = "1.6.8"
+viewMaterial = "1.12.0"
 hibernate = "5.6.0.Final"
 h2 = "2.2.224"
 coil = "2.6.0"
@@ -74,6 +75,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-viewMaterial = { module = "com.google.android.material:material", version.ref = "viewMaterial" }
 androidx-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcons" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
