@@ -8,13 +8,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.entity.ErrorMessage
-import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconThreeTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newIconThreeCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.IconThreeTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
@@ -46,7 +46,7 @@ private fun TestRunsScreen(state: TestRunsState) {
 }
 
 @Composable
-private fun CreateCell(viewModel: BaseCellViewModel) {
+private fun CreateCell(viewModel: CellViewModel) {
     return when (viewModel) {
         is IconThreeTextCellViewModel -> IconThreeTextCell(viewModel)
         is SpaceCellViewModel -> SpaceCell(viewModel)
@@ -90,9 +90,9 @@ private fun newDataState(): TestRunsState =
     TestRunsState(
         screenState = null,
         viewModels = listOf(
-            newSpaceCellViewModel(ElementMargin),
+            newSpaceCell(ElementMargin),
             newIconThreeCellViewModel(),
-            newSpaceCellViewModel(SmallMargin),
+            newSpaceCell(SmallMargin),
             newIconThreeCellViewModel()
         )
     )

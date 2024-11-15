@@ -7,12 +7,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newEmptyTextCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.ErrorDialog
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.MessageDialog
@@ -125,7 +125,7 @@ private fun FlowDialogContent(
 }
 
 @Composable
-private fun CreateCell(viewModel: BaseCellViewModel) {
+private fun CreateCell(viewModel: CellViewModel) {
     when (viewModel) {
         is HistoryItemCellViewModel -> HistoryItemCell(viewModel)
         is FlowCellViewModel -> FlowCell(viewModel)
@@ -140,13 +140,13 @@ fun FlowScreenPreview() {
         FlowScreen(
             state = FlowState(
                 viewModels = listOf(
-                    newSpaceCellViewModel(GroupMargin),
-                    newSpaceCellViewModel(ElementMargin),
-                    newHeaderCellViewModel(),
+                    newSpaceCell(GroupMargin),
+                    newSpaceCell(ElementMargin),
+                    newHeaderCell(),
                     newSuccessHistoryItemCellViewModel(),
-                    newSpaceCellViewModel(HalfMargin),
+                    newSpaceCell(HalfMargin),
                     newFailedHistoryItemCellViewModel(),
-                    newSpaceCellViewModel(HalfMargin),
+                    newSpaceCell(HalfMargin),
                     newSuccessHistoryItemCellViewModel()
                 ),
                 errorDialogMessage = null,
@@ -164,7 +164,7 @@ fun FlowScreenWithoutRunsPreview() {
         FlowScreen(
             state = FlowState(
                 viewModels = listOf(
-                    newSpaceCellViewModel(GroupMargin),
+                    newSpaceCell(GroupMargin),
                     newEmptyTextCellViewModel()
                 ),
                 errorDialogMessage = null,

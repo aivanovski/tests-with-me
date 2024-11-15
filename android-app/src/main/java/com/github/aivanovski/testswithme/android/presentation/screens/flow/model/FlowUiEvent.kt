@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.flow.mode
 
 sealed interface FlowUiEvent {
 
-    object ShowAccessibilityServices : FlowUiEvent
+    data object ShowAccessibilityServices : FlowUiEvent
 
     data class OpenUrl(
         val url: String

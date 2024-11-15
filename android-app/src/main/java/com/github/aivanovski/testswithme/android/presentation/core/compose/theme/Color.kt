@@ -22,7 +22,8 @@ data class AppColors(
     val redCard: Color,
     val primaryButton: Color,
     val greenButton: Color,
-    val primaryIcon: Color
+    val primaryIcon: Color,
+    val dividerOnPrimary: Color
 )
 
 val LightAppColors = AppColors(
@@ -43,7 +44,8 @@ val LightAppColors = AppColors(
     redCard = Color(0xFF_fcebea),
     primaryButton = Color(0xFF_1c7c92),
     greenButton = Color(0xFF_007340),
-    primaryIcon = Color(0xFF_888888)
+    primaryIcon = Color(0xFF_888888),
+    dividerOnPrimary = Color(0xFF_e0e0e0)
 )
 
 val DarkAppColors = AppColors(
@@ -64,5 +66,6 @@ val DarkAppColors = AppColors(
     redCard = Color(0xFF_fcebea),
     primaryButton = Color(0xFF_5dd4e4),
     greenButton = Color(0xFF_007340),
-    primaryIcon = Color(0xFF_888888)
+    primaryIcon = Color(0xFF_888888),
+    dividerOnPrimary = Color(0xFF_e0e0e0)
 )
