@@ -8,5 +8,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.
 @Immutable
 data class ProjectsState(
     override val screenState: ScreenState? = null,
-    override val viewModels: List<CellViewModel> = emptyList()
+    override val viewModels: List<CellViewModel> = emptyList(),
+    val isAddButtonVisible: Boolean = false
 ) : CellsScreenState

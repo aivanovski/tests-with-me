@@ -6,7 +6,17 @@ open class FlowExecutionException(
     val error: FlowError? = null,
     message: String? = null,
     cause: Exception? = null
-) : Exception(message, cause)
+) : Exception(message, cause) {
+
+    companion object {
+        fun fromFlowError(error: FlowError): FlowExecutionException {
+            return FlowExecutionException(
+                error = error,
+                message = error.cause
+            )
+        }
+    }
+}
 
 open class ExternalException(
     cause: Exception

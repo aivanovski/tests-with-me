@@ -26,9 +26,6 @@ class UploadTestScreenComponent(
             owner = this,
             factory = ViewModelFactory(rootViewModel, router, args)
         )[UploadTestViewModel::class]
-            .apply {
-                lifecycle.attach(viewModel)
-            }
     }
 
     init {

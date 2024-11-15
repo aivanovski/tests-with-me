@@ -379,6 +379,6 @@ class FlowRunner(
     }
 
     companion object {
-        const val DELAY_BETWEEN_STEPS = 1000L // in milliseconds
+        const val DELAY_BETWEEN_STEPS = 2000L // in milliseconds
     }
 }

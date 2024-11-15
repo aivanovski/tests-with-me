@@ -124,7 +124,7 @@ class SettingsViewModel(
             val viewModels = cellFactory.createCellViewModels(
                 settings = settings,
                 isDriverRunning = interactor.isDriverRunning(),
-                isGatewayRunning = isDriverRunning,
+                isGatewayRunning = interactor.isGatewayRunning(),
                 isGatewaySwitchEnabled = isGatewaySwitchEnabled,
                 intentProvider = intentProvider
             )
