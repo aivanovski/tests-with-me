@@ -255,7 +255,10 @@ class FlowRunnerInteractor(
             }
         }
 
-    suspend fun addFlowToJobQueue(flow: FlowWithSteps): Either<AppException, String> =
+    suspend fun addFlowToJobQueue(
+        flow: FlowWithSteps,
+        onFinishAction: OnFinishAction
+    ): Either<AppException, String> =
         withContext(IO) {
             either {
                 val flowUid = flow.entry.uid
@@ -266,11 +269,11 @@ class FlowRunnerInteractor(
                 val firstStepUid = flow.steps.firstOrNull()?.uid
                     ?: raise(AppException("No steps found"))
 
-                addRunnerEntry(
+                addJob(
                     flowUid = flowUid,
                     stepUid = firstStepUid,
                     jobUid = null,
-                    onFinishAction = OnFinishAction.SHOW_DETAILS
+                    onFinishAction = onFinishAction
                 ).bind()
             }
         }
@@ -287,7 +290,7 @@ class FlowRunnerInteractor(
                 val firstStepUid = flow.steps.firstOrNull()?.uid
                     ?: raise(AppException("No steps found"))
 
-                addRunnerEntry(
+                addJob(
                     flowUid = flowUid,
                     stepUid = firstStepUid,
                     jobUid = jobUid,
@@ -464,7 +467,7 @@ class FlowRunnerInteractor(
         TODO()
     }
 
-    private suspend fun addRunnerEntry(
+    private suspend fun addJob(
         flowUid: String,
         stepUid: String,
         jobUid: String?,

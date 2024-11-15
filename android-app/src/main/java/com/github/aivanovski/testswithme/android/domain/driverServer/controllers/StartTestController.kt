@@ -6,6 +6,7 @@ import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteracto
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.ErrorMessage
 import com.github.aivanovski.testswithme.android.driverServerApi.request.StartTestRequest
 import com.github.aivanovski.testswithme.android.driverServerApi.response.StartTestResponse
+import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.entity.exception.InvalidBase64StringException
@@ -74,6 +75,9 @@ class StartTestController(
 
             flowRunnerInteractor.removeAllJobs().bind()
 
-            flowRunnerInteractor.addFlowToJobQueue(flow).bind()
+            flowRunnerInteractor.addFlowToJobQueue(
+                flow = flow,
+                onFinishAction = OnFinishAction.STOP
+            ).bind()
         }
 }

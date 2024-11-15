@@ -32,7 +32,7 @@ class CommandExecutor(
             val result = when {
                 command is ExecutableStepCommand<*> -> {
                     command.execute(context)
-                        .mapLeft { error -> FlowExecutionException(error = error) }
+                        .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
                         .bind()
                 }
 
@@ -61,7 +61,7 @@ class CommandExecutor(
             val result = when {
                 command is ExecutableStepCommand<*> -> {
                     command.execute(context)
-                        .mapLeft { error -> FlowExecutionException(error = error) }
+                        .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
                 }
 
                 command is CompositeStepCommand -> {
@@ -167,7 +167,7 @@ class CommandExecutor(
                 )
 
                 val commandResult = command.execute(context)
-                    .mapLeft { error -> FlowExecutionException(error = error) }
+                    .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
 
                 val nextAction = interactor.onStepFinished(job.uid, stepEntry, commandResult)
                     .mapLeft { exception -> StepVerificationException(exception) }

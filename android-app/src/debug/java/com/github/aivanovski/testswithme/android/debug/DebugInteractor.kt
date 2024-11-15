@@ -6,6 +6,7 @@ import com.github.aivanovski.testswithme.android.debug.model.DebugCommand
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.entity.DriverServiceState
+import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.android.utils.Base64Utils
@@ -69,7 +70,10 @@ class DebugInteractor(
 
             flowRunnerInteractor.removeAllJobs().bind()
 
-            val jobUid = flowRunnerInteractor.addFlowToJobQueue(flow).bind()
+            val jobUid = flowRunnerInteractor.addFlowToJobQueue(
+                flow = flow,
+                onFinishAction = OnFinishAction.SHOW_DETAILS
+            ).bind()
 
             jobUid
         }

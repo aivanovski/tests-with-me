@@ -9,7 +9,7 @@
     <string name="accessibility_service_description">This is the Accessibility service that runs tests created in TestsWithMe application</string>
 
     <!-- Common -->
-    <string name="not_logged_in_message">Please log in to access project data</string>
+    <string name="not_logged_in_message">Please log in to access projects data</string>
     <string name="error_has_been_occurred">Error has been occurred, please try again later</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>

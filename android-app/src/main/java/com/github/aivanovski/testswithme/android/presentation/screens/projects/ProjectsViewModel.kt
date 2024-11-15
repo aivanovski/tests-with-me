@@ -154,12 +154,22 @@ class ProjectsViewModel(
                     intentProvider = intentProvider
                 )
 
-                emit(ProjectsState(viewModels = viewModels))
+                emit(
+                    ProjectsState(
+                        viewModels = viewModels,
+                        isAddButtonVisible = true
+                    )
+                )
             } else {
                 val emptyState = ScreenState.Empty(
                     message = resourceProvider.getString(R.string.no_projects_message)
                 )
-                emit(ProjectsState(screenState = emptyState))
+                emit(
+                    ProjectsState(
+                        screenState = emptyState,
+                        isAddButtonVisible = true
+                    )
+                )
             }
         }
     }

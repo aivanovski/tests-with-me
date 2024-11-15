@@ -81,8 +81,8 @@ open class FlowReporter(
                 )
             )
         } else {
-            val cause = result.unwrapError()
-            val message = cause.message ?: cause.javaClass.simpleName
+            val exception = result.unwrapError()
+            val message = exception.message ?: exception.javaClass.simpleName
 
             logger.error(
                 "[%s] Step %s: FAILED, %s".format(

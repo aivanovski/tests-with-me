@@ -58,20 +58,22 @@ private fun ProjectsScreen(
             cellFactory = { viewModel -> CreateCell(viewModel) }
         )
 
-        FloatingActionButton(
-            onClick = onAddClick,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(
-                    end = ElementMargin,
-                    bottom = ElementMargin
+        if (state.isAddButtonVisible) {
+            FloatingActionButton(
+                onClick = onAddClick,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(
+                        end = ElementMargin,
+                        bottom = ElementMargin
+                    )
+            ) {
+                Icon(
+                    imageVector = AppIcons.Add,
+                    tint = AppTheme.theme.colors.primaryText,
+                    contentDescription = null
                 )
-        ) {
-            Icon(
-                imageVector = AppIcons.Add,
-                tint = AppTheme.theme.colors.primaryText,
-                contentDescription = null
-            )
+            }
         }
     }
 }
