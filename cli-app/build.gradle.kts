@@ -48,7 +48,7 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
-        archiveFileName.set("tests-with-me.jar")
+        archiveFileName.set("tests-with-me-cli.jar")
         mergeServiceFiles()
         manifest {
             attributes(mapOf("Main-Class" to "com.github.aivanovski.testswithme.cli.CliAppMainKt"))
@@ -100,8 +100,15 @@ dependencies {
     // Json
     implementation(libs.kotlinx.json)
 
+    // Yaml
+    implementation(libs.jackson.kotlin)
+    implementation(libs.jackson.yaml)
+
     // Dadb
     implementation(libs.dadb)
+
+    // Mordant
+    implementation(libs.mordant)
 
     // Arrow
     implementation(libs.arrow.core)

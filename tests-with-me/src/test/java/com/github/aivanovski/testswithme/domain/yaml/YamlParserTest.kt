@@ -219,9 +219,7 @@ class YamlParserTest {
         parse(content) shouldBe Either.Right(newYamlFlow(steps = RUN_FLOW_STEPS))
     }
 
-    private fun parse(
-        content: String
-    ): Either<ParsingException, YamlFlow> {
+    private fun parse(content: String): Either<ParsingException, YamlFlow> {
         return YamlParser().parse(content)
     }
 

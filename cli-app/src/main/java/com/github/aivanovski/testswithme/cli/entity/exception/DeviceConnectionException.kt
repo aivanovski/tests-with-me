@@ -6,3 +6,5 @@ open class DeviceConnectionException(
 ) : AppException(message, cause)
 
 class FailedToFindDeviceException : DeviceConnectionException("Failed to find device")
+
+class ConnectionLostException : DeviceConnectionException("Connection lost")

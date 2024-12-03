@@ -1,16 +1,6 @@
 package com.github.aivanovski.testswithme.extensions
 
-import java.io.PrintWriter
-import java.io.StringWriter
-
-fun Exception.printStackTraceToString(): String {
-    val writer = StringWriter()
-    val printer = PrintWriter(writer)
-    this.printStackTrace(printer)
-    return writer.buffer.toString()
-}
-
-fun Exception.getRootCause(): Throwable {
+fun Throwable.getRootCause(): Throwable {
     var current: Throwable = this
 
     while (current.cause != null) {

@@ -22,7 +22,8 @@ class ArgumentParser(
             var isPrintHelp = false
 
             while (queue.isNotEmpty()) {
-                when (val option = NAME_TO_OPTION_MAP[queue.poll()]) {
+                val optionName = queue.poll()
+                when (NAME_TO_OPTION_MAP[optionName]) {
                     OptionType.WATCH_FILE -> {
                         filePath = checkFilePath(queue.poll()).bind()
                     }
@@ -31,10 +32,9 @@ class ArgumentParser(
                         isPrintHelp = true
                     }
 
-                    OptionType.DEBUG -> {
-                    }
-
-                    else -> raise(ParsingException("Unable to parse specified argument: $option"))
+                    else -> raise(
+                        ParsingException("Unable to parse specified argument: $optionName")
+                    )
                 }
             }
 

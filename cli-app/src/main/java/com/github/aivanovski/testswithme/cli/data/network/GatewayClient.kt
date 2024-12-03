@@ -26,6 +26,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
 
 class GatewayClient {
 
@@ -101,12 +102,14 @@ class GatewayClient {
     companion object {
         private const val SERVER_URL = "http://127.0.0.1:$PORT"
 
+        private val fileLogger = LoggerFactory.getLogger(GatewayClient::class.java)
+
         private fun createHttpClient(): HttpClient {
             return HttpClient(OkHttp) {
                 install(Logging) {
                     logger = object : Logger {
                         override fun log(message: String) {
-                            println(message)
+                            fileLogger.debug(message)
                         }
                     }
                     level = LogLevel.NONE

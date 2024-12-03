@@ -7,11 +7,11 @@ import com.github.aivanovski.testswithme.android.driverServerApi.dto.DriverStatu
 import com.github.aivanovski.testswithme.android.driverServerApi.response.GetStatusResponse
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.network.GatewayClient
-import com.github.aivanovski.testswithme.cli.domain.printer.OutputPrinter
-import com.github.aivanovski.testswithme.cli.entity.ConnectionState
+import com.github.aivanovski.testswithme.cli.entity.ConnectionAndState
 import com.github.aivanovski.testswithme.cli.entity.exception.DeviceConnectionException
 import com.github.aivanovski.testswithme.cli.entity.exception.FailedToConnectToGatewayServer
 import com.github.aivanovski.testswithme.cli.entity.exception.FailedToFindDeviceException
+import com.github.aivanovski.testswithme.cli.presentation.main.model.DeviceState
 import dadb.Dadb
 import kotlinx.coroutines.delay
 
@@ -19,9 +19,7 @@ class ConnectToDeviceUseCase(
     private val apiClient: GatewayClient
 ) {
 
-    suspend fun connectToDevice(
-        printer: OutputPrinter
-    ): Either<DeviceConnectionException, DeviceConnection> =
+    suspend fun connectToDevice(): Either<DeviceConnectionException, ConnectionAndState> =
         either {
             val devices = Dadb.list()
             if (devices.isEmpty()) {
@@ -38,16 +36,9 @@ class ConnectToDeviceUseCase(
 
             val connection = DeviceConnection(
                 api = apiClient,
-                initialState = ConnectionState(
-                    isConnected = false,
-                    isDriverReady = false
-                ),
                 device = device,
                 portForwardingConnection = portForwarding
             )
-
-            val deviceName = device.toString()
-            printer.printLine("Connecting to device: $deviceName")
 
             var status = getStatus(connection)
             if (status == null) {
@@ -62,12 +53,12 @@ class ConnectToDeviceUseCase(
                 raise(FailedToConnectToGatewayServer())
             }
 
-            connection.state.value = ConnectionState(
+            val deviceState = DeviceState.Connected(
                 isConnected = true,
-                isDriverReady = status.driverStatus == DriverStatusDto.RUNNING
+                isDriverReady = (status.driverStatus == DriverStatusDto.RUNNING)
             )
 
-            connection
+            ConnectionAndState(connection, deviceState)
         }
 
     private suspend fun getStatus(connection: DeviceConnection): GetStatusResponse? {
