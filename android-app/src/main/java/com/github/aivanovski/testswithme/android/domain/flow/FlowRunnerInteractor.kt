@@ -57,7 +57,8 @@ class FlowRunnerInteractor(
     private val parseFlowUseCase: ParseFlowFileUseCase,
     private val getAppDataUseCase: GetExternalApplicationDataUseCase,
     private val fileCache: FileCache,
-    private val jsonSerializer: JsonSerializer
+    private val jsonSerializer: JsonSerializer,
+    private val pathResolver: PathResolver
 ) {
 
     fun saveReport(
@@ -230,17 +231,29 @@ class FlowRunnerInteractor(
             either {
                 val yamlFlow = parseFlowUseCase.parseBase64File(base64Content).bind()
 
-                val flowName = if (yamlFlow.name.isNotEmpty()) {
-                    yamlFlow.name
-                } else {
+                val flowName = yamlFlow.name.ifEmpty {
                     name ?: StringUtils.EMPTY
                 }
 
+                // TODO: will not work without server requests
+                val (project, group) = if (yamlFlow.project != null || yamlFlow.group != null) {
+                    pathResolver.resolveProjectAndGroupByPath(
+                        projectName = yamlFlow.project,
+                        groupName = yamlFlow.group
+                    ).bind()
+                } else {
+                    null to null
+                }
+
+                val projectUid = project?.uid ?: "Local"
+                val groupUid = group?.uid
+
                 val newUid = UUID.randomUUID().toString()
-                val flowUid = "Local:$flowName:$newUid"
+                val flowUid = "$projectUid:$flowName:$newUid"
                 val flow = yamlFlow.convertToFlowEntry(
                     flowUid = flowUid,
-                    projectUid = "Local", // TODO: should be null
+                    projectUid = projectUid,
+                    groupUid = groupUid,
                     sourceType = SourceType.LOCAL,
                     name = flowName
                 )

@@ -28,6 +28,7 @@ import com.github.aivanovski.testswithme.android.domain.driverServer.controllers
 import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StartTestController
 import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StatusController
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
+import com.github.aivanovski.testswithme.android.domain.flow.PathResolver
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
@@ -102,6 +103,7 @@ object AndroidAppModule {
         singleOf(::ThemeProvider)
         singleOf(::VersionParser)
         singleOf(::JsonSerializer)
+        singleOf(::PathResolver)
 
         // Database
         single { AppDatabase.buildDatabase(get()) }
