@@ -1,6 +1,5 @@
-package com.github.aivanovski.testswithme.cli.domain
+package com.github.aivanovski.testswithme.cli.data.file
 
-import com.github.aivanovski.testswithme.cli.domain.printer.OutputPrinter
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY
@@ -10,9 +9,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 
 class FileWatcherImpl(
-    private val printer: OutputPrinter
+    private val onContentChanged: (file: Path) -> Unit
 ) : FileWatcher {
 
     @Volatile
@@ -23,10 +23,7 @@ class FileWatcherImpl(
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
-    override fun watch(
-        file: Path,
-        onContentChanged: (file: Path) -> Unit
-    ) {
+    override fun watch(file: Path) {
         val fileName = file.name
         val parent = file.parent
 
@@ -60,14 +57,14 @@ class FileWatcherImpl(
                         if (eventKind == ENTRY_MODIFY &&
                             eventFileName == fileName
                         ) {
-                            printer.debugLine("File changed: $file")
+                            logger.debug("File changed: %s".format(file))
                             onContentChanged.invoke(file)
                         }
                     }
 
                     key.reset()
                 } catch (exception: InterruptedException) {
-                    printer.debugLine("Interrupted...")
+                    logger.debug("Interrupted...")
                     isActive = false
                     exception.printStackTrace()
                 }
@@ -84,5 +81,9 @@ class FileWatcherImpl(
         watcher?.close()
         watcher = null
         scope.cancel()
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(FileWatcherImpl::class.java)
     }
 }

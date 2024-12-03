@@ -3,7 +3,6 @@ package com.github.aivanovski.testswithme.flow.runner.reporter
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Flow
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
-import com.github.aivanovski.testswithme.extensions.printStackTraceToString
 import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
 import com.github.aivanovski.testswithme.flow.runner.reporter.FlowReporter.DefaultNameTransformer
@@ -64,7 +63,7 @@ class ReportCollector : FlowLifecycleListener {
             }
 
             override fun printStackTrace(exception: Exception) {
-                val content = exception.printStackTraceToString()
+                val content = exception.stackTraceToString()
                     .split(NEW_LINE)
                     .filter { line -> line.isNotBlank() }
 

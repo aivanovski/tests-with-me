@@ -1,0 +1,19 @@
+<configuration>
+    <property name="HOME_DIR" value="${user.home}" />
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${HOME_DIR}/.local/state/tests-with-me-cli/cli.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="FILE" />
+    </root>
+
+    <logger name="io.netty" level="INFO" />
+    <logger name="com.zaxxer" level="INFO" />
+    <logger name="org.hibernate" level="INFO" />
+</configuration>

@@ -5,6 +5,5 @@ enum class OptionType(
     val fullName: String
 ) {
     WATCH_FILE(shortName = "-w", fullName = "--watch-file"),
-    HELP(shortName = "-h", fullName = "--help"),
-    DEBUG(shortName = "-d", fullName = "--debug")
+    HELP(shortName = "-h", fullName = "--help")
 }

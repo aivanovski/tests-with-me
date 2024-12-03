@@ -10,6 +10,7 @@ import com.github.aivanovski.testswithme.entity.YamlFlow
 fun YamlFlow.convertToFlowEntry(
     flowUid: String,
     projectUid: String,
+    groupUid: String?,
     name: String,
     sourceType: SourceType
 ): FlowEntry {
@@ -17,7 +18,7 @@ fun YamlFlow.convertToFlowEntry(
         id = null,
         uid = flowUid,
         projectUid = projectUid,
-        groupUid = null,
+        groupUid = groupUid,
         name = name,
         sourceType = sourceType
     )

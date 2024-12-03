@@ -1,44 +1,72 @@
 package com.github.aivanovski.testswithme.cli.data.network
 
 import arrow.core.Either
+import arrow.core.raise.either
 import com.github.aivanovski.testswithme.cli.entity.exception.ApiException
+import com.github.aivanovski.testswithme.cli.entity.exception.InvalidHttpStatusCodeException
 import com.github.aivanovski.testswithme.cli.entity.exception.NetworkException
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import io.ktor.client.HttpClient
-import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class HttpRequestExecutor(
-    private val client: HttpClient
+    val jsonSerializer: JsonSerializer,
+    val client: HttpClient
 ) {
 
-    suspend fun get(
-        url: String,
-        block: HttpRequestBuilder.() -> Unit
-    ): Either<ApiException, HttpResponse> =
-        withContext(Dispatchers.IO) {
-            try {
-                val response = client.get(urlString = url, block = block)
-                Either.Right(response)
-            } catch (exception: IOException) {
-                Either.Left(NetworkException(cause = exception))
+    suspend inline fun <reified T> get(url: String): Either<ApiException, T> =
+        either {
+            val response = withContext(Dispatchers.IO) {
+                try {
+                    client.get(urlString = url)
+                } catch (exception: IOException) {
+                    raise(NetworkException(cause = exception))
+                }
             }
+
+            if (response.status != HttpStatusCode.OK) {
+                raise(InvalidHttpStatusCodeException(response.status))
+            }
+
+            jsonSerializer.deserialize<T>(response.body())
+                .mapLeft { exception -> ApiException(cause = exception) }
+                .bind()
         }
 
-    suspend fun post(
+    suspend inline fun <reified T> post(
         url: String,
-        block: HttpRequestBuilder.() -> Unit
-    ): Either<ApiException, HttpResponse> =
-        withContext(Dispatchers.IO) {
-            try {
-                val response = client.post(urlString = url, block = block)
-                Either.Right(response)
-            } catch (exception: IOException) {
-                Either.Left(NetworkException(cause = exception))
+        body: String
+    ): Either<ApiException, T> =
+        either {
+            val response = withContext(Dispatchers.IO) {
+                try {
+                    client.post(
+                        urlString = url,
+                        block = {
+                            contentType(ContentType.Application.Json)
+                            setBody(body)
+                        }
+                    )
+                } catch (exception: IOException) {
+                    raise(NetworkException(cause = exception))
+                }
             }
+
+            if (response.status != HttpStatusCode.OK) {
+                raise(InvalidHttpStatusCodeException(response.status))
+            }
+
+            jsonSerializer.deserialize<T>(response.body())
+                .mapLeft { exception -> ApiException(cause = exception) }
+                .bind()
         }
 }

@@ -2,20 +2,25 @@ package com.github.aivanovski.testswithme.cli
 
 import com.github.aivanovski.testswithme.cli.di.CliAppModule
 import com.github.aivanovski.testswithme.cli.di.GlobalInjector.get
-import com.github.aivanovski.testswithme.cli.domain.MainInteractor
-import com.github.aivanovski.testswithme.extensions.unwrapOrReport
-import kotlinx.coroutines.runBlocking
+import com.github.aivanovski.testswithme.cli.presentation.core.SystemErrorToLoggerOutputStream
+import com.github.aivanovski.testswithme.cli.presentation.main.MainView
+import com.github.aivanovski.testswithme.cli.presentation.main.MainViewModel
+import java.io.PrintStream
 import org.koin.core.context.startKoin
+import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>) {
     startKoin {
         modules(CliAppModule.module)
     }
 
-    val interactor: MainInteractor = get()
+    val viewModel: MainViewModel = get()
+    val view = MainView(get())
 
-    runBlocking {
-        val result = interactor.process(args)
-        result.unwrapOrReport()
-    }
+    val errorLogger = LoggerFactory.getLogger("SystemErr")
+    System.setErr(PrintStream(SystemErrorToLoggerOutputStream(errorLogger)))
+
+    view.render(viewModel)
+    viewModel.start(args)
+    view.stop()
 }

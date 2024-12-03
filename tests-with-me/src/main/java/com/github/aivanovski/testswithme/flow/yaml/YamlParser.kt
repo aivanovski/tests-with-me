@@ -14,7 +14,7 @@ import com.github.aivanovski.testswithme.entity.UiElementSelector
 import com.github.aivanovski.testswithme.entity.YamlFlow
 import com.github.aivanovski.testswithme.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.extensions.toLongSafely
-import com.github.aivanovski.testswithme.utils.StringUtils.EMPTY
+import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.utils.StringUtils.SPACE
 
 class YamlParser {
@@ -30,20 +30,19 @@ class YamlParser {
                 raise(ParsingException(cause = exception))
             }
 
-            val name = findNameItem(items)
-            val filteredItems = items.filter { item -> item != name }
+            val nonStepItems = items.filter { item -> isNonStepItem(item) }
+            val stepItems = items.filter { item -> !isNonStepItem(item) }
+            val nonStepItemsMap = aggregateNonStepItems(nonStepItems)
 
-            val steps = convertItems(filteredItems).bind()
+            val steps = convertItems(stepItems).bind()
 
             YamlFlow(
-                name = name?.name ?: EMPTY,
+                name = nonStepItemsMap[NAME]?.name ?: StringUtils.EMPTY,
+                project = nonStepItemsMap[PROJECT]?.project,
+                group = nonStepItemsMap[GROUP]?.group,
                 steps = steps
             )
         }
-
-    private fun findNameItem(items: List<Item>): Item? {
-        return items.firstOrNull { item -> !item.name.isNullOrEmpty() }
-    }
 
     private fun convertItems(items: List<Item>): Either<ParsingException, List<FlowStep>> =
         either {
@@ -56,6 +55,28 @@ class YamlParser {
 
             result
         }
+
+    private fun isNonStepItem(item: Item): Boolean {
+        return when {
+            item.isFlowName() -> true
+            item.isProjectName() -> true
+            item.isGroupName() -> true
+            else -> false
+        }
+    }
+
+    private fun aggregateNonStepItems(items: List<Item>): Map<String, Item> {
+        return items
+            .filter { item -> isNonStepItem(item) }
+            .associateBy { item ->
+                when {
+                    item.isFlowName() -> NAME
+                    item.isProjectName() -> PROJECT
+                    item.isGroupName() -> GROUP
+                    else -> throw IllegalArgumentException()
+                }
+            }
+    }
 
     private fun parseItem(item: Item): Either<ParsingException, FlowStep> {
         return when {
@@ -71,6 +92,18 @@ class YamlParser {
             item.isRunFlow() -> parseRunFlow(item)
             else -> Either.Left(ParsingException("Unable to parse item: $item"))
         }
+    }
+
+    private fun Item.isFlowName(): Boolean {
+        return !name.isNullOrEmpty()
+    }
+
+    private fun Item.isProjectName(): Boolean {
+        return !project.isNullOrEmpty()
+    }
+
+    private fun Item.isGroupName(): Boolean {
+        return !group.isNullOrEmpty()
     }
 
     private fun Item.isSendBroadcast(): Boolean {
@@ -125,7 +158,7 @@ class YamlParser {
         val data = item.data
             ?.mapNotNull { dataItem ->
                 val key = dataItem.key
-                val value = dataItem.value ?: EMPTY
+                val value = dataItem.value ?: StringUtils.EMPTY
                 if (key.isNotEmpty() && value.isNotEmpty()) {
                     key to value
                 } else {
@@ -147,7 +180,7 @@ class YamlParser {
     private fun parseLaunch(item: Item): Either<ParsingException, FlowStep> =
         either {
             FlowStep.Launch(
-                packageName = item.launch ?: EMPTY
+                packageName = item.launch ?: StringUtils.EMPTY
             )
         }
 
@@ -212,7 +245,7 @@ class YamlParser {
                     val element = parseUiElement(inputText).bind()
 
                     FlowStep.InputText(
-                        text = (inputText[INPUT] as? String) ?: EMPTY,
+                        text = (inputText[INPUT] as? String) ?: StringUtils.EMPTY,
                         element = element
                     )
                 }
@@ -224,7 +257,7 @@ class YamlParser {
     private fun parseRunFlow(item: Item): Either<ParsingException, FlowStep> =
         either {
             FlowStep.RunFlow(
-                name = item.runFlow ?: EMPTY
+                name = item.runFlow ?: StringUtils.EMPTY
             )
         }
 
@@ -288,7 +321,7 @@ class YamlParser {
     private fun parseDuration(value: Any): Duration? {
         val longValue = when (value) {
             is Int -> value.toLong()
-            is String -> value.replace(SPACE, EMPTY).toLongSafely()
+            is String -> value.replace(SPACE, StringUtils.EMPTY).toLongSafely()
             else -> return null
         } ?: return null
 
@@ -309,6 +342,8 @@ class YamlParser {
 
     internal data class Item(
         var name: String? = null,
+        var project: String? = null,
+        var group: String? = null,
         var sendBroadcast: String? = null,
         var data: List<Data>? = null,
         var launch: String? = null,
@@ -335,10 +370,16 @@ class YamlParser {
         private const val INPUT = "input"
         private const val STEP = "step"
         private const val TIMEOUT = "timeout"
+        private const val NAME = "name"
+        private const val PROJECT = "project"
+        private const val GROUP = "group"
+
+        const val KEY_BACK = "back"
+        const val KEY_HOME = "home"
 
         private val KEY_CODES = mapOf(
-            "back" to KeyCode.Back,
-            "home" to KeyCode.Home
+            KEY_BACK to KeyCode.Back,
+            KEY_HOME to KeyCode.Home
         )
     }
 }
