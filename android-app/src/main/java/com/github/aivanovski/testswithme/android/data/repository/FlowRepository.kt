@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.android.data.db.dao.JobHistoryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.StepEntryDao
 import com.github.aivanovski.testswithme.android.data.file.FileCache
 import com.github.aivanovski.testswithme.android.domain.dataconverters.convertToStepEntries
+import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.SourceType
@@ -24,7 +25,8 @@ class FlowRepository(
     private val jobHistoryDao: JobHistoryDao,
     private val api: ApiClient,
     private val parseFlowUseCase: ParseFlowFileUseCase,
-    private val fileCache: FileCache
+    private val fileCache: FileCache,
+    private val isUserLoggedInUseCase: IsUserLoggedInUseCase
 ) {
 
     suspend fun uploadFlowContent(
@@ -118,6 +120,11 @@ class FlowRepository(
 
     suspend fun getFlows(): Either<AppException, List<FlowEntry>> =
         either {
+            val isLoggedIn = isUserLoggedInUseCase.isLoggedIn()
+            if (!isLoggedIn) {
+                return@either flowDao.getAll()
+            }
+
             val remoteFlows = api.getFlows().bind()
 
             val uidToLocalFlowMap = flowDao.getAll()
@@ -132,7 +139,7 @@ class FlowRepository(
                 }
             }
 
-            return Either.Right(remoteFlows)
+            remoteFlows
         }
 
     suspend fun getFlowsByProjectUid(projectUid: String): Either<AppException, List<FlowEntry>> =

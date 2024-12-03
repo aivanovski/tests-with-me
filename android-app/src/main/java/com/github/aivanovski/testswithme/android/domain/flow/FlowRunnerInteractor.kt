@@ -31,7 +31,9 @@ import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.StepResult
+import com.github.aivanovski.testswithme.entity.YamlFlow
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.extensions.isFlakyException
 import com.github.aivanovski.testswithme.extensions.isStepFlaky
@@ -148,6 +150,7 @@ class FlowRunnerInteractor(
                     .filter { flow ->
                         flow.projectUid == projectUid && flow.name.trim() == name
                     }
+                    .sortedByDescending { flow -> flow.id }
 
                 val flowUid = when {
                     candidates.size == 1 -> {
@@ -235,6 +238,8 @@ class FlowRunnerInteractor(
                     name ?: StringUtils.EMPTY
                 }
 
+                validateDependencies(yamlFlow).bind()
+
                 // TODO: will not work without server requests
                 val (project, group) = if (yamlFlow.project != null || yamlFlow.group != null) {
                     pathResolver.resolveProjectAndGroupByPath(
@@ -245,7 +250,7 @@ class FlowRunnerInteractor(
                     null to null
                 }
 
-                val projectUid = project?.uid ?: "Local"
+                val projectUid = project?.uid ?: LOCAL_PROJECT_UID
                 val groupUid = group?.uid
 
                 val newUid = UUID.randomUUID().toString()
@@ -265,6 +270,25 @@ class FlowRunnerInteractor(
                     entry = flow,
                     steps = steps
                 )
+            }
+        }
+
+    private suspend fun validateDependencies(flow: YamlFlow): Either<AppException, Unit> =
+        either {
+            val names = flow.steps
+                .mapNotNull { step ->
+                    if (step is FlowStep.RunFlow) {
+                        step.name
+                    } else {
+                        null
+                    }
+                }
+
+            for (name in names) {
+                pathResolver.resolveFlowByName(
+                    projectUid = LOCAL_PROJECT_UID,
+                    flowName = name
+                ).bind()
             }
         }
 
@@ -557,5 +581,6 @@ class FlowRunnerInteractor(
 
     companion object {
         private const val FLAKY_STEP_RETRY_COUNT = 3
+        const val LOCAL_PROJECT_UID = "Local"
     }
 }

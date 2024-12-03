@@ -6,7 +6,7 @@ import com.github.aivanovski.testswithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.android.data.repository.JobRepository
 import com.github.aivanovski.testswithme.android.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.android.data.repository.StepRunRepository
-import com.github.aivanovski.testswithme.android.domain.usecases.IsLoggedInUseCase
+import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.model.TestRunsData
@@ -18,13 +18,13 @@ class TestRunsInteractor(
     private val flowRepository: FlowRepository,
     private val jobRepository: JobRepository,
     private val stepRunRepository: StepRunRepository,
-    private val isLoggedInUseCase: IsLoggedInUseCase
+    private val isUserLoggedInUseCase: IsUserLoggedInUseCase
 ) {
 
     suspend fun loadData(): Either<AppException, TestRunsData> =
         withContext(Dispatchers.IO) {
             either {
-                val projects = if (isLoggedInUseCase.isLoggedIn()) {
+                val projects = if (isUserLoggedInUseCase.isLoggedIn()) {
                     projectRepository.getProjects().bind()
                 } else {
                     emptyList()
@@ -49,5 +49,5 @@ class TestRunsInteractor(
             }
         }
 
-    fun isLoggedIn(): Boolean = isLoggedInUseCase.isLoggedIn()
+    fun isLoggedIn(): Boolean = isUserLoggedInUseCase.isLoggedIn()
 }
