@@ -11,6 +11,7 @@ import com.github.aivanovski.testswithme.cli.presentation.core.CliStrings
 import com.github.aivanovski.testswithme.cli.presentation.core.CliStringsImpl
 import com.github.aivanovski.testswithme.cli.presentation.main.MainInteractor
 import com.github.aivanovski.testswithme.cli.presentation.main.MainViewModel
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -19,6 +20,7 @@ object CliAppModule {
     val module = module {
         single<FileSystemProvider> { FileSystemProviderImpl() }
         single<CliStrings> { CliStringsImpl() }
+        singleOf(::JsonSerializer)
         singleOf(::GatewayClient)
         singleOf(::ArgumentParser)
 
