@@ -33,7 +33,7 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
-import com.github.aivanovski.testswithme.android.domain.usecases.IsLoggedInUseCase
+import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
@@ -131,7 +131,7 @@ object AndroidAppModule {
         singleOf(::ParseFlowFileUseCase)
         singleOf(::GetCurrentJobUseCase)
         singleOf(::GetExternalApplicationDataUseCase)
-        singleOf(::IsLoggedInUseCase)
+        singleOf(::IsUserLoggedInUseCase)
 
         // Interactors
         singleOf(::LoginInteractor)
