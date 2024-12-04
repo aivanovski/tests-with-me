@@ -67,6 +67,7 @@ fun AccessibilityNodeInfo.toUiEntity(bounds: Bounds? = null): UiEntity {
         text = text?.toString(),
         contentDescription = contentDescription?.toString(),
         isEnabled = isEnabled,
+        isEditable = isEditable,
         isFocused = isFocused,
         isFocusable = isFocusable,
         isClickable = isClickable,

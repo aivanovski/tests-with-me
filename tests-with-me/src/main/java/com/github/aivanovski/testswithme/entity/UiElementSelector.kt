@@ -8,7 +8,9 @@ data class UiElementSelector private constructor(
     val text: String? = null,
     val containsText: String? = null,
     val contentDescription: String? = null,
+    val isEditable: Boolean? = null,
     val isFocused: Boolean? = null,
+    val isFocusable: Boolean? = null,
     val isClickable: Boolean? = null,
     val isLongClickable: Boolean? = null,
     val isIgnoreTextCase: Boolean = true, // TODO: rename
@@ -21,8 +23,10 @@ data class UiElementSelector private constructor(
         CONTENT_DESCRIPTION,
         CONTAINS_TEXT,
         FOCUSED,
+        FOCUSABLE,
         CLICKABLE,
-        LONG_CLICKABLE
+        LONG_CLICKABLE,
+        EDITABLE
     }
 
     companion object {
@@ -55,6 +59,18 @@ data class UiElementSelector private constructor(
             UiElementSelector(
                 isFocused = isFocused,
                 type = SelectionType.FOCUSED
+            )
+
+        fun isFocusable(isFocusable: Boolean) =
+            UiElementSelector(
+                isFocusable = isFocusable,
+                type = SelectionType.FOCUSABLE
+            )
+
+        fun isEditable(isEditable: Boolean) =
+            UiElementSelector(
+                isEditable = isEditable,
+                type = SelectionType.EDITABLE
             )
 
         fun isClickable(isClickable: Boolean) =

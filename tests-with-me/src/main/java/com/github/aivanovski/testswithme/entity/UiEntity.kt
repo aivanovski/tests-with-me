@@ -11,6 +11,7 @@ data class UiEntity(
     val text: String?,
     val contentDescription: String?,
     val isEnabled: Boolean?,
+    val isEditable: Boolean?,
     val isFocused: Boolean?,
     val isFocusable: Boolean?,
     val isClickable: Boolean?,

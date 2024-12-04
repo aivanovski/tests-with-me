@@ -5,6 +5,13 @@ import com.github.aivanovski.testswithme.entity.UiElementSelector.SelectionType
 import com.github.aivanovski.testswithme.entity.UiEntity
 import com.github.aivanovski.testswithme.utils.StringUtils
 
+fun UiEntity.matches(elements: List<UiElementSelector>): Boolean {
+    val node = this
+
+    return elements
+        .all { element -> node.matches(element) }
+}
+
 // TODO: move to UiElementSelector extensions
 fun UiEntity.matches(element: UiElementSelector): Boolean {
     val node = this
@@ -34,12 +41,20 @@ fun UiEntity.matches(element: UiElementSelector): Boolean {
             node.isFocused != null && node.isFocused == element.isFocused
         }
 
+        SelectionType.FOCUSABLE -> {
+            node.isFocusable != null && node.isFocusable == element.isFocusable
+        }
+
         SelectionType.CLICKABLE -> {
             node.isClickable != null && node.isClickable == element.isClickable
         }
 
         SelectionType.LONG_CLICKABLE -> {
             node.isLongClickable != null && node.isLongClickable == element.isLongClickable
+        }
+
+        SelectionType.EDITABLE -> {
+            node.isEditable != null && node.isEditable == element.isEditable
         }
     }
 }
