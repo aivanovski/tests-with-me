@@ -8,10 +8,12 @@ fun UiElementSelector.toReadableFormat(): String {
         SelectionType.ID -> "[id = $id]"
         SelectionType.TEXT -> "[text = $text]"
         SelectionType.CONTAINS_TEXT -> "[has text = $text, ignoreCase = $isIgnoreTextCase]"
-        SelectionType.CONTENT_DESCRIPTION -> "[content descriptor = $contentDescription]"
+        SelectionType.CONTENT_DESCRIPTION -> "[content description = $contentDescription]"
         SelectionType.FOCUSED -> "[is in focus = $isFocused]"
+        SelectionType.FOCUSABLE -> "[is focusable = $isFocusable]"
         SelectionType.CLICKABLE -> "[is clickable = $isClickable]"
         SelectionType.LONG_CLICKABLE -> "[is long clickable = $isLongClickable]"
+        SelectionType.EDITABLE -> "[is editable = $isEditable]"
     }
 }
 

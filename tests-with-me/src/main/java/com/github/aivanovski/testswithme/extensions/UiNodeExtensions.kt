@@ -82,6 +82,15 @@ fun <T> UiNode<T>.getNodeParents(target: UiNode<T>): List<UiNode<T>> {
     return result.reversed()
 }
 
+fun <T> UiNode<T>.findParentNode(
+    startNode: UiNode<T>,
+    parentSelector: UiElementSelector
+): UiNode<T>? {
+    val parents = this.getNodeParents(target = startNode)
+
+    return parents.lastOrNull { parent -> parent.matches(parentSelector) }
+}
+
 private fun <T> UiNode<T>.traverseParents(
     target: UiNode<T>,
     result: MutableList<UiNode<T>>
@@ -142,6 +151,7 @@ fun UiNode<*>.formatShortDescription(): String {
             val text = node.entity.text
             val cd = node.entity.contentDescription
             val bounds = node.entity.bounds?.toShortString()
+            val isEditable = node.entity.isEditable
             val isFocused = node.entity.isFocused
             val isClickable = node.entity.isClickable
             val childCount = node.nodes.size
@@ -188,6 +198,14 @@ fun UiNode<*>.formatShortDescription(): String {
             if (bounds != null) {
                 appendWithSeparator(
                     "bounds=$bounds",
+                    DUMP_SEPARATOR,
+                    DUMP_SEPARATOR_INDICATOR
+                )
+            }
+
+            if (isEditable == true) {
+                appendWithSeparator(
+                    "EDITABLE",
                     DUMP_SEPARATOR,
                     DUMP_SEPARATOR_INDICATOR
                 )
