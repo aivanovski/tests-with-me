@@ -2,10 +2,14 @@ package com.github.aivanovski.testswithme.web.presentation.controller
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.entity.Hash
+import com.github.aivanovski.testswithme.extensions.sha256
+import com.github.aivanovski.testswithme.extensions.trimLines
 import com.github.aivanovski.testswithme.flow.yaml.YamlParser
 import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.web.api.FlowItemDto
 import com.github.aivanovski.testswithme.web.api.FlowsItemDto
+import com.github.aivanovski.testswithme.web.api.Sha256HashDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
@@ -71,7 +75,8 @@ class FlowController(
                 projectUid = project.uid,
                 groupUid = group.uid,
                 name = parsedFlow.name,
-                path = path
+                path = path,
+                contentHash = content.trimLines().sha256()
             )
 
             flowRepository.add(flow).bind()
@@ -98,13 +103,16 @@ class FlowController(
 
             val flow = flows.first()
             val rawContent = flowRepository.getFlowContent(flow.uid).bind()
+            val hash = rawContent.trimLines().sha256()
+
             FlowResponse(
                 FlowItemDto(
                     id = flow.uid.toString(),
                     projectId = flow.projectUid.toString(),
                     groupId = flow.groupUid.toString(),
                     name = flow.name,
-                    base64Content = rawContent.encodeToBase64()
+                    base64Content = rawContent.encodeToBase64(),
+                    contentHash = hash.toDto()
                 )
             )
         }
@@ -118,7 +126,8 @@ class FlowController(
                     id = flow.uid.toString(),
                     projectId = flow.projectUid.toString(),
                     groupId = flow.groupUid.toString(),
-                    name = flow.name
+                    name = flow.name,
+                    contentHash = flow.contentHash.toDto()
                 )
             }
 
@@ -147,4 +156,6 @@ class FlowController(
                 raise(EntityAlreadyExistsException(name))
             }
         }
+
+    private fun Hash.toDto(): Sha256HashDto = Sha256HashDto(this.value)
 }

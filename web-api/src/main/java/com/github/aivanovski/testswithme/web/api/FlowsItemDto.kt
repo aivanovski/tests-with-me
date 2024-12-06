@@ -7,5 +7,6 @@ data class FlowsItemDto(
     val id: String,
     val projectId: String,
     val groupId: String,
-    val name: String
+    val name: String,
+    val contentHash: Sha256HashDto
 )
