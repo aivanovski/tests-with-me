@@ -5,7 +5,6 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.file.FileCache
 import com.github.aivanovski.testswithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.android.data.repository.FlowRunRepository
-import com.github.aivanovski.testswithme.android.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.android.data.repository.JobRepository
 import com.github.aivanovski.testswithme.android.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.android.data.repository.StepRunRepository
@@ -32,6 +31,7 @@ import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import com.github.aivanovski.testswithme.entity.FlowStep
+import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.StepResult
 import com.github.aivanovski.testswithme.entity.YamlFlow
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
@@ -53,14 +53,13 @@ class FlowRunnerInteractor(
     private val jobRepository: JobRepository,
     private val stepRunRepository: StepRunRepository,
     private val flowRunRepository: FlowRunRepository,
-    private val groupRepository: GroupRepository,
     private val projectRepository: ProjectRepository,
     private val getCurrentJobUseCase: GetCurrentJobUseCase,
     private val parseFlowUseCase: ParseFlowFileUseCase,
     private val getAppDataUseCase: GetExternalApplicationDataUseCase,
     private val fileCache: FileCache,
     private val jsonSerializer: JsonSerializer,
-    private val pathResolver: PathResolver
+    private val referenceResolver: ReferenceResolver
 ) {
 
     fun saveReport(
@@ -138,51 +137,18 @@ class FlowRunnerInteractor(
             flowRepository.getCachedFlowByUid(flowUid)
         }
 
-    suspend fun findFlowByName(
+    suspend fun resolveFlowByPathOrName(
         projectUid: String,
-        groupName: String?,
-        name: String
+        pathOrName: String
     ): Either<AppException, FlowWithSteps?> =
         withContext(IO) {
             either {
-                val candidates = flowRepository.getFlows()
-                    .bind()
-                    .filter { flow ->
-                        flow.projectUid == projectUid && flow.name.trim() == name
-                    }
-                    .sortedByDescending { flow -> flow.id }
+                val flow = referenceResolver.resolveFlowByPathOrName(
+                    projectUid = projectUid,
+                    pathOrName = pathOrName
+                ).bind()
 
-                val flowUid = when {
-                    candidates.size == 1 -> {
-                        candidates.first().uid
-                    }
-
-                    groupName != null -> {
-                        val group = groupRepository.getGroups()
-                            .bind()
-                            .firstOrNull { group ->
-                                group.projectUid == projectUid && group.name.trim() == groupName
-                            }
-                            ?: raise(AppException("Unable to find group: $groupName"))
-
-                        val flow = candidates.firstOrNull { flow ->
-                            flow.groupUid == group.uid
-                        }
-                            ?: raise(AppException("Unable to find flow by group uid: ${group.uid}"))
-
-                        flow.uid
-                    }
-
-                    candidates.isNotEmpty() -> {
-                        candidates.first().uid
-                    }
-
-                    else -> {
-                        raise(AppException("Unable to find flow: $name"))
-                    }
-                }
-
-                flowRepository.getFlowByUid(flowUid).bind()
+                flowRepository.getFlowByUid(flow.uid).bind()
             }
         }
 
@@ -228,6 +194,7 @@ class FlowRunnerInteractor(
 
     suspend fun parseFlow(
         base64Content: String,
+        contentHash: Hash,
         name: String? = null
     ): Either<AppException, FlowWithSteps> =
         withContext(IO) {
@@ -238,11 +205,11 @@ class FlowRunnerInteractor(
                     name ?: StringUtils.EMPTY
                 }
 
-                validateDependencies(yamlFlow).bind()
+                validateReferences(yamlFlow).bind()
 
                 // TODO: will not work without server requests
                 val (project, group) = if (yamlFlow.project != null || yamlFlow.group != null) {
-                    pathResolver.resolveProjectAndGroupByPath(
+                    referenceResolver.resolveProjectAndGroupByPath(
                         projectName = yamlFlow.project,
                         groupName = yamlFlow.group
                     ).bind()
@@ -260,7 +227,8 @@ class FlowRunnerInteractor(
                     projectUid = projectUid,
                     groupUid = groupUid,
                     sourceType = SourceType.LOCAL,
-                    name = flowName
+                    name = flowName,
+                    contentHash = contentHash
                 )
                 val steps = yamlFlow.steps.convertToStepEntries(
                     flowUid = flowUid
@@ -273,22 +241,45 @@ class FlowRunnerInteractor(
             }
         }
 
-    private suspend fun validateDependencies(flow: YamlFlow): Either<AppException, Unit> =
+    private suspend fun validateReferences(flow: YamlFlow): Either<AppException, Unit> =
         either {
+            // TODO: improvement, check all nested flows recursively
+
             val names = flow.steps
                 .mapNotNull { step ->
                     if (step is FlowStep.RunFlow) {
-                        step.name
+                        step.path
                     } else {
                         null
                     }
                 }
 
-            for (name in names) {
-                pathResolver.resolveFlowByName(
-                    projectUid = LOCAL_PROJECT_UID,
-                    flowName = name
+            val projectUid = if (!flow.project.isNullOrEmpty()) {
+                val project = referenceResolver.resolveProjectByName(
+                    projectName = flow.project ?: StringUtils.EMPTY
                 ).bind()
+
+                project.uid
+            } else {
+                LOCAL_PROJECT_UID
+            }
+
+            val isLocalOnlyFlow = (projectUid == LOCAL_PROJECT_UID)
+
+            for (name in names) {
+                val resolveResult = referenceResolver.resolveFlowByPathOrName(
+                    projectUid = projectUid,
+                    pathOrName = name
+                )
+
+                if (!isLocalOnlyFlow && resolveResult.isLeft()) {
+                    referenceResolver.resolveFlowByPathOrName(
+                        projectUid = LOCAL_PROJECT_UID,
+                        pathOrName = name
+                    ).bind()
+                } else {
+                    resolveResult.bind()
+                }
             }
         }
 

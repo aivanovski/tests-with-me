@@ -15,10 +15,10 @@ import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalAppl
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.DriverServiceState
 import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
@@ -60,7 +60,7 @@ class FlowInteractor(
                 val group = if (mode is FlowScreenMode.Group) {
                     allGroups
                         .firstOrNull { group -> group.uid == mode.groupUid }
-                        ?: raise(FailedToFindEntityByUidException(Group::class, mode.groupUid))
+                        ?: raise(FailedToFindEntityByUidException(GroupEntry::class, mode.groupUid))
                 } else {
                     null
                 }
@@ -128,14 +128,14 @@ class FlowInteractor(
         }
 
     private fun getGroupFlows(
-        allGroups: List<Group>,
+        allGroups: List<GroupEntry>,
         allFlows: List<FlowEntry>,
         groupUid: String
     ): Either<AppException, List<FlowEntry>> =
         either {
             val tree = allGroups.buildGroupTree()
             val groupNode = tree.findNodeByUid(groupUid)
-                ?: raise(FailedToFindEntityByUidException(Group::class, groupUid))
+                ?: raise(FailedToFindEntityByUidException(GroupEntry::class, groupUid))
 
             groupNode.aggregateDescendantFlows(allFlows)
         }

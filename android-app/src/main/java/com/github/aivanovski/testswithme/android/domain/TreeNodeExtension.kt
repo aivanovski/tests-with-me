@@ -1,12 +1,12 @@
 package com.github.aivanovski.testswithme.android.domain
 
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.MutableTreeNode
 import com.github.aivanovski.testswithme.android.entity.Tree
 import com.github.aivanovski.testswithme.android.entity.TreeNode
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import java.util.LinkedList
 
-fun List<Group>.buildGroupTree(): Tree {
+fun List<GroupEntry>.buildGroupTree(): Tree {
     val groups = this
 
     val uidToNodeMap = HashMap<String, MutableTreeNode>()

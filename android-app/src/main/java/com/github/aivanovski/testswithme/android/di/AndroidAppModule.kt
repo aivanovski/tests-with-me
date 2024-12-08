@@ -5,6 +5,7 @@ import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testswithme.android.data.db.AppDatabase
 import com.github.aivanovski.testswithme.android.data.db.dao.FlowEntryDao
+import com.github.aivanovski.testswithme.android.data.db.dao.GroupEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobHistoryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.LocalStepRunDao
@@ -28,7 +29,7 @@ import com.github.aivanovski.testswithme.android.domain.driverServer.controllers
 import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StartTestController
 import com.github.aivanovski.testswithme.android.domain.driverServer.controllers.StatusController
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
-import com.github.aivanovski.testswithme.android.domain.flow.PathResolver
+import com.github.aivanovski.testswithme.android.domain.flow.ReferenceResolver
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
@@ -103,7 +104,7 @@ object AndroidAppModule {
         singleOf(::ThemeProvider)
         singleOf(::VersionParser)
         singleOf(::JsonSerializer)
-        singleOf(::PathResolver)
+        singleOf(::ReferenceResolver)
 
         // Database
         single { AppDatabase.buildDatabase(get()) }
@@ -113,6 +114,7 @@ object AndroidAppModule {
         single { provideExecutionEntryDao(get()) }
         single { provideJobHistoryEntryDao(get()) }
         single { provideProjectEntryDao(get()) }
+        single { provideGroupEntryDao(get()) }
 
         // Network
         single { provideHttpRequestExecutor(get()) }
@@ -287,6 +289,8 @@ object AndroidAppModule {
     private fun provideJobHistoryEntryDao(db: AppDatabase): JobHistoryDao = db.jobHistoryDao
 
     private fun provideProjectEntryDao(db: AppDatabase): ProjectEntryDao = db.projectEntryDao
+
+    private fun provideGroupEntryDao(db: AppDatabase): GroupEntryDao = db.groupEntryDao
 
     private fun provideHttpRequestExecutor(settings: Settings): HttpRequestExecutor {
         return HttpRequestExecutor(

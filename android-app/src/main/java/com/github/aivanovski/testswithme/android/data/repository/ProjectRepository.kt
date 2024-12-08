@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.db.dao.ProjectEntryDao
+import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
@@ -12,7 +13,8 @@ import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 
 class ProjectRepository(
     private val api: ApiClient,
-    private val dao: ProjectEntryDao
+    private val projectDao: ProjectEntryDao,
+    private val isUserLoggedInUseCase: IsUserLoggedInUseCase
 ) {
 
     suspend fun uploadProject(
@@ -24,33 +26,36 @@ class ProjectRepository(
 
     suspend fun getProjects(): Either<AppException, List<ProjectEntry>> =
         either {
+            if (!isUserLoggedInUseCase.isLoggedIn()) {
+                return@either projectDao.getAll()
+            }
+
             val remoteProjects = api.getProjects().bind()
-            val uidToLocalProjectMap = dao.getAll()
+            val uidToLocalProjectMap = projectDao.getAll()
                 .associateBy { project -> project.uid }
 
             for (remote in remoteProjects) {
                 val local = uidToLocalProjectMap[remote.uid]
                 if (local != null) {
-                    dao.update(remote.copy(id = local.id))
+                    projectDao.update(remote.copy(id = local.id))
                 } else {
-                    dao.insert(remote)
+                    projectDao.insert(remote)
                 }
             }
 
-            remoteProjects
+            projectDao.getAll()
         }
 
     suspend fun getProjectByUid(uid: String): Either<AppException, ProjectEntry> =
         either {
-            getProjects()
-                .bind()
+            getProjects().bind()
                 .firstOrNull { project -> project.uid == uid }
                 ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, uid))
         }
 
     fun getCachedProjectByUid(uid: String): Either<AppException, ProjectEntry> =
         either {
-            dao.getByUid(uid)
+            projectDao.getByUid(uid)
                 ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, uid))
         }
 }

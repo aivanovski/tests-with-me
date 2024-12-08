@@ -7,6 +7,7 @@ import com.github.aivanovski.testswithme.android.driverServerApi.response.GetJob
 import com.github.aivanovski.testswithme.android.driverServerApi.response.StartTestResponse
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProvider
+import com.github.aivanovski.testswithme.cli.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.cli.domain.usecases.ConnectToDeviceUseCase
 import com.github.aivanovski.testswithme.cli.domain.usecases.FormatHelpTextUseCase
 import com.github.aivanovski.testswithme.cli.entity.ConnectionAndState
@@ -14,17 +15,18 @@ import com.github.aivanovski.testswithme.cli.entity.exception.AppException
 import com.github.aivanovski.testswithme.cli.entity.exception.DeviceConnectionException
 import com.github.aivanovski.testswithme.cli.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.entity.YamlFlow
+import com.github.aivanovski.testswithme.extensions.sha256
+import com.github.aivanovski.testswithme.extensions.trimLines
 import com.github.aivanovski.testswithme.flow.yaml.YamlParser
 import com.github.aivanovski.testswithme.utils.Base64Utils
 import java.nio.file.Path
 import kotlin.io.path.pathString
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class MainInteractor(
     private val formatHelpUseCase: FormatHelpTextUseCase,
     private val connectUseCase: ConnectToDeviceUseCase,
-    private val fsProvider: FileSystemProvider
+    private val fsProvider: FileSystemProvider,
+    private val referenceResolver: ReferenceResolver
 ) {
 
     fun getHelpText(): String = formatHelpUseCase.formatHelpText()
@@ -32,49 +34,45 @@ class MainInteractor(
     suspend fun connectToDevice(): Either<DeviceConnectionException, ConnectionAndState> =
         connectUseCase.connectToDevice()
 
-    suspend fun readAndParseFile(file: Path): Either<AppException, Pair<String, YamlFlow>> =
-        withContext(Dispatchers.IO) {
-            either {
-                val content = fsProvider.read(file.pathString)
-                    .mapLeft { exception -> AppException(cause = exception) }
-                    .bind()
+    fun readAndParseFile(file: Path): Either<AppException, Pair<String, YamlFlow>> =
+        either {
+            val content = fsProvider.read(file.pathString)
+                .mapLeft { exception -> AppException(cause = exception) }
+                .bind()
 
-                val flow = YamlParser().parse(content)
-                    .mapLeft { exception -> ParsingException(cause = exception) }
-                    .bind()
+            val flow = YamlParser().parse(content)
+                .mapLeft { exception -> ParsingException(cause = exception) }
+                .bind()
 
-                (content to flow)
-            }
+            (content to flow)
         }
 
     suspend fun sendGetJobRequest(
         connection: DeviceConnection,
         jobId: String
     ): Either<AppException, GetJobResponse> =
-        withContext(Dispatchers.IO) {
-            either {
-                connection.api.getJob(jobId = jobId)
-                    .bind()
-            }
+        either {
+            connection.api.getJob(jobId = jobId)
+                .bind()
         }
 
     suspend fun sendStartTestRequest(
         connection: DeviceConnection,
-        fileName: String,
-        content: String
+        file: Path
     ): Either<AppException, StartTestResponse> =
-        withContext(Dispatchers.IO) {
-            either {
-                val base64Content = Base64Utils.encode(content)
+        either {
+            val (content, flow) = readAndParseFile(file).bind()
 
-                connection.api.startTest(
-                    request = StartTestRequest(
-                        name = fileName,
-                        base64Content = base64Content
-                    )
+            val base64Content = Base64Utils.encode(content)
+
+            connection.api.startTest(
+                request = StartTestRequest(
+                    name = file.fileName.toString(),
+                    base64Content = base64Content,
+                    contentHash = content.trimLines().sha256().toDto()
                 )
-                    .mapLeft { exception -> AppException(cause = exception) }
-                    .bind()
-            }
+            )
+                .mapLeft { exception -> AppException(cause = exception) }
+                .bind()
         }
 }

@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 class MainViewModel(
@@ -135,28 +136,30 @@ class MainViewModel(
         }
 
     private suspend fun prepareLoop(): Either<AppException, DeviceConnection> =
-        either {
-            val (connection, connectionState) = interactor.connectToDevice().bind()
+        withContext(Dispatchers.IO) {
+            either {
+                val (connection, connectionState) = interactor.connectToDevice().bind()
 
-            val file = getFile()
+                val file = getFile()
 
-            val parseFileResult = interactor.readAndParseFile(file)
-            if (parseFileResult.isRight()) {
-                currentFileState = FileState.QueuedForSending
-                queue.add(Message.SendStartTestRequest(file))
-            } else {
-                currentFileState = FileState.InvalidFile(
-                    message = parseFileResult.unwrapError().formatReadableErrorMessage()
-                )
+                val parseFileResult = interactor.readAndParseFile(file)
+                if (parseFileResult.isRight()) {
+                    currentFileState = FileState.QueuedForSending
+                    queue.add(Message.SendStartTestRequest(file))
+                } else {
+                    currentFileState = FileState.InvalidFile(
+                        message = parseFileResult.unwrapError().formatReadableErrorMessage()
+                    )
+                }
+
+                onDeviceStateChanged(connectionState)
+
+                fileWatcher.watch(file = file)
+
+                rebuildViewState()
+
+                connection
             }
-
-            onDeviceStateChanged(connectionState)
-
-            fileWatcher.watch(file = file)
-
-            rebuildViewState()
-
-            connection
         }
 
     private suspend fun startLoop(): Either<AppException, Unit> =
@@ -209,8 +212,9 @@ class MainViewModel(
         }
 
         if (result.isLeft()) {
-            val cause = result.unwrapError().getRootCause()
-            logger.debug("   root cause: %s".format(cause))
+            val cause = result.unwrapError()
+            logger.debug("   Root cause: %s".format(cause.getRootCause()))
+            logger.debug(cause.stackTraceToString())
 
             when (message) {
                 Message.SendHeartbeatRequest -> {
@@ -301,49 +305,50 @@ class MainViewModel(
         connection: DeviceConnection,
         file: Path
     ): Either<AppException, StartTestResponse> =
-        either {
-            lastSentData = null
-            errorMessage = null
+        withContext(Dispatchers.IO) {
+            either {
+                lastSentData = null
+                errorMessage = null
 
-            val (content, flow) = interactor.readAndParseFile(file).bind()
+                val (content, flow) = interactor.readAndParseFile(file).bind()
 
-            val response = interactor.sendStartTestRequest(
-                connection = connection,
-                fileName = file.fileName.toString(),
-                content
-            ).bind()
+                val response = interactor.sendStartTestRequest(
+                    connection = connection,
+                    file = file
+                ).bind()
 
-            if (response.isStarted) {
-                currentTestState = TestState.Running
-                lastSentData = TestData(
-                    jobId = response.jobId ?: StringUtils.EMPTY,
-                    file = file,
-                    content = content,
-                    flow = flow
-                )
-            } else {
-                val encodedMessage = response.error?.base64Message ?: StringUtils.EMPTY
-
-                val message = if (encodedMessage.isNotEmpty()) {
-                    Base64Utils.decode(encodedMessage)
-                        .mapLeft { exception -> AppException(cause = exception) }
-                        .bind()
-                        ?: StringUtils.EMPTY
+                if (response.isStarted) {
+                    currentTestState = TestState.Running
+                    lastSentData = TestData(
+                        jobId = response.jobId ?: StringUtils.EMPTY,
+                        file = file,
+                        content = content,
+                        flow = flow
+                    )
                 } else {
-                    StringUtils.EMPTY
+                    val encodedMessage = response.error?.base64Message ?: StringUtils.EMPTY
+
+                    val message = if (encodedMessage.isNotEmpty()) {
+                        Base64Utils.decode(encodedMessage)
+                            .mapLeft { exception -> AppException(cause = exception) }
+                            .bind()
+                            ?: StringUtils.EMPTY
+                    } else {
+                        StringUtils.EMPTY
+                    }
+
+                    currentTestState = TestState.Error(message)
+                    errorMessage = message
                 }
 
-                currentTestState = TestState.Error(message)
-                errorMessage = message
+                if (currentFileState == FileState.QueuedForSending) {
+                    currentFileState = FileState.Sent(Instant.now())
+                }
+
+                rebuildViewState()
+
+                response
             }
-
-            if (currentFileState == FileState.QueuedForSending) {
-                currentFileState = FileState.Sent(Instant.now())
-            }
-
-            rebuildViewState()
-
-            response
         }
 
     private suspend fun sendGetJobRequest(

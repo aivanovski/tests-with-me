@@ -1,5 +1,61 @@
 package com.github.aivanovski.testswithme.extensions
 
+import com.github.aivanovski.testswithme.entity.Hash
+import com.github.aivanovski.testswithme.entity.HashType
+import com.github.aivanovski.testswithme.utils.StringUtils.NEW_LINE
+import java.security.MessageDigest
+
+fun String.appendIndent(indent: String): String {
+    return this.split(NEW_LINE)
+        .joinToString(
+            separator = NEW_LINE,
+            transform = { line ->
+                if (line.isNotEmpty()) {
+                    "$indent$line"
+                } else {
+                    line
+                }
+            }
+        )
+}
+
+fun String.trimLines(): String {
+    return this.splitIntoLines()
+        .mapNotNull { line ->
+            if (line.isNotBlank()) {
+                line.trim()
+            } else {
+                null
+            }
+        }
+        .joinToString(separator = "\n")
+}
+
+fun String.splitToPair(separator: String): Pair<String, String>? {
+    val splitIdx = this.indexOf(separator)
+    if (splitIdx == -1 || splitIdx + 1 >= this.length) {
+        return null
+    }
+
+    return this.substring(0, splitIdx) to this.substring(splitIdx + 1)
+}
+
+fun String.splitIntoLines(): List<String> {
+    return this.split(NEW_LINE)
+}
+
+fun String.sha256(): Hash {
+    val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
+
+    return Hash(
+        type = HashType.SHA_256,
+        value = bytes.joinToString(
+            separator = "",
+            transform = { byte -> "%02x".format(byte) }
+        )
+    )
+}
+
 fun String.orNull(): String? {
     return ifEmpty { null }
 }

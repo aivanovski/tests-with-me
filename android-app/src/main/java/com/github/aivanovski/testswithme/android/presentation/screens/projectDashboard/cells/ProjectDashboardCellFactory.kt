@@ -6,8 +6,8 @@ import com.github.aivanovski.testswithme.android.domain.findNodeByUid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
@@ -249,7 +249,7 @@ class ProjectDashboardCellFactory(
                 groups = data.allGroups,
                 flows = data.allFlows
             )
-                ?: (emptyList<Group>() to emptyList())
+                ?: (emptyList<GroupEntry>() to emptyList())
 
             models.add(
                 GroupCellModel(

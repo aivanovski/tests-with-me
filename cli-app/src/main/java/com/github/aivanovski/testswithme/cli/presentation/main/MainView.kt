@@ -1,9 +1,9 @@
 package com.github.aivanovski.testswithme.cli.presentation.main
 
-import com.github.aivanovski.testswithme.cli.extensions.splitIntoLines
 import com.github.aivanovski.testswithme.cli.presentation.core.CliStrings
 import com.github.aivanovski.testswithme.cli.presentation.main.model.MainViewState
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TextColor
+import com.github.aivanovski.testswithme.extensions.splitIntoLines
 import com.github.aivanovski.testswithme.utils.StringUtils.EMPTY
 import com.github.aivanovski.testswithme.utils.StringUtils.SPACE
 import com.github.ajalt.mordant.rendering.TextColors.brightGreen

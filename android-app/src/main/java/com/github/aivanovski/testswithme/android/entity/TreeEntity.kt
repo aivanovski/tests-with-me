@@ -1,5 +1,5 @@
 package com.github.aivanovski.testswithme.android.entity
 
-interface Entity {
+interface TreeEntity {
     val uid: String
 }

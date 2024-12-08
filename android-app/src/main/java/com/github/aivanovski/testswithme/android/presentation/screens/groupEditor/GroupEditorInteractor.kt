@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.groupEdit
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.repository.GroupRepository
-import com.github.aivanovski.testswithme.android.entity.Group
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.api.request.PostGroupRequest
 import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
@@ -14,14 +14,14 @@ class GroupEditorInteractor(
     private val groupRepository: GroupRepository
 ) {
 
-    suspend fun loadGroup(groupUid: String): Either<AppException, Group> =
+    suspend fun loadGroup(groupUid: String): Either<AppException, GroupEntry> =
         withContext(Dispatchers.IO) {
             either {
                 groupRepository.getGroupByUid(groupUid).bind()
             }
         }
 
-    suspend fun createGroup(request: PostGroupRequest): Either<AppException, Group> =
+    suspend fun createGroup(request: PostGroupRequest): Either<AppException, GroupEntry> =
         withContext(Dispatchers.IO) {
             either {
                 val response = groupRepository.createGroup(request).bind()
@@ -32,7 +32,7 @@ class GroupEditorInteractor(
     suspend fun updateGroup(
         groupUid: String,
         request: UpdateGroupRequest
-    ): Either<AppException, Group> =
+    ): Either<AppException, GroupEntry> =
         withContext(Dispatchers.IO) {
             either {
                 val response = groupRepository.updateGroup(groupUid, request).bind()

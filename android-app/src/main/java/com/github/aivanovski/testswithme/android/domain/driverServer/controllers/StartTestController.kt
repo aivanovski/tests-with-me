@@ -2,6 +2,8 @@ package com.github.aivanovski.testswithme.android.domain.driverServer.controller
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayServer
+import com.github.aivanovski.testswithme.android.domain.driverServer.dataConverters.convert
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.ErrorMessage
 import com.github.aivanovski.testswithme.android.driverServerApi.request.StartTestRequest
@@ -18,6 +20,7 @@ import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class StartTestController(
     private val flowRunnerInteractor: FlowRunnerInteractor
@@ -35,12 +38,15 @@ class StartTestController(
                         error = null
                     )
                 } else {
-                    val rootCause = processResult.unwrapError().getRootCause()
+                    val cause = processResult.unwrapError()
+                    val rootCause = cause.getRootCause()
 
                     val message = when {
                         rootCause.message != null -> rootCause.message
                         else -> rootCause::class.simpleName
                     } ?: StringUtils.EMPTY
+
+                    Timber.tag(GatewayServer::class.java.simpleName).d(cause)
 
                     StartTestResponse(
                         isStarted = false,
@@ -56,7 +62,6 @@ class StartTestController(
     private suspend fun processRequest(request: StartTestRequest): Either<AppException, String> =
         either {
             val base64Content = request.base64Content
-            val fileName = request.name
 
             val content = Base64Utils.decode(base64Content)
                 .mapLeft { exception -> ParsingException(cause = exception) }
@@ -65,7 +70,8 @@ class StartTestController(
 
             val flow = flowRunnerInteractor.parseFlow(
                 base64Content = base64Content,
-                name = fileName
+                name = request.name,
+                contentHash = request.contentHash.convert()
             ).bind()
 
             flowRunnerInteractor.saveFlowContent(

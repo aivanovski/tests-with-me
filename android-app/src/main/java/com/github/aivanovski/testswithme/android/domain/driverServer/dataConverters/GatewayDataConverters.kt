@@ -4,6 +4,7 @@ import com.github.aivanovski.testswithme.android.driverServerApi.dto.ExecutionRe
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.FlowDto
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.JobDto
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.JobStatusDto
+import com.github.aivanovski.testswithme.android.driverServerApi.dto.Sha256HashDto
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.StepDto
 import com.github.aivanovski.testswithme.android.driverServerApi.dto.StepResultDto
 import com.github.aivanovski.testswithme.android.entity.ExecutionResult
@@ -12,6 +13,8 @@ import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.entity.Hash
+import com.github.aivanovski.testswithme.entity.HashType
 import com.github.aivanovski.testswithme.entity.StepResult
 import com.github.aivanovski.testswithme.extensions.dumpToString
 import com.github.aivanovski.testswithme.extensions.unwrap
@@ -100,4 +103,11 @@ private fun FlowError.formatReport(): List<String> {
             listOf(cause)
         }
     }
+}
+
+fun Sha256HashDto.convert(): Hash {
+    return Hash(
+        type = HashType.SHA_256,
+        value = value
+    )
 }

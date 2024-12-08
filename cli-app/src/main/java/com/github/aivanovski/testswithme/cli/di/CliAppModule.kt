@@ -18,6 +18,7 @@ import org.koin.dsl.module
 object CliAppModule {
 
     val module = module {
+        // Core & Domain
         single<FileSystemProvider> { FileSystemProviderImpl() }
         single<CliStrings> { CliStringsImpl() }
         singleOf(::JsonSerializer)
@@ -29,6 +30,7 @@ object CliAppModule {
         singleOf(::FormatHelpTextUseCase)
         singleOf(::ConnectToDeviceUseCase)
 
+        // Presentation
         singleOf(::MainInteractor)
         singleOf(::MainViewModel)
     }

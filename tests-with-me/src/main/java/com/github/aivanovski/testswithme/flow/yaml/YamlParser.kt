@@ -257,7 +257,7 @@ class YamlParser {
     private fun parseRunFlow(item: Item): Either<ParsingException, FlowStep> =
         either {
             FlowStep.RunFlow(
-                name = item.runFlow ?: StringUtils.EMPTY
+                path = item.runFlow ?: StringUtils.EMPTY
             )
         }
 

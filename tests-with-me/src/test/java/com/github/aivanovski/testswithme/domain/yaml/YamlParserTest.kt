@@ -403,7 +403,7 @@ class YamlParserTest {
 
         private val RUN_FLOW_STEPS = listOf(
             FlowStep.RunFlow(
-                name = "$PROJECT / $NAME"
+                path = "$PROJECT / $NAME"
             )
         )
     }

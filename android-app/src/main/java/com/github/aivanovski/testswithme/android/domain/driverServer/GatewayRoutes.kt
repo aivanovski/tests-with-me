@@ -22,12 +22,14 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
+import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 fun Application.configureRoutes() {
     val statusController: StatusController by lazy { get() }
@@ -64,6 +66,9 @@ suspend inline fun <reified T : Any> handleResponse(
         block.invoke()
     }
 
+    Timber.tag(GatewayServer::class.java.simpleName)
+        .d(call.formatRequestLogMessage(response))
+
     if (response.isRight()) {
         call.respond(
             status = HttpStatusCode.OK,
@@ -90,5 +95,22 @@ suspend inline fun <reified T : Any> handleResponse(
             status = HttpStatusCode.BadRequest,
             message = error
         )
+    }
+}
+
+fun ApplicationCall.formatRequestLogMessage(response: Either<GatewayException, *>): String {
+    return when (response) {
+        is Either.Left -> {
+            val error = response.unwrapError()
+
+            "Request: %s, FAILURE, message=%s".format(
+                request.uri,
+                error.message
+            )
+        }
+
+        is Either.Right -> {
+            "Request: %s, SUCCESS".format(request.uri)
+        }
     }
 }

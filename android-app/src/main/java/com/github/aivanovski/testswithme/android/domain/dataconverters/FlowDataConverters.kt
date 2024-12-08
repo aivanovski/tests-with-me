@@ -5,6 +5,7 @@ import com.github.aivanovski.testswithme.android.entity.StepVerificationType
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.entity.FlowStep
+import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.YamlFlow
 
 fun YamlFlow.convertToFlowEntry(
@@ -12,7 +13,8 @@ fun YamlFlow.convertToFlowEntry(
     projectUid: String,
     groupUid: String?,
     name: String,
-    sourceType: SourceType
+    sourceType: SourceType,
+    contentHash: Hash
 ): FlowEntry {
     return FlowEntry(
         id = null,
@@ -20,7 +22,8 @@ fun YamlFlow.convertToFlowEntry(
         projectUid = projectUid,
         groupUid = groupUid,
         name = name,
-        sourceType = sourceType
+        sourceType = sourceType,
+        contentHash = contentHash
     )
 }
 

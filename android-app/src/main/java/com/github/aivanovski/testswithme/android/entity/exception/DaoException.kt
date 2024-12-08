@@ -12,8 +12,17 @@ open class FailedToFindEntityException(
     fieldName: String,
     fieldValue: String
 ) : DaoException(
-    message = "Unable to find entity %s: %s=%s".format(entityName, fieldName, fieldValue),
+    message = "Failed to find entity %s: %s=%s".format(entityName, fieldName, fieldValue),
     cause = null
+)
+
+class FailedToFindEntityByNameException(
+    entityType: KClass<*>,
+    name: String
+) : FailedToFindEntityException(
+    entityName = entityType.java.simpleName,
+    fieldName = "name",
+    fieldValue = name
 )
 
 class FailedToFindEntityByUidException(

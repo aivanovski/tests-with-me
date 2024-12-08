@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
@@ -266,7 +266,7 @@ class ProjectDashboardViewModel(
         }
     }
 
-    private fun findGroupByUid(groupUid: String): Group? {
+    private fun findGroupByUid(groupUid: String): GroupEntry? {
         return data?.allGroups?.firstOrNull { group -> group.uid == groupUid }
     }
 

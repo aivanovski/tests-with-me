@@ -4,9 +4,9 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
@@ -527,7 +527,7 @@ class FlowCellFactory(
         return models
     }
 
-    private fun formatGroupPath(groups: List<Group>): String {
+    private fun formatGroupPath(groups: List<GroupEntry>): String {
         return groups.joinToString(
             separator = SPACE + SLASH + SPACE,
             transform = { group -> group.name }

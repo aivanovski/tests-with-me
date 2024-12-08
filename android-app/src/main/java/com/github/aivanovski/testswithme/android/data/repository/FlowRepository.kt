@@ -120,8 +120,7 @@ class FlowRepository(
 
     suspend fun getFlows(): Either<AppException, List<FlowEntry>> =
         either {
-            val isLoggedIn = isUserLoggedInUseCase.isLoggedIn()
-            if (!isLoggedIn) {
+            if (!isUserLoggedInUseCase.isLoggedIn()) {
                 return@either flowDao.getAll()
             }
 
@@ -139,13 +138,12 @@ class FlowRepository(
                 }
             }
 
-            remoteFlows
+            flowDao.getAll()
         }
 
     suspend fun getFlowsByProjectUid(projectUid: String): Either<AppException, List<FlowEntry>> =
         either {
-            getFlows()
-                .bind()
+            getFlows().bind()
                 .filter { flow -> flow.projectUid == projectUid }
         }
 

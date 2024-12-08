@@ -8,5 +8,6 @@ data class FlowItemDto(
     val projectId: String,
     val groupId: String?,
     val name: String,
-    val base64Content: String
+    val base64Content: String,
+    val contentHash: Sha256HashDto
 )
