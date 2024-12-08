@@ -236,8 +236,10 @@ class ProjectDashboardCellFactory(
             )
         )
 
-        val visibleGroups = data.rootGroups.take(MAX_VISIBLE_ELEMENTS)
-        val groupTree = data.allGroups.buildGroupTree()
+        val visibleGroups = data.visibleGroups.take(MAX_VISIBLE_ELEMENTS)
+        val groupTree = data.allGroups
+            .filter { group -> group.parentUid != null }
+            .buildGroupTree()
 
         for ((index, group) in visibleGroups.withIndex()) {
             if (index > 0) {
@@ -272,7 +274,7 @@ class ProjectDashboardCellFactory(
                 models.add(SpaceCellModel(SmallMargin))
             }
 
-            val visibleFlows = data.rootFlows.take(MAX_VISIBLE_ELEMENTS - visibleGroups.size)
+            val visibleFlows = data.visibleFlows.take(MAX_VISIBLE_ELEMENTS - visibleGroups.size)
 
             models.addAll(
                 createFlowCellModels(

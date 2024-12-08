@@ -21,6 +21,7 @@ import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
+import com.github.aivanovski.testswithme.android.extensions.filterRemoteOnly
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
@@ -51,10 +52,10 @@ class FlowInteractor(
 
                 val allGroups = groupRepository.getGroupsByProjectUid(projectUid).bind()
                 val allFlows = flowRepository.getFlowsByProjectUid(projectUid).bind()
+                    .filterRemoteOnly()
 
                 val flowUids = allFlows.map { flow -> flow.uid }
-                val allRuns = flowRunRepository.getRuns()
-                    .bind()
+                val allRuns = flowRunRepository.getRuns().bind()
                     .filter { run -> run.flowUid in flowUids }
 
                 val group = if (mode is FlowScreenMode.Group) {

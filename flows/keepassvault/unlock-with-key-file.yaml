@@ -1,0 +1,52 @@
+- name: Unlock database with key file
+
+- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+  data:
+    - key: isResetAppData
+      value: true
+
+- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+  data:
+    - key: fakeFileName
+      value: key-unlock.kdbx
+
+- launch: com.ivanovsky.passnotes.automation
+
+- assertVisible: key-unlock.kdbx
+
+- tapOn: ADD KEY
+
+- tapOn: Fake File System
+
+- inputText:
+    input: content://fakefs.com
+    contentDescription: URL
+
+- inputText:
+    input: user
+    contentDescription: Username
+
+- inputText:
+    input: abc123
+    contentDescription: Password
+
+- tapOn:
+    contentDescription: Done
+
+- tapOn: keys/
+- tapOn: key
+
+- tapOn:
+    contentDescription: Done
+
+- assertVisible: key-unlock.kdbx
+- assertVisible: KEY
+
+- tapOn:
+    contentDescription: Unlock button
+- waitUntil:
+    text: DISABLE
+    step: 1
+    timeout: 10
+- tapOn: DISABLE
+- assertVisible: Database
