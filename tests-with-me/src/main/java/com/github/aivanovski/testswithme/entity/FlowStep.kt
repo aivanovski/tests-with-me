@@ -53,6 +53,6 @@ sealed interface FlowStep {
 
     @Serializable
     data class RunFlow(
-        val name: String
+        val path: String
     ) : FlowStep
 }

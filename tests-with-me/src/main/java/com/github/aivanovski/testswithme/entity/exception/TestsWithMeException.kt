@@ -1,6 +1,6 @@
 package com.github.aivanovski.testswithme.entity.exception
 
-class ParsingException(
+open class TestsWithMeException(
     message: String? = null,
     cause: Exception? = null
-) : TestsWithMeException(message, cause)
+) : Exception(message, cause)

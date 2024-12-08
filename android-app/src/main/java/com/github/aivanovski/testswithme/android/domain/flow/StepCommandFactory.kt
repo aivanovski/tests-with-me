@@ -91,11 +91,11 @@ class StepCommandFactory(
         step: FlowStep.RunFlow
     ): Either<AppException, StepCommand> =
         either {
-            val nameOrUid = step.name
+            val nameOrUid = step.path
 
-            val flow = findFlowByNameOrUid(
+            val flow = findFlow(
                 parent = parent,
-                nameOrUid = nameOrUid
+                uidOrPathOrName = nameOrUid
             ).bind()
 
             val commands = mutableListOf<ExecutableStepCommand<Any>>()
@@ -118,37 +118,20 @@ class StepCommandFactory(
             )
         }
 
-    private suspend fun findFlowByNameOrUid(
+    private suspend fun findFlow(
         parent: FlowEntry,
-        nameOrUid: String
+        uidOrPathOrName: String
     ): Either<AppException, FlowWithSteps> =
         either {
-            val getByUidResult = interactor.getFlowByUid(nameOrUid)
+            val getByUidResult = interactor.getFlowByUid(uidOrPathOrName)
             if (getByUidResult.isRight()) {
                 return@either getByUidResult.bind()
             }
 
-            val values = nameOrUid
-                .split("/")
-                .map { value -> value.trim() }
-                .filter { value -> value.isNotEmpty() }
-
-            if (values.isEmpty()) {
-                raise(AppException("Unable to find flow: $nameOrUid"))
-            }
-
-            val flowName = values.last()
-            val groupName = if (values.size > 1) {
-                values[values.size - 2]
-            } else {
-                null
-            }
-
-            interactor.findFlowByName(
+            interactor.resolveFlowByPathOrName(
                 projectUid = parent.projectUid,
-                groupName = groupName,
-                name = flowName
+                pathOrName = uidOrPathOrName
             ).bind()
-                ?: raise(AppException("Unable to find flow: $nameOrUid"))
+                ?: raise(AppException("Unable to find flow: $uidOrPathOrName"))
         }
 }

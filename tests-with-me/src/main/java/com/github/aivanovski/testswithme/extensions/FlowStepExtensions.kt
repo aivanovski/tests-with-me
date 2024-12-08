@@ -98,5 +98,5 @@ private fun FlowStep.WaitUntil.describe(): String {
 }
 
 private fun FlowStep.RunFlow.describe(): String {
-    return "Run flow '%s'".format(name)
+    return "Run flow '%s'".format(path)
 }

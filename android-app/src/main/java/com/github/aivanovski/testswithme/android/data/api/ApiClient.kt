@@ -4,9 +4,9 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.ApiException
 import com.github.aivanovski.testswithme.android.entity.exception.InvalidHttpStatusCodeException
@@ -57,7 +57,7 @@ class ApiClient(
 
     private val urlFactory = ApiUrlFactory()
 
-    suspend fun getGroups(): Either<ApiException, List<Group>> =
+    suspend fun getGroups(): Either<ApiException, List<GroupEntry>> =
         either {
             getAndParse<GroupsResponse>(urlFactory.groups())
                 .bind()

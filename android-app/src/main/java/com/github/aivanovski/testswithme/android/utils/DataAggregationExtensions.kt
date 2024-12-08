@@ -2,16 +2,16 @@ package com.github.aivanovski.testswithme.android.utils
 
 import com.github.aivanovski.testswithme.android.domain.getDescendantNodes
 import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.TreeNode
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 
 fun findParentGroups(
-    targetGroup: Group,
-    allGroups: List<Group>
-): List<Group> {
+    targetGroup: GroupEntry,
+    allGroups: List<GroupEntry>
+): List<GroupEntry> {
     val uidToGroupMap = allGroups.associateBy { group -> group.uid }
-    val parents = mutableListOf<Group>()
+    val parents = mutableListOf<GroupEntry>()
 
     var parentUid: String? = targetGroup.parentUid
     while (parentUid != null) {
@@ -61,7 +61,7 @@ fun List<FlowRun>.aggregateRunCountByFlowUid(): Map<String, Int> {
     return flowUidToRunCountMap
 }
 
-fun List<Group>.aggregateFlowCountByGroupUid(): Map<String, Int> {
+fun List<GroupEntry>.aggregateFlowCountByGroupUid(): Map<String, Int> {
     val groups = this
     val groupUidToFlowCountMap = HashMap<String, Int>()
 
@@ -126,9 +126,9 @@ fun TreeNode.aggregateDescendantFlows(flows: List<FlowEntry>): List<FlowEntry> {
 }
 
 fun TreeNode.aggregateDescendantGroupsAndFlows(
-    groups: List<Group>,
+    groups: List<GroupEntry>,
     flows: List<FlowEntry>
-): Pair<List<Group>, List<FlowEntry>> {
+): Pair<List<GroupEntry>, List<FlowEntry>> {
     val root = this
 
     val groupUids = root.getDescendantNodes()

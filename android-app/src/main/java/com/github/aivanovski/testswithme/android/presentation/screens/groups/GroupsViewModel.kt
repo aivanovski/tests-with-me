@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.groups
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.entity.Group
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
@@ -56,7 +56,7 @@ class GroupsViewModel(
 
     private var isSubscribed = false
     private var data: GroupsData? = null
-    private var selectedGroup: Group? = null
+    private var selectedGroup: GroupEntry? = null
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
@@ -160,7 +160,7 @@ class GroupsViewModel(
         }
     }
 
-    private fun navigateToEditGroupScreen(group: Group) {
+    private fun navigateToEditGroupScreen(group: GroupEntry) {
         router.navigateTo(
             Screen.GroupEditor(
                 GroupEditorScreenArgs.EditGroup(

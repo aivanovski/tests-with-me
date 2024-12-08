@@ -1,14 +1,17 @@
 package com.github.aivanovski.testswithme.android.data.api
 
 import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.Group
 import com.github.aivanovski.testswithme.android.entity.SourceType
 import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testswithme.entity.Hash
+import com.github.aivanovski.testswithme.entity.HashType
 import com.github.aivanovski.testswithme.web.api.FlowRunsItemDto
 import com.github.aivanovski.testswithme.web.api.FlowsItemDto
 import com.github.aivanovski.testswithme.web.api.GroupItemDto
+import com.github.aivanovski.testswithme.web.api.Sha256HashDto
 import com.github.aivanovski.testswithme.web.api.UsersItemDto
 import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
 
@@ -20,7 +23,8 @@ fun List<FlowsItemDto>.toFlows(): List<FlowEntry> {
             projectUid = item.projectId,
             groupUid = item.groupId,
             name = item.name,
-            sourceType = SourceType.REMOTE
+            sourceType = SourceType.REMOTE,
+            contentHash = item.contentHash.toHash()
         )
     }
 }
@@ -34,9 +38,9 @@ fun List<UsersItemDto>.toUsers(): List<User> {
     }
 }
 
-fun List<GroupItemDto>.toGroups(): List<Group> {
+fun List<GroupItemDto>.toGroups(): List<GroupEntry> {
     return map { item ->
-        Group(
+        GroupEntry(
             uid = item.id,
             name = item.name,
             parentUid = item.parentId,
@@ -72,3 +76,9 @@ fun List<ProjectsItemDto>.toProjects(): List<ProjectEntry> {
         )
     }
 }
+
+fun Sha256HashDto.toHash(): Hash =
+    Hash(
+        type = HashType.SHA_256,
+        value = this.value
+    )

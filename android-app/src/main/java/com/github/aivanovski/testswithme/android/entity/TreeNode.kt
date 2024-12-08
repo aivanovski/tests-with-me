@@ -1,6 +1,6 @@
 package com.github.aivanovski.testswithme.android.entity
 
 interface TreeNode {
-    val entity: Entity
+    val entity: TreeEntity
     val nodes: List<TreeNode>
 }

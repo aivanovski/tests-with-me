@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.entity.Group
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -166,7 +166,7 @@ class GroupEditorViewModel(
         }
     }
 
-    private suspend fun uploadGroup(name: String): Either<AppException, Group> {
+    private suspend fun uploadGroup(name: String): Either<AppException, GroupEntry> {
         return when (args) {
             is GroupEditorScreenArgs.NewGroup -> {
                 interactor.createGroup(

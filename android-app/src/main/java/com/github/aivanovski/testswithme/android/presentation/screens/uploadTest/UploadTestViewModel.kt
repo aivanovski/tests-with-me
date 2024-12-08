@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.uploadTes
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.entity.Group
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
@@ -215,7 +215,7 @@ class UploadTestViewModel(
         return this.map { project -> project.name }
     }
 
-    private fun List<Group>.formatGroups(): List<String> {
+    private fun List<GroupEntry>.formatGroups(): List<String> {
         return this.map { group -> group.name }
             .toMutableList()
             .apply {
@@ -231,7 +231,7 @@ class UploadTestViewModel(
         return data.projects.findProjectByName(name)
     }
 
-    private fun getSelectedGroup(): Group? {
+    private fun getSelectedGroup(): GroupEntry? {
         val data = this.data ?: return null
 
         val name = state.value.selectedGroup
@@ -243,7 +243,7 @@ class UploadTestViewModel(
         }
     }
 
-    private fun List<Group>.findGroupByName(name: String): Group? {
+    private fun List<GroupEntry>.findGroupByName(name: String): GroupEntry? {
         return this.firstOrNull { group -> group.name == name }
     }
 
