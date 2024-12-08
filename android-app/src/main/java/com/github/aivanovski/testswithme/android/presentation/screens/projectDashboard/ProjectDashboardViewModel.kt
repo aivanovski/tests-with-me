@@ -156,7 +156,7 @@ class ProjectDashboardViewModel(
 
     private fun onHeaderCellClicked(cellId: String) {
         when (cellId) {
-            CellId.REMAINED_FLOWS_HEADER -> navigateToRemainedFlowsScreens()
+            CellId.REMAINED_FLOWS_HEADER -> navigateToRemainedFlowsScreen()
             CellId.GROUPS_HEADER -> navigateToGroupsScreen()
             else -> throw IllegalArgumentException("Invalid cellId: $cellId")
         }
@@ -176,13 +176,13 @@ class ProjectDashboardViewModel(
             Screen.Groups(
                 GroupsScreenArgs(
                     projectUid = args.projectUid,
-                    groupUid = null
+                    groupUid = data?.rootGroup?.uid
                 )
             )
         )
     }
 
-    private fun navigateToRemainedFlowsScreens() {
+    private fun navigateToRemainedFlowsScreen() {
         val version = getSelectedVersion()
 
         router.navigateTo(
