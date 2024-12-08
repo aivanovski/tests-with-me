@@ -155,7 +155,9 @@ class SettingsViewModel(
     }
 
     private fun onSslValidationStateChanged(isSslValidationChecked: Boolean) {
-        settings.isSslVerificationDisabled = !isSslValidationChecked
+        interactor.setSslVerificationEnabled(
+            isSslVerificationEnabled = isSslValidationChecked
+        )
     }
 
     private fun onGatewayStateChanged(
