@@ -17,9 +17,7 @@ import timber.log.Timber
 
 object HttpClientFactory {
 
-    fun createHttpClient(
-        isSslVerificationEnabled: Boolean
-    ): HttpClient {
+    fun createHttpClient(isSslVerificationEnabled: Boolean): HttpClient {
         return HttpClient(OkHttp) {
             install(Logging) {
                 logger = object : Logger {
