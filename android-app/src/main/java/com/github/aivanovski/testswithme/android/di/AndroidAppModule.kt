@@ -1,6 +1,5 @@
 package com.github.aivanovski.testswithme.android.di
 
-import android.annotation.SuppressLint
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testswithme.android.data.db.AppDatabase
@@ -80,20 +79,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
-import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.engine.okhttp.OkHttpConfig
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.X509TrustManager
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import timber.log.Timber
 
 object AndroidAppModule {
 
@@ -117,7 +104,7 @@ object AndroidAppModule {
         single { provideGroupEntryDao(get()) }
 
         // Network
-        single { provideHttpRequestExecutor(get()) }
+        singleOf(::HttpRequestExecutor)
         singleOf(::ApiClient)
 
         // Repositories
@@ -291,60 +278,4 @@ object AndroidAppModule {
     private fun provideProjectEntryDao(db: AppDatabase): ProjectEntryDao = db.projectEntryDao
 
     private fun provideGroupEntryDao(db: AppDatabase): GroupEntryDao = db.groupEntryDao
-
-    private fun provideHttpRequestExecutor(settings: Settings): HttpRequestExecutor {
-        return HttpRequestExecutor(
-            client = HttpClient(OkHttp) {
-                install(Logging) {
-                    logger = object : Logger {
-                        override fun log(message: String) {
-                            Timber.d(message)
-                        }
-                    }
-                    level = LogLevel.INFO
-                }
-
-                if (settings.isSslVerificationDisabled) {
-                    Timber.i("SSL certificate validation disabled")
-                    disableSslVerification()
-                }
-            }
-        )
-    }
-
-    private fun HttpClientConfig<OkHttpConfig>.disableSslVerification() {
-        @SuppressLint("CustomX509TrustManager")
-        val trustAllCerts = object : X509TrustManager {
-            @SuppressLint("TrustAllX509TrustManager")
-            override fun checkClientTrusted(
-                chain: Array<X509Certificate>,
-                authType: String
-            ) {
-            }
-
-            @SuppressLint("TrustAllX509TrustManager")
-            override fun checkServerTrusted(
-                chain: Array<X509Certificate>,
-                authType: String
-            ) {
-            }
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                return emptyArray()
-            }
-        }
-
-        val sslSocketFactory = SSLContext.getInstance("SSL")
-            .apply {
-                init(null, arrayOf(trustAllCerts), SecureRandom())
-            }
-            .socketFactory
-
-        engine {
-            config {
-                sslSocketFactory(sslSocketFactory, trustAllCerts)
-                hostnameVerifier(hostnameVerifier = { _, _ -> true })
-            }
-        }
-    }
 }

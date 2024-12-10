@@ -9,7 +9,11 @@ import com.github.aivanovski.testswithme.android.data.repository.ProjectReposito
 import com.github.aivanovski.testswithme.android.domain.VersionParser
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.FlowRun
+import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
+import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityException
+import com.github.aivanovski.testswithme.android.extensions.filterByGroupUid
+import com.github.aivanovski.testswithme.android.extensions.filterRemoteOnly
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardData
 import com.github.aivanovski.testswithme.android.utils.aggregatePassedFailedAndRemainedFlows
 import kotlinx.coroutines.Dispatchers
@@ -54,8 +58,19 @@ class ProjectDashboardInteractor(
                     allRuns
                 }
 
-                val rootGroups = allGroups.filter { group -> group.parentUid == null }
-                val rootFlows = allFlows.filter { flow -> flow.groupUid == null }
+                val rootGroup = allGroups.firstOrNull { group -> group.parentUid == null }
+                    ?: raise(
+                        FailedToFindEntityException(
+                            entityName = GroupEntry::class.java.simpleName,
+                            fieldName = "parentUid",
+                            fieldValue = "null"
+                        )
+                    )
+
+                val visibleGroups = allGroups.filter { group -> group.parentUid == rootGroup.uid }
+                val visibleFlows = allFlows
+                    .filterByGroupUid(rootGroup.uid)
+                    .filterRemoteOnly()
 
                 val (passed, failed, remained) = allFlows.aggregatePassedFailedAndRemainedFlows(
                     versionRuns
@@ -70,8 +85,9 @@ class ProjectDashboardInteractor(
                     passedFlows = passed,
                     failedFlows = failed,
                     remainedFlows = remained,
-                    rootGroups = rootGroups,
-                    rootFlows = rootFlows
+                    rootGroup = rootGroup,
+                    visibleGroups = visibleGroups,
+                    visibleFlows = visibleFlows
                 )
             }
         }

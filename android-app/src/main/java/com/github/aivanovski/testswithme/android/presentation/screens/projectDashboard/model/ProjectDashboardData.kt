@@ -14,6 +14,7 @@ data class ProjectDashboardData(
     val passedFlows: List<FlowEntry>,
     val failedFlows: List<FlowEntry>,
     val remainedFlows: List<FlowEntry>,
-    val rootGroups: List<GroupEntry>,
-    val rootFlows: List<FlowEntry>
+    val rootGroup: GroupEntry,
+    val visibleGroups: List<GroupEntry>,
+    val visibleFlows: List<FlowEntry>
 )
