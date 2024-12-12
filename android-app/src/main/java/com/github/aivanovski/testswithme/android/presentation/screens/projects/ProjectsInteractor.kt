@@ -14,8 +14,7 @@ class ProjectsInteractor(
     private val authRepository: AuthRepository
 ) {
 
-    fun isLoggedInFlow() =
-        authRepository.isLoggedInFlow()
+    fun isLoggedInFlow() = authRepository.isLoggedInFlow()
 
     suspend fun loadData(): Either<AppException, ProjectsData> =
         withContext(Dispatchers.IO) {
@@ -28,6 +27,5 @@ class ProjectsInteractor(
             }
         }
 
-    fun isLoggedIn(): Boolean =
-        authRepository.isUserLoggedIn()
+    fun isLoggedIn(): Boolean = authRepository.isUserLoggedIn()
 }
