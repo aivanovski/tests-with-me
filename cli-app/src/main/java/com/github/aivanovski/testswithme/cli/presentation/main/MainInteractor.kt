@@ -7,7 +7,6 @@ import com.github.aivanovski.testswithme.android.driverServerApi.response.GetJob
 import com.github.aivanovski.testswithme.android.driverServerApi.response.StartTestResponse
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProvider
-import com.github.aivanovski.testswithme.cli.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.cli.domain.usecases.ConnectToDeviceUseCase
 import com.github.aivanovski.testswithme.cli.domain.usecases.FormatHelpTextUseCase
 import com.github.aivanovski.testswithme.cli.entity.ConnectionAndState
@@ -25,8 +24,7 @@ import kotlin.io.path.pathString
 class MainInteractor(
     private val formatHelpUseCase: FormatHelpTextUseCase,
     private val connectUseCase: ConnectToDeviceUseCase,
-    private val fsProvider: FileSystemProvider,
-    private val referenceResolver: ReferenceResolver
+    private val fsProvider: FileSystemProvider
 ) {
 
     fun getHelpText(): String = formatHelpUseCase.formatHelpText()
