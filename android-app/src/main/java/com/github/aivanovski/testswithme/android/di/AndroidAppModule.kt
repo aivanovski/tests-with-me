@@ -12,6 +12,7 @@ import com.github.aivanovski.testswithme.android.data.db.dao.ProjectEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.StepEntryDao
 import com.github.aivanovski.testswithme.android.data.file.FileCache
 import com.github.aivanovski.testswithme.android.data.file.FileCacheImpl
+import com.github.aivanovski.testswithme.android.data.repository.AuthRepository
 import com.github.aivanovski.testswithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.android.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.android.data.repository.GroupRepository
@@ -33,7 +34,6 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
-import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
@@ -64,6 +64,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectEdi
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.cells.ProjectsCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.root.RootInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsViewModel
@@ -108,6 +109,7 @@ object AndroidAppModule {
         singleOf(::ApiClient)
 
         // Repositories
+        singleOf(::AuthRepository)
         singleOf(::FlowRepository)
         singleOf(::JobRepository)
         singleOf(::StepRunRepository)
@@ -120,9 +122,9 @@ object AndroidAppModule {
         singleOf(::ParseFlowFileUseCase)
         singleOf(::GetCurrentJobUseCase)
         singleOf(::GetExternalApplicationDataUseCase)
-        singleOf(::IsUserLoggedInUseCase)
 
         // Interactors
+        singleOf(::RootInteractor)
         singleOf(::LoginInteractor)
         singleOf(::GroupsInteractor)
         singleOf(::FlowInteractor)

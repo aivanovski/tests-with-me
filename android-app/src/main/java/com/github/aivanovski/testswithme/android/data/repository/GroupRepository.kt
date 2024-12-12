@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.db.dao.GroupEntryDao
-import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
@@ -16,7 +15,7 @@ import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
 class GroupRepository(
     private val groupDao: GroupEntryDao,
     private val api: ApiClient,
-    private val isUserLoggedInUseCase: IsUserLoggedInUseCase
+    private val authRepository: AuthRepository
 ) {
 
     suspend fun createGroup(request: PostGroupRequest): Either<AppException, PostGroupResponse> =
@@ -34,7 +33,7 @@ class GroupRepository(
 
     suspend fun getGroups(): Either<AppException, List<GroupEntry>> =
         either {
-            if (!isUserLoggedInUseCase.isLoggedIn()) {
+            if (!authRepository.isUserLoggedIn()) {
                 return@either groupDao.getAll()
             }
 

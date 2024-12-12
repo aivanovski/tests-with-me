@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.android.data.api
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testswithme.android.data.settings.Settings
+import com.github.aivanovski.testswithme.android.data.repository.AuthRepository
 import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
@@ -45,8 +45,8 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 class ApiClient(
-    private val executor: HttpRequestExecutor,
-    private val settings: Settings
+    private val authRepository: AuthRepository,
+    private val executor: HttpRequestExecutor
 ) {
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -82,7 +82,7 @@ class ApiClient(
             // TODO: should be retried if 401
             val response = executor.post(urlFactory.flowRuns()) {
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                    append(HttpHeaders.Authorization, "Bearer ${getAuthToken()}")
                 }
                 contentType(ContentType.Application.Json)
                 setBody(body)
@@ -102,7 +102,7 @@ class ApiClient(
             // TODO: should be retried if 401
             val response = executor.post(urlFactory.flows()) {
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                    append(HttpHeaders.Authorization, "Bearer ${getAuthToken()}")
                 }
                 contentType(ContentType.Application.Json)
                 setBody(body)
@@ -124,7 +124,7 @@ class ApiClient(
             // TODO: should be retried if 401
             val response = executor.post(urlFactory.projects()) {
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                    append(HttpHeaders.Authorization, "Bearer ${getAuthToken()}")
                 }
                 contentType(ContentType.Application.Json)
                 setBody(body)
@@ -144,7 +144,7 @@ class ApiClient(
             // TODO: should be retried if 401
             val response = executor.post(urlFactory.groups()) {
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                    append(HttpHeaders.Authorization, "Bearer ${getAuthToken()}")
                 }
                 contentType(ContentType.Application.Json)
                 setBody(body)
@@ -167,7 +167,7 @@ class ApiClient(
             // TODO: refactor + retry if 401
             val response = executor.put(urlFactory.group(groupUid)) {
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                    append(HttpHeaders.Authorization, "Bearer ${getAuthToken()}")
                 }
                 contentType(ContentType.Application.Json)
                 setBody(body)
@@ -251,7 +251,7 @@ class ApiClient(
 
             val requestBuilder: HttpRequestBuilder.() -> Unit = {
                 headers {
-                    append(HttpHeaders.Authorization, "Bearer ${settings.authToken}")
+                    append(HttpHeaders.Authorization, "Bearer ${getAuthToken()}")
                 }
                 contentType(ContentType.Application.Json)
             }
@@ -264,7 +264,7 @@ class ApiClient(
 
             // Authenticate was unsuccessful, retry request
             if (response.status == HttpStatusCode.Unauthorized) {
-                settings.authToken = null
+                authRepository.logout()
                 loadOrRequestAuthToken().bind()
 
                 // Do request
@@ -281,13 +281,14 @@ class ApiClient(
 
     private suspend fun loadOrRequestAuthToken(): Either<ApiException, String> =
         either {
-            if (settings.authToken == null) {
-                val token = login("admin", "abc123").bind().token // TODO: store credentials
-                settings.authToken = token
-                token
-            } else {
-                settings.authToken.orEmpty()
+            if (getAuthToken() == null) {
+                // TODO: remove hardcoded credentials
+                authRepository.login("admin", "abc123")
+                    .mapLeft { exception -> ApiException(cause = exception) }
+                    .bind()
             }
+
+            getAuthToken().orEmpty()
         }
 
     private inline fun <reified T> parseJson(body: String): Either<ApiException, T> =
@@ -299,4 +300,7 @@ class ApiClient(
                 raise(ApiException(cause = exception))
             }
         }
+
+    private fun getAuthToken(): String? =
+        authRepository.getAuthToken()
 }
