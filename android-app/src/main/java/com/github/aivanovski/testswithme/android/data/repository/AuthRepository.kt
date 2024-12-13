@@ -5,6 +5,7 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
+import com.github.aivanovski.testswithme.android.entity.Account
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.api.request.LoginRequest
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,8 @@ class AuthRepository(
 
     fun getAuthToken(): String? = settings.authToken
 
+    fun getAccount(): Account? = settings.account
+
     suspend fun login(
         username: String,
         password: String
@@ -34,11 +37,14 @@ class AuthRepository(
                     password = password
                 )
             ).bind()
+
             settings.authToken = response.token
+            settings.account = Account(username, password)
             isLoggedIn.value = true
         }
 
     fun logout() {
+        settings.account = null
         settings.authToken = null
         isLoggedIn.value = false
     }

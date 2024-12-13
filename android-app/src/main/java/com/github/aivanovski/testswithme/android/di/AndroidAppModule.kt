@@ -22,6 +22,8 @@ import com.github.aivanovski.testswithme.android.data.repository.StepRunReposito
 import com.github.aivanovski.testswithme.android.data.repository.UserRepository
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.data.settings.SettingsImpl
+import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProvider
+import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProviderImpl
 import com.github.aivanovski.testswithme.android.domain.VersionParser
 import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayReceiverInteractor
 import com.github.aivanovski.testswithme.android.domain.driverServer.GatewayServer
@@ -86,7 +88,8 @@ import org.koin.dsl.module
 object AndroidAppModule {
 
     val module = module {
-        single<Settings> { SettingsImpl(get()) }
+        single<Settings> { SettingsImpl(get(), get()) }
+        single<DataCipherProvider> { DataCipherProviderImpl(get()) }
         single<ResourceProvider> { ResourceProviderImpl(get()) }
         single<FileCache> { FileCacheImpl(get()) }
         singleOf(::ThemeProvider)

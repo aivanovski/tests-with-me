@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.entity.exception.ApiException
 import com.github.aivanovski.testswithme.android.entity.exception.InvalidHttpStatusCodeException
 import com.github.aivanovski.testswithme.android.entity.exception.NetworkException
+import com.github.aivanovski.testswithme.android.entity.exception.NoAccountDataException
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
@@ -143,8 +144,10 @@ class HttpRequestExecutor(
                 }
 
                 if (response.status == HttpStatusCode.Unauthorized) {
-                    // TODO: remove test credentials
-                    authRepository.login("admin", "abc123")
+                    val account = authRepository.getAccount()
+                        ?: raise(NoAccountDataException())
+
+                    authRepository.login(account.name, account.password)
                         .mapLeft { exception -> ApiException(cause = exception) }
                         .bind()
                 }
