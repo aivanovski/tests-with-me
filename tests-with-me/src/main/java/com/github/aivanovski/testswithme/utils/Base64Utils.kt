@@ -6,6 +6,15 @@ import java.util.Base64
 
 object Base64Utils {
 
+    fun decodeToBytes(base64: String): Either<Exception, ByteArray> =
+        either {
+            try {
+                Base64.getDecoder().decode(base64)
+            } catch (exception: IllegalArgumentException) {
+                raise(exception)
+            }
+        }
+
     fun decode(base64: String): Either<Exception, String?> =
         either {
             try {
@@ -18,5 +27,9 @@ object Base64Utils {
 
     fun encode(text: String): String {
         return Base64.getEncoder().encodeToString(text.toByteArray())
+    }
+
+    fun encode(data: ByteArray): String {
+        return Base64.getEncoder().encodeToString(data)
     }
 }

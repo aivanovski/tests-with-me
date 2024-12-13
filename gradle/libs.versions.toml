@@ -35,6 +35,7 @@ h2 = "2.2.224"
 coil = "2.6.0"
 dadb = "1.2.8"
 mordant = "3.0.1"
+truth = "1.4.4"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -108,3 +109,4 @@ db-hibernate = { module = "org.hibernate:hibernate-core", version.ref = "hiberna
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 dadb = { module = "dev.mobile:dadb", version.ref = "dadb" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
