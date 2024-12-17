@@ -8,7 +8,6 @@ import com.github.aivanovski.testswithme.android.data.db.dao.JobHistoryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.StepEntryDao
 import com.github.aivanovski.testswithme.android.data.file.FileCache
 import com.github.aivanovski.testswithme.android.domain.dataconverters.convertToStepEntries
-import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.SourceType
@@ -26,7 +25,7 @@ class FlowRepository(
     private val api: ApiClient,
     private val parseFlowUseCase: ParseFlowFileUseCase,
     private val fileCache: FileCache,
-    private val isUserLoggedInUseCase: IsUserLoggedInUseCase
+    private val authRepository: AuthRepository
 ) {
 
     suspend fun uploadFlowContent(
@@ -120,7 +119,7 @@ class FlowRepository(
 
     suspend fun getFlows(): Either<AppException, List<FlowEntry>> =
         either {
-            if (!isUserLoggedInUseCase.isLoggedIn()) {
+            if (!authRepository.isUserLoggedIn()) {
                 return@either flowDao.getAll()
             }
 

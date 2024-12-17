@@ -7,5 +7,6 @@ enum class BottomSheetIcon(
     val value: ImageVector
 ) {
     LOGIN(AppIcons.Login),
+    LOGOUT(AppIcons.Logout),
     SETTINGS(AppIcons.Settings)
 }

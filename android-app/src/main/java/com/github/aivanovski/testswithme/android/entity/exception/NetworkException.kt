@@ -15,3 +15,7 @@ open class NetworkException(
 class InvalidHttpStatusCodeException(
     status: HttpStatusCode
 ) : ApiException(message = "Invalid HTTP status code: %s".format(status))
+
+class NoAccountDataException : ApiException(
+    message = "No account data found"
+)

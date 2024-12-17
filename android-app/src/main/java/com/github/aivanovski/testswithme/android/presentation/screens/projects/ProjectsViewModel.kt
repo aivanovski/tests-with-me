@@ -66,6 +66,13 @@ class ProjectsViewModel(
                         state.value = newState
                     }
             }
+
+            viewModelScope.launch {
+                interactor.isLoggedInFlow()
+                    .collect {
+                        intents.trySend(ProjectsIntent.ReloadData)
+                    }
+            }
         }
     }
 

@@ -1,8 +1,8 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.root
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
-import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
 import com.github.aivanovski.testswithme.android.presentation.core.EventListener
@@ -25,10 +25,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 class RootViewModel(
+    private val interactor: RootInteractor,
     private val resourceProvider: ResourceProvider,
-    private val settings: Settings,
     private val router: Router,
     private val args: StartArgs
 ) : ViewModel() {
@@ -136,20 +137,36 @@ class RootViewModel(
     }
 
     private fun createMoreMenu(): BottomSheetMenu {
-        return BottomSheetMenu(
-            items = listOf(
-                BottomSheetItem(
-                    id = MoreMenuItem.LOGIN.name,
-                    icon = BottomSheetIcon.LOGIN,
-                    title = resourceProvider.getString(R.string.log_in_join)
-                ),
-                BottomSheetItem(
-                    id = MoreMenuItem.SETTINGS.name,
-                    icon = BottomSheetIcon.SETTINGS,
-                    title = resourceProvider.getString(R.string.settings)
+        val items = mutableListOf<BottomSheetItem>()
+            .apply {
+                if (interactor.isUserLoggedIn()) {
+                    add(
+                        BottomSheetItem(
+                            id = MoreMenuItem.LOGOUT.name,
+                            icon = BottomSheetIcon.LOGOUT,
+                            title = resourceProvider.getString(R.string.log_out)
+                        )
+                    )
+                } else {
+                    add(
+                        BottomSheetItem(
+                            id = MoreMenuItem.LOGIN.name,
+                            icon = BottomSheetIcon.LOGIN,
+                            title = resourceProvider.getString(R.string.log_in_join)
+                        )
+                    )
+                }
+
+                add(
+                    BottomSheetItem(
+                        id = MoreMenuItem.SETTINGS.name,
+                        icon = BottomSheetIcon.SETTINGS,
+                        title = resourceProvider.getString(R.string.settings)
+                    )
                 )
-            )
-        )
+            }
+
+        return BottomSheetMenu(items = items)
     }
 
     private fun onMoreMenuClicked(item: MoreMenuItem) {
@@ -164,6 +181,12 @@ class RootViewModel(
                 )
             }
 
+            MoreMenuItem.LOGOUT -> {
+                viewModelScope.launch {
+                    interactor.logout()
+                }
+            }
+
             MoreMenuItem.SETTINGS -> {
                 router.navigateTo(Screen.Settings)
             }
@@ -172,6 +195,7 @@ class RootViewModel(
 
     enum class MoreMenuItem {
         LOGIN,
+        LOGOUT,
         SETTINGS
     }
 }

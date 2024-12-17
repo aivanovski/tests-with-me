@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.db.dao.ProjectEntryDao
-import com.github.aivanovski.testswithme.android.domain.usecases.IsUserLoggedInUseCase
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
@@ -14,7 +13,7 @@ import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 class ProjectRepository(
     private val api: ApiClient,
     private val projectDao: ProjectEntryDao,
-    private val isUserLoggedInUseCase: IsUserLoggedInUseCase
+    private val authRepository: AuthRepository
 ) {
 
     suspend fun uploadProject(
@@ -26,7 +25,7 @@ class ProjectRepository(
 
     suspend fun getProjects(): Either<AppException, List<ProjectEntry>> =
         either {
-            if (!isUserLoggedInUseCase.isLoggedIn()) {
+            if (!authRepository.isUserLoggedIn()) {
                 return@either projectDao.getAll()
             }
 
