@@ -2,7 +2,9 @@ package com.github.aivanovski.testswithme.android.presentation.screens.testRun.m
 
 sealed interface TestRunIntent {
 
-    object Initialize : TestRunIntent
+    data object Initialize : TestRunIntent
 
-    object OnFabClick : TestRunIntent
+    data object OnFabClick : TestRunIntent
+
+    data object ReloadData : TestRunIntent
 }

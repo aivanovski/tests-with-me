@@ -61,24 +61,26 @@ private fun TestRunScreen(
             }
         )
 
-        Box(
-            contentAlignment = Alignment.BottomEnd,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            FloatingActionButton(
-                onClick = onFabClick,
+        if (state.isAddButtonVisible) {
+            Box(
+                contentAlignment = Alignment.BottomEnd,
                 modifier = Modifier
-                    .padding(
-                        end = ElementMargin,
-                        bottom = ElementMargin
-                    )
+                    .fillMaxSize()
             ) {
-                Icon(
-                    imageVector = AppIcons.Upload,
-                    tint = AppTheme.theme.colors.primaryText,
-                    contentDescription = null
-                )
+                FloatingActionButton(
+                    onClick = onFabClick,
+                    modifier = Modifier
+                        .padding(
+                            end = ElementMargin,
+                            bottom = ElementMargin
+                        )
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Upload,
+                        tint = AppTheme.theme.colors.primaryText,
+                        contentDescription = null
+                    )
+                }
             }
         }
     }

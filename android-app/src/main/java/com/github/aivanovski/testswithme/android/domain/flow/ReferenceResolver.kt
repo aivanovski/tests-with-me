@@ -76,8 +76,10 @@ class ReferenceResolver(
             } else {
                 tree.nodes
             }
+
             for (name in groupNames) {
                 var isFound = false
+
                 for (node in currentNodes) {
                     val group = node.entity as GroupEntry
                     if (group.name == name) {

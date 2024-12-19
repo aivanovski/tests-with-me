@@ -19,12 +19,14 @@ import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.utils.StringUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -41,7 +43,7 @@ class TestRunViewModel(
     val state = MutableStateFlow(newInitialState())
     private val intents = Channel<TestRunIntent>()
     private var isSubscribed = false
-    private var data: TestRunScreenData? = null
+    private val data = MutableStateFlow<TestRunScreenData?>(null)
 
     override fun start() {
         super.start()
@@ -55,17 +57,23 @@ class TestRunViewModel(
                 intents.receiveAsFlow()
                     .onStart { emit(TestRunIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent, state.value) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
+                    }
+            }
+
+            viewModelScope.launch {
+                interactor.isLoggedInFlow()
+                    .collect {
+                        intents.trySend(TestRunIntent.ReloadData)
                     }
             }
         }
     }
 
     fun sendIntent(intent: TestRunIntent) {
-        viewModelScope.launch {
-            intents.send(intent)
-        }
+        intents.trySend(intent)
     }
 
     private fun handleIntent(
@@ -74,6 +82,7 @@ class TestRunViewModel(
     ): Flow<TestRunState> {
         return when (intent) {
             TestRunIntent.Initialize -> loadData()
+            TestRunIntent.ReloadData -> loadData()
             TestRunIntent.OnFabClick -> {
                 navigateToUploadTestScreen()
                 emptyFlow()
@@ -95,19 +104,24 @@ class TestRunViewModel(
                 return@flow
             }
 
-            data = loadDataResult.unwrap()
+            data.value = loadDataResult.unwrap()
             val data = loadDataResult.unwrap()
             val viewModels = cellFactory.createCellViewModels(
                 data = data,
                 intentProvider = intentProvider
             )
 
-            emit(TestRunState(viewModels = viewModels))
+            emit(
+                TestRunState(
+                    viewModels = viewModels,
+                    isAddButtonVisible = interactor.isLoggedIn()
+                )
+            )
         }
     }
 
     private fun navigateToUploadTestScreen() {
-        val data = this.data ?: return
+        val data = this.data.value ?: return
 
         router.navigateTo(
             Screen.UploadTest(
@@ -121,7 +135,8 @@ class TestRunViewModel(
     private fun newInitialState(): TestRunState {
         return TestRunState(
             screenState = ScreenState.Loading,
-            viewModels = emptyList()
+            viewModels = emptyList(),
+            isAddButtonVisible = interactor.isLoggedIn()
         )
     }
 
