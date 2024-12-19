@@ -27,11 +27,13 @@ import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.m
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.model.TestRunsState
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -47,7 +49,7 @@ class TestRunsViewModel(
     val state = MutableStateFlow(TestRunsState())
     private val intents = Channel<TestRunsIntent>()
     private var isSubscribed = false
-    private var data: TestRunsData? = null
+    private val data = MutableStateFlow<TestRunsData?>(null)
 
     override fun start() {
         super.start()
@@ -63,10 +65,20 @@ class TestRunsViewModel(
                 intents.receiveAsFlow()
                     .onStart { emit(TestRunsIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent, state.value) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
                     }
             }
+
+            viewModelScope.launch {
+                interactor.isLoggedInFlow()
+                    .collect {
+                        intents.trySend(TestRunsIntent.ReloadData)
+                    }
+            }
+        } else {
+            sendIntent(TestRunsIntent.ReloadData)
         }
     }
 
@@ -76,17 +88,22 @@ class TestRunsViewModel(
         }
     }
 
+    fun sendIntent(intent: TestRunsIntent) {
+        intents.trySend(intent)
+    }
+
     private fun handleIntent(
         intent: TestRunsIntent,
         state: TestRunsState
     ): Flow<TestRunsState> {
         return when (intent) {
             TestRunsIntent.Initialize -> loadData()
+            TestRunsIntent.ReloadData -> loadData()
         }
     }
 
     private fun navigateToTestRunScreen(jobUid: String) {
-        val data = data ?: return
+        val data = data.value ?: return
 
         val job = data.jobHistory
             .firstOrNull { job -> job.uid == jobUid }
@@ -96,28 +113,25 @@ class TestRunsViewModel(
             .firstOrNull { flow -> flow.entry.uid == job.flowUid }
             ?: return
 
-        when (flow.entry.sourceType) {
-            SourceType.LOCAL -> {
-                router.navigateTo(
-                    Screen.TestRun(
-                        TestRunScreenArgs(
-                            jobUid = jobUid,
-                            screenTitle = flow.entry.name
-                        )
+        val sourceType = flow.entry.sourceType
+        if (sourceType == SourceType.REMOTE && interactor.isLoggedIn()) {
+            router.navigateTo(
+                Screen.Flow(
+                    FlowScreenArgs(
+                        mode = FlowScreenMode.Flow(flow.entry.uid),
+                        screenTitle = flow.entry.name
                     )
                 )
-            }
-
-            SourceType.REMOTE -> {
-                router.navigateTo(
-                    Screen.Flow(
-                        FlowScreenArgs(
-                            mode = FlowScreenMode.Flow(flow.entry.uid),
-                            screenTitle = flow.entry.name
-                        )
+            )
+        } else {
+            router.navigateTo(
+                Screen.TestRun(
+                    TestRunScreenArgs(
+                        jobUid = jobUid,
+                        screenTitle = flow.entry.name
                     )
                 )
-            }
+            )
         }
     }
 
@@ -135,10 +149,8 @@ class TestRunsViewModel(
                 return@flow
             }
 
+            data.value = loadDataResult.unwrap()
             val data = loadDataResult.unwrap()
-                .apply {
-                    data = this
-                }
 
             if (data.localRuns.isNotEmpty()) {
                 val viewModels = cellFactory.createCellViewModels(

@@ -11,6 +11,9 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
+import com.github.aivanovski.testswithme.android.presentation.screens.Screen
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
@@ -21,7 +24,9 @@ import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest
 import com.github.aivanovski.testswithme.android.utils.formatErrorMessage
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
+import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +34,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -44,7 +50,8 @@ class UploadTestViewModel(
     val state = MutableStateFlow(newInitialState())
     private val intents = Channel<UploadTestIntent>()
     private var isInitialized = false
-    private var data: UploadTestScreenData? = null
+    private val data = MutableStateFlow<UploadTestScreenData?>(null)
+    private val newFlowUid = MutableStateFlow<String?>(null)
 
     override fun start() {
         super.start()
@@ -58,6 +65,7 @@ class UploadTestViewModel(
                 intents.receiveAsFlow()
                     .onStart { emit(UploadTestIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent, state.value) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
                     }
@@ -80,26 +88,41 @@ class UploadTestViewModel(
             UploadTestIntent.OnUploadButtonClick -> uploadTest(state)
             is UploadTestIntent.OnProjectSelected -> onProjectSelected(intent, state)
             is UploadTestIntent.OnGroupSelected -> onGroupSelected(intent, state)
-            is UploadTestIntent.OnDialogActionClick -> {
-                onDialogClick(intent)
-                emptyFlow()
-            }
+            is UploadTestIntent.OnDialogActionClick -> onDialogClick(intent)
         }
     }
 
-    private fun onDialogClick(intent: UploadTestIntent.OnDialogActionClick) {
+    private fun onDialogClick(intent: UploadTestIntent.OnDialogActionClick): Flow<UploadTestState> {
+        val newFlowUid = newFlowUid.value ?: return emptyFlow()
+
         when (intent.actionId) {
             ACTION_OK -> {
-                router.exit()
+                viewModelScope.launch {
+                    router.exit()
+                    router.exit()
+
+                    router.navigateTo(
+                        Screen.Flow(
+                            args = FlowScreenArgs(
+                                mode = FlowScreenMode.Flow(
+                                    flowUid = newFlowUid
+                                ),
+                                screenTitle = StringUtils.EMPTY
+                            )
+                        )
+                    )
+                }
             }
         }
+
+        return emptyFlow()
     }
 
     private fun onProjectSelected(
         intent: UploadTestIntent.OnProjectSelected,
         state: UploadTestState
     ): Flow<UploadTestState> {
-        val data = this.data ?: return emptyFlow()
+        val data = this.data.value ?: return emptyFlow()
 
         val projects = data.projects.formatProjects()
         val selectedProject = data.projects.findProjectByName(intent.projectName)
@@ -123,7 +146,7 @@ class UploadTestViewModel(
         intent: UploadTestIntent.OnGroupSelected,
         state: UploadTestState
     ): Flow<UploadTestState> {
-        val data = this.data ?: return emptyFlow()
+        val data = this.data.value ?: return emptyFlow()
 
         val groups = data.groups.formatGroups()
         val selectedGroup = data.groups.findGroupByName(intent.groupName)
@@ -138,7 +161,7 @@ class UploadTestViewModel(
     }
 
     private fun uploadTest(initialState: UploadTestState): Flow<UploadTestState> {
-        val data = this.data ?: return emptyFlow()
+        val data = this.data.value ?: return emptyFlow()
         val project = getSelectedProject() ?: return emptyFlow()
 
         val group = getSelectedGroup()
@@ -165,6 +188,7 @@ class UploadTestViewModel(
                 emit(initialState.copy(terminalState = terminalState))
                 return@flow
             }
+            newFlowUid.value = uploadResult.unwrap()
 
             val dialogState = createUploadSuccessDialog()
             emit(initialState.copy(dialogState = dialogState))
@@ -185,7 +209,7 @@ class UploadTestViewModel(
                 return@flow
             }
 
-            data = loadDataResult.unwrap()
+            data.value = loadDataResult.unwrap()
             val data = loadDataResult.unwrap()
 
             if (data.projects.isEmpty()) {
@@ -217,14 +241,10 @@ class UploadTestViewModel(
 
     private fun List<GroupEntry>.formatGroups(): List<String> {
         return this.map { group -> group.name }
-            .toMutableList()
-            .apply {
-                add(0, resourceProvider.getString(R.string.root))
-            }
     }
 
     private fun getSelectedProject(): ProjectEntry? {
-        val data = this.data ?: return null
+        val data = this.data.value ?: return null
 
         val name = state.value.selectedProject
 
@@ -232,7 +252,7 @@ class UploadTestViewModel(
     }
 
     private fun getSelectedGroup(): GroupEntry? {
-        val data = this.data ?: return null
+        val data = this.data.value ?: return null
 
         val name = state.value.selectedGroup
 

@@ -35,6 +35,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.utils.formatErrorMessage
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +43,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -58,8 +60,8 @@ class ProjectDashboardViewModel(
     val state = MutableStateFlow(ProjectDashboardState())
     private val intents = Channel<ProjectDashboardIntent>()
     private var isSubscribed = false
-    private var data: ProjectDashboardData? = null
-    private var selectedVersionName: String? = null
+    private val data = MutableStateFlow<ProjectDashboardData?>(null)
+    private val selectedVersionName = MutableStateFlow<String?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
@@ -75,6 +77,7 @@ class ProjectDashboardViewModel(
                 intents.receiveAsFlow()
                     .onStart { emit(ProjectDashboardIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
                     }
@@ -133,15 +136,15 @@ class ProjectDashboardViewModel(
                 return@flow
             }
 
-            data = loadDataResult.unwrap()
+            data.value = loadDataResult.unwrap()
             val data = loadDataResult.unwrap()
 
-            selectedVersionName = versionName ?: data.versions.firstOrNull()?.name
+            selectedVersionName.value = versionName ?: data.versions.firstOrNull()?.name
 
             if (data.allGroups.isNotEmpty() || data.allFlows.isNotEmpty()) {
                 val viewModels = cellFactory.createCellViewModels(
                     data = data,
-                    selectedVersion = selectedVersionName,
+                    selectedVersion = selectedVersionName.value,
                     intentProvider = intentProvider
                 )
                 emit(ProjectDashboardState(viewModels = viewModels))
@@ -163,10 +166,10 @@ class ProjectDashboardViewModel(
     }
 
     private fun onVersionsCellClicked(versionIndex: Int) {
-        val data = this.data ?: return
+        val data = this.data.value ?: return
         val newVersion = data.versions.getOrNull(versionIndex) ?: return
 
-        if (newVersion.name != selectedVersionName) {
+        if (newVersion.name != selectedVersionName.value) {
             sendIntent(ProjectDashboardIntent.OnVersionClick(newVersion.name))
         }
     }
@@ -176,7 +179,7 @@ class ProjectDashboardViewModel(
             Screen.Groups(
                 GroupsScreenArgs(
                     projectUid = args.projectUid,
-                    groupUid = data?.rootGroup?.uid
+                    groupUid = data.value?.rootGroup?.uid
                 )
             )
         )
@@ -267,15 +270,16 @@ class ProjectDashboardViewModel(
     }
 
     private fun findGroupByUid(groupUid: String): GroupEntry? {
-        return data?.allGroups?.firstOrNull { group -> group.uid == groupUid }
+        return data.value?.allGroups?.firstOrNull { group -> group.uid == groupUid }
     }
 
     private fun findFlowByUid(flowUid: String): FlowEntry? {
-        return data?.allFlows?.firstOrNull { flow -> flow.uid == flowUid }
+        return data.value?.allFlows?.firstOrNull { flow -> flow.uid == flowUid }
     }
 
     private fun getSelectedVersion(): AppVersion? {
-        return data?.versions?.firstOrNull { version -> version.name == selectedVersionName }
+        return data.value?.versions
+            ?.firstOrNull { version -> version.name == selectedVersionName.value }
     }
 
     private fun createTopBarState(): TopBarState {
