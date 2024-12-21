@@ -14,7 +14,9 @@
 (def args *command-line-args*)
 
 (case (first args)
-  "login" (api/login-request "admin" "abc123")
+  "login" (let [response (api/login-request "admin" "abc123")
+                has-body (not (empty? (:body response)))]
+            (if has-body (api/save-token (api/parse-token response)) ))
   "sign-up" (api/sign-up-request
               "admin1"
               "abc123"
