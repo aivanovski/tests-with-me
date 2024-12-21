@@ -44,13 +44,6 @@
 
 (comment
 
-  (def val "A")
-
-  (case val
-    "A" (do
-          (println "is A")
-          (println "still A")))
-
   (api/get-flow-run-by-uid-request "b8396d57-f09c-4b61-92a7-967be6edcdd8:4fd72d3f-999c-4603-b133-2933a6d78ff0:866f7283-cdcd-4669-a7f6-2c6d1b581489")
 
   )
