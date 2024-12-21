@@ -6,8 +6,8 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -51,7 +51,7 @@ class GroupsViewModel(
     private val args: GroupsScreenArgs
 ) : BaseViewModel() {
 
-    val state = MutableStateFlow(GroupsState(screenState = ScreenState.Loading))
+    val state = MutableStateFlow(GroupsState(terminalState = TerminalState.Loading))
     private val intents = Channel<GroupsIntent>()
 
     private var isSubscribed = false
@@ -187,7 +187,7 @@ class GroupsViewModel(
 
     private fun loadData(): Flow<GroupsState> {
         return flow {
-            emit(GroupsState(screenState = ScreenState.Loading))
+            emit(GroupsState(terminalState = TerminalState.Loading))
 
             val loadDataResult = interactor.loadData(
                 projectUid = args.projectUid,
@@ -196,9 +196,9 @@ class GroupsViewModel(
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult
                     .formatError(resourceProvider)
-                    .toTerminalState()
+                    .toScreenState()
 
-                emit(GroupsState(screenState = terminalState))
+                emit(GroupsState(terminalState = terminalState))
                 return@flow
             }
 
@@ -215,10 +215,10 @@ class GroupsViewModel(
                 val viewModels = cellFactory.createCellViewModels(data, intentProvider)
                 emit(GroupsState(viewModels = viewModels))
             } else {
-                val emptyState = ScreenState.Empty(
+                val emptyState = TerminalState.Empty(
                     message = resourceProvider.getString(R.string.this_group_is_empty)
                 )
-                emit(GroupsState(screenState = emptyState))
+                emit(GroupsState(terminalState = emptyState))
             }
         }
     }

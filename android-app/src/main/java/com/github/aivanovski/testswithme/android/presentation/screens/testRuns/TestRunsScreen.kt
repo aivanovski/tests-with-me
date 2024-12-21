@@ -10,7 +10,7 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.entity.ErrorMessage
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconThreeTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newIconThreeCellViewModel
@@ -88,7 +88,7 @@ fun TestRunsScreenEmptyPreview() {
 
 private fun newDataState(): TestRunsState =
     TestRunsState(
-        screenState = null,
+        terminalState = null,
         viewModels = listOf(
             newSpaceCell(ElementMargin),
             newIconThreeCellViewModel(),
@@ -100,7 +100,7 @@ private fun newDataState(): TestRunsState =
 @Composable
 private fun newErrorState(): TestRunsState =
     TestRunsState(
-        screenState = ScreenState.Error(
+        terminalState = TerminalState.Error(
             message = ErrorMessage(
                 stringResource(R.string.error_has_been_occurred),
                 Exception()
@@ -110,13 +110,13 @@ private fun newErrorState(): TestRunsState =
 
 private fun newLoadingState(): TestRunsState =
     TestRunsState(
-        screenState = ScreenState.Loading
+        terminalState = TerminalState.Loading
     )
 
 @Composable
 private fun newEmptyState(): TestRunsState =
     TestRunsState(
-        screenState = ScreenState.Empty(
+        terminalState = TerminalState.Empty(
             message = stringResource(R.string.no_tests)
         )
     )

@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.web.di
 
+import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.data.database.AppDatabase
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowDao
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowRunDao
@@ -17,7 +18,6 @@ import com.github.aivanovski.testswithme.web.data.repository.UserRepository
 import com.github.aivanovski.testswithme.web.domain.PathResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
-import com.github.aivanovski.testswithme.web.domain.usecases.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController

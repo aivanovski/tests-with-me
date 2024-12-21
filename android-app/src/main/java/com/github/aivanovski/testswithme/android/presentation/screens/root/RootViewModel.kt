@@ -13,7 +13,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.bottomShee
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.model.BottomSheetIcon
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.model.BottomSheetItem
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
-import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenMode
+import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenType
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarItem
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuItem
@@ -175,7 +175,7 @@ class RootViewModel(
                 router.navigateTo(
                     Screen.Login(
                         args = LoginScreenArgs(
-                            mode = LoginScreenMode.LOG_IN
+                            type = LoginScreenType.LOG_IN
                         )
                     )
                 )

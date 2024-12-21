@@ -5,12 +5,16 @@ import com.arkivanov.decompose.router.stack.items
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.replaceAll
+import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenu
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenuFragment
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreenComponent
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class RouterImpl(
@@ -20,47 +24,62 @@ class RouterImpl(
 ) : Router {
 
     private val resultListeners: MutableMap<String, ResultListener> = ConcurrentHashMap()
+    private val scope = CoroutineScope(Dispatchers.Main)
 
     override fun setRoot(screen: Screen) {
-        rootComponent.navigation.replaceAll(screen)
-        resultListeners.clear()
+        scope.launch {
+            rootComponent.navigation.replaceAll(screen)
+            resultListeners.clear()
+        }
     }
 
     override fun navigateTo(screen: Screen) {
-        rootComponent.navigation.push(screen)
+        scope.launch {
+            rootComponent.navigation.push(screen)
+        }
+    }
+
+    override fun replaceCurrent(screen: Screen) {
+        scope.launch {
+            rootComponent.navigation.replaceCurrent(screen)
+        }
     }
 
     override fun showBottomSheet(
         args: BottomSheetMenu,
         onClick: (itemIndex: Int) -> Unit
     ) {
-        val dialog = BottomSheetMenuFragment.newInstance(
-            menu = args,
-            onClick = onClick
-        )
-        dialog.show(fragmentManager, BottomSheetMenuFragment.TAG)
+        scope.launch {
+            val dialog = BottomSheetMenuFragment.newInstance(
+                menu = args,
+                onClick = onClick
+            )
+            dialog.show(fragmentManager, BottomSheetMenuFragment.TAG)
+        }
     }
 
     override fun exit() {
-        val key = rootComponent.childStack.items.lastOrNull()
-            ?.configuration
-            ?.let { screen ->
-                screen::class
-            }
-            ?.key()
+        scope.launch {
+            val key = rootComponent.childStack.items.lastOrNull()
+                ?.configuration
+                ?.let { screen ->
+                    screen::class
+                }
+                ?.key()
 
-        Timber.d(
-            "exit: screenKey=%s, hasListener=%s, listeners.size=%s",
-            key,
-            resultListeners.containsKey(key),
-            resultListeners.size
-        )
+            Timber.d(
+                "exit: screenKey=%s, hasListener=%s, listeners.size=%s",
+                key,
+                resultListeners.containsKey(key),
+                resultListeners.size
+            )
 
-        resultListeners.remove(key)
+            resultListeners.remove(key)
 
-        rootComponent.navigation.pop { isSuccess ->
-            if (!isSuccess) {
-                onExitNavigation.invoke()
+            rootComponent.navigation.pop { isSuccess ->
+                if (!isSuccess) {
+                    onExitNavigation.invoke()
+                }
             }
         }
     }

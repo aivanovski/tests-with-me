@@ -13,8 +13,11 @@ open class NetworkException(
 ) : ApiException(cause = cause)
 
 class InvalidHttpStatusCodeException(
-    status: HttpStatusCode
-) : ApiException(message = "Invalid HTTP status code: %s".format(status))
+    status: HttpStatusCode,
+    message: String = "Invalid HTTP status code: %s".format(status)
+) : ApiException(
+    message = message
+)
 
 class NoAccountDataException : ApiException(
     message = "No account data found"

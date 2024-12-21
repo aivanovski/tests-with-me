@@ -16,7 +16,7 @@ import com.github.aivanovski.testswithme.web.extensions.toErrorResponse
 import io.ktor.server.auth.jwt.JWTPrincipal
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import org.slf4j.LoggerFactory
 
 class AuthService(
@@ -98,7 +98,6 @@ class AuthService(
         private val logger = LoggerFactory.getLogger(AuthService::class.java)
         private const val USERNAME = "username"
 
-        // TODO: expiration is prolonged for developing needs
-        val TOKEN_VALIDITY_PERIOD = 30.days.inWholeMilliseconds
+        val TOKEN_VALIDITY_PERIOD = 1.hours.inWholeMilliseconds
     }
 }

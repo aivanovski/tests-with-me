@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
 import com.github.aivanovski.testswithme.android.entity.Account
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.api.request.LoginRequest
+import com.github.aivanovski.testswithme.web.api.request.SignUpRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -35,6 +36,25 @@ class AuthRepository(
                 request = LoginRequest(
                     username = username,
                     password = password
+                )
+            ).bind()
+
+            settings.authToken = response.token
+            settings.account = Account(username, password)
+            isLoggedIn.value = true
+        }
+
+    suspend fun createAccount(
+        username: String,
+        password: String,
+        email: String
+    ): Either<AppException, Unit> =
+        either {
+            val response = api.signUp(
+                request = SignUpRequest(
+                    username = username,
+                    password = password,
+                    email = email
                 )
             ).bind()
 

@@ -3,8 +3,8 @@ package com.github.aivanovski.testswithme.android.presentation.screens.testRun
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
@@ -92,15 +92,15 @@ class TestRunViewModel(
 
     private fun loadData(): Flow<TestRunState> {
         return flow {
-            emit(TestRunState(screenState = ScreenState.Loading))
+            emit(TestRunState(terminalState = TerminalState.Loading))
 
             val loadDataResult = interactor.loadData(args.jobUid)
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult
                     .formatError(resourceProvider)
-                    .toTerminalState()
+                    .toScreenState()
 
-                emit(TestRunState(screenState = terminalState))
+                emit(TestRunState(terminalState = terminalState))
                 return@flow
             }
 
@@ -134,7 +134,7 @@ class TestRunViewModel(
 
     private fun newInitialState(): TestRunState {
         return TestRunState(
-            screenState = ScreenState.Loading,
+            terminalState = TerminalState.Loading,
             viewModels = emptyList(),
             isAddButtonVisible = interactor.isLoggedIn()
         )

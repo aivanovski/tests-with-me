@@ -56,6 +56,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.groups.cel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.model.GroupsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.cells.ProjectDashboardCellFactory
@@ -82,6 +83,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -125,6 +127,7 @@ object AndroidAppModule {
         singleOf(::ParseFlowFileUseCase)
         singleOf(::GetCurrentJobUseCase)
         singleOf(::GetExternalApplicationDataUseCase)
+        singleOf(::ValidateEmailUseCase)
 
         // Interactors
         singleOf(::RootInteractor)
@@ -170,8 +173,14 @@ object AndroidAppModule {
                 args
             )
         }
-        factory { (vm: RootViewModel, router: Router) ->
-            LoginViewModel(get(), get(), vm, router)
+        factory { (vm: RootViewModel, router: Router, args: LoginScreenArgs) ->
+            LoginViewModel(
+                get(),
+                get(),
+                vm,
+                router,
+                args
+            )
         }
         factory { (vm: RootViewModel, router: Router, args: GroupsScreenArgs) ->
             GroupsViewModel(

@@ -13,7 +13,7 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newDividerCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderWithDescriptionCell
@@ -86,7 +86,7 @@ fun SettingsScreenDataPreview() {
     ) {
         SettingsScreen(
             state = SettingsState(
-                screenState = null,
+                terminalState = null,
                 viewModels = listOf(
                     newSwitchCell(
                         title = stringResource(R.string.validate_ssl_certificates),
@@ -126,7 +126,7 @@ fun SettingsScreenLoadingPreview() {
     ) {
         SettingsScreen(
             state = SettingsState(
-                screenState = ScreenState.Loading
+                terminalState = TerminalState.Loading
             ),
             onIntent = {}
         )

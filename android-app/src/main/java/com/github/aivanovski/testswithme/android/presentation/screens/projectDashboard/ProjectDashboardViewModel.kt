@@ -11,8 +11,8 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
@@ -121,7 +121,7 @@ class ProjectDashboardViewModel(
 
     private fun loadData(versionName: String? = null): Flow<ProjectDashboardState> {
         return flow {
-            emit(ProjectDashboardState(screenState = ScreenState.Loading))
+            emit(ProjectDashboardState(terminalState = TerminalState.Loading))
 
             val loadDataResult = interactor.loadData(
                 projectUid = args.projectUid,
@@ -130,9 +130,9 @@ class ProjectDashboardViewModel(
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toTerminalState()
+                    .toScreenState()
 
-                emit(ProjectDashboardState(screenState = terminalState))
+                emit(ProjectDashboardState(terminalState = terminalState))
                 return@flow
             }
 
@@ -149,10 +149,10 @@ class ProjectDashboardViewModel(
                 )
                 emit(ProjectDashboardState(viewModels = viewModels))
             } else {
-                val empty = ScreenState.Empty(
+                val empty = TerminalState.Empty(
                     message = resourceProvider.getString(R.string.no_tests_in_project_message)
                 )
-                emit(ProjectDashboardState(screenState = empty))
+                emit(ProjectDashboardState(terminalState = empty))
             }
         }
     }

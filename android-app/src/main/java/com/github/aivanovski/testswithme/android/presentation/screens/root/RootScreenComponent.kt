@@ -75,7 +75,8 @@ class RootScreenComponent(
                 LoginScreenComponent(
                     context = childContext,
                     rootViewModel = viewModel,
-                    router = router
+                    router = router,
+                    args = screen.args
                 )
             }
 

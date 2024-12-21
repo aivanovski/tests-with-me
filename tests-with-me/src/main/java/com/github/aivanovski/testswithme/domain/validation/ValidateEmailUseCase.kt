@@ -1,8 +1,8 @@
-package com.github.aivanovski.testswithme.web.domain.usecases
+package com.github.aivanovski.testswithme.domain.validation
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testswithme.web.entity.exception.ValidationException
+import com.github.aivanovski.testswithme.entity.exception.ValidationException
 import java.util.regex.Pattern
 
 class ValidateEmailUseCase {
@@ -10,7 +10,7 @@ class ValidateEmailUseCase {
     fun validateEmail(email: String): Either<ValidationException, Unit> =
         either {
             if (!EMAIL_PATTERN.matcher(email).matches()) {
-                raise(ValidationException("Failed to validate email: $email"))
+                raise(ValidationException("Invalid email address"))
             }
         }
 

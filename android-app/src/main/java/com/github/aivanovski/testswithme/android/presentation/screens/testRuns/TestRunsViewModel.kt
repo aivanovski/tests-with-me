@@ -7,8 +7,8 @@ import com.github.aivanovski.testswithme.android.entity.SourceType
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
@@ -137,15 +137,15 @@ class TestRunsViewModel(
 
     private fun loadData(): Flow<TestRunsState> {
         return flow {
-            emit(TestRunsState(screenState = ScreenState.Loading))
+            emit(TestRunsState(terminalState = TerminalState.Loading))
 
             val loadDataResult = interactor.loadData()
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult
                     .formatError(resourceProvider)
-                    .toTerminalState()
+                    .toScreenState()
 
-                emit(TestRunsState(screenState = terminalState))
+                emit(TestRunsState(terminalState = terminalState))
                 return@flow
             }
 
@@ -160,7 +160,7 @@ class TestRunsViewModel(
                 emit(TestRunsState(viewModels = viewModels))
             } else {
                 val message = resourceProvider.getString(R.string.no_tests)
-                emit(TestRunsState(screenState = ScreenState.Empty(message)))
+                emit(TestRunsState(terminalState = TerminalState.Empty(message)))
             }
         }
     }

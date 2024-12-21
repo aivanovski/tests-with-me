@@ -79,7 +79,7 @@ private fun FlowScreen(
             }
         )
 
-        if (state.screenState == null) {
+        if (state.terminalState == null) {
             if (state.errorDialogMessage != null) {
                 ErrorDialog(
                     message = state.errorDialogMessage,

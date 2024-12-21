@@ -2,11 +2,11 @@ package com.github.aivanovski.testswithme.web.presentation.controller
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.api.request.SignUpRequest
 import com.github.aivanovski.testswithme.web.api.response.SignUpResponse
 import com.github.aivanovski.testswithme.web.data.repository.UserRepository
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
-import com.github.aivanovski.testswithme.web.domain.usecases.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.entity.Credentials
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
@@ -76,7 +76,9 @@ class SignUpController(
                 raise(EntityAlreadyExistsException(email))
             }
 
-            validateEmailUseCase.validateEmail(email).bind()
+            validateEmailUseCase.validateEmail(email)
+                .mapLeft { exception -> AppException(cause = exception) }
+                .bind()
         }
 
     companion object {
