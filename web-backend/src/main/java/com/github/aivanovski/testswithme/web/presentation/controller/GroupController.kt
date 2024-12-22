@@ -6,12 +6,14 @@ import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.GroupItemDto
 import com.github.aivanovski.testswithme.web.api.request.PostGroupRequest
 import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
+import com.github.aivanovski.testswithme.web.api.response.DeleteGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.GroupsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
+import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
-import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
-import com.github.aivanovski.testswithme.web.domain.PathResolver
+import com.github.aivanovski.testswithme.web.domain.AccessResolver
+import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
@@ -20,13 +22,13 @@ import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.BadRequestException
 import com.github.aivanovski.testswithme.web.entity.exception.EmptyRequestFieldException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExistsException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
 
 class GroupController(
     private val groupRepository: GroupRepository,
-    private val projectRepository: ProjectRepository,
-    private val pathResolver: PathResolver
+    private val flowRepository: FlowRepository,
+    private val referenceResolver: ReferenceResolver,
+    private val accessResolver: AccessResolver
 ) {
 
     fun updateGroup(
@@ -36,23 +38,17 @@ class GroupController(
     ): Either<AppException, UpdateGroupResponse> =
         either {
             val groupUid = Uid.parse(uid).bind()
-            val group = groupRepository.findByUid(groupUid).bind()
-                ?: raise(EntityNotFoundByUidException(Group::class, groupUid))
-
-            val project = projectRepository.findByUid(group.projectUid).bind()
-                ?: raise(EntityNotFoundByUidException(Project::class, group.projectUid))
-
-            if (project.userUid != user.uid) {
-                raise(InvalidAccessException("Unable to access the group: uid=${group.uid}"))
-            }
 
             if (request.parent == null && request.name.isNullOrBlank()) {
                 raise(BadRequestException("Request is empty"))
             }
 
+            accessResolver.canModifyGroup(user, groupUid).bind()
+
+            val group = groupRepository.getByUid(groupUid).bind()
             val parentReference = request.parent
             val (projectUid, parentUid) = if (parentReference != null) {
-                val (newProject, newParentGroup) = pathResolver.parseProjectAndGroup(
+                val (newProject, newParentGroup) = referenceResolver.parseProjectAndGroup(
                     reference = parentReference,
                     user = user
                 ).bind()
@@ -86,7 +82,7 @@ class GroupController(
         request: PostGroupRequest
     ): Either<AppException, PostGroupResponse> =
         either {
-            val (project, parent) = pathResolver.resolveProjectAndGroup(
+            val (project, parent) = referenceResolver.resolveProjectAndGroup(
                 path = request.path,
                 projectUid = request.projectId,
                 groupUid = request.parentGroupId,
@@ -103,7 +99,8 @@ class GroupController(
                 uid = Uid.generate(),
                 parentUid = parent.uid,
                 projectUid = project.uid,
-                name = request.name
+                name = request.name,
+                isDeleted = false
             )
 
             groupRepository.add(group).bind()
@@ -117,8 +114,52 @@ class GroupController(
         either {
             val groups = groupRepository.getByUserUid(user.uid).bind()
             val items = groups.map { group -> group.toDto() }
-
             GroupsResponse(groups = items)
+        }
+
+    fun deleteGroup(
+        user: User,
+        uid: String
+    ): Either<AppException, DeleteGroupResponse> =
+        either {
+            val groupUid = Uid.parse(uid).bind()
+
+            accessResolver.canModifyGroup(user, groupUid).bind()
+
+            val groupToDelete = groupRepository.getByUid(groupUid).bind()
+            if (groupToDelete.parentUid == null) {
+                raise(InvalidAccessException("Unable to delete root group"))
+            }
+
+            val childGroups = groupRepository.getChildGroups(groupToDelete.uid).bind()
+            val groupsToDelete = (childGroups + groupToDelete)
+            val groupUidsToDelete = groupsToDelete.map { group -> group.uid }
+                .toSet()
+
+            val projectFlows = flowRepository.getFlowsByProjectUid(groupToDelete.projectUid).bind()
+            val flowsToDelete = projectFlows.filter { flow -> flow.groupUid in groupUidsToDelete }
+
+            for (flow in flowsToDelete) {
+                flowRepository.update(
+                    flow.copy(
+                        isDeleted = true
+                    )
+                )
+            }
+
+            for (group in groupsToDelete) {
+                groupRepository.update(
+                    group.copy(
+                        isDeleted = true
+                    )
+                )
+            }
+
+            DeleteGroupResponse(
+                isSuccess = true,
+                modifiedGroupIds = groupsToDelete.map { group -> group.uid.toString() },
+                modifiedFlowIds = flowsToDelete.map { flow -> flow.uid.toString() }
+            )
         }
 
     private fun validateGroupName(

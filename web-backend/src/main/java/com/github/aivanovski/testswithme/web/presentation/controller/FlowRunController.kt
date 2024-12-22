@@ -18,7 +18,6 @@ import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
-import com.github.aivanovski.testswithme.web.entity.exception.FlowNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidRequestFieldException
@@ -94,8 +93,7 @@ class FlowRunController(
             val flowUid = Uid.parse(request.flowId).getOrNull()
                 ?: raise(InvalidRequestFieldException(FIELD_FLOW_ID))
 
-            val flow = flowRepository.findByFlowUid(flowUid).bind()
-                ?: raise(FlowNotFoundByUidException(flowUid.toString()))
+            val flow = flowRepository.getByUid(flowUid).bind()
 
             val report = Base64Utils.decode(request.reportBase64Content).getOrNull()
                 ?: raise(InvalidBase64String())

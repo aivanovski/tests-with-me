@@ -12,6 +12,7 @@ import com.github.aivanovski.testswithme.web.entity.FsPath
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
+import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
@@ -25,8 +26,7 @@ class FlowRepository(
 
     fun getFlowContent(uid: Uid): Either<AppException, String> =
         either {
-            val flow = flowDao.findByUid(uid)
-                ?: raise(EntityNotFoundByUidException(Flow::class, uid))
+            val flow = getByUid(uid).bind()
 
             fileStorage.getContent(
                 destination = StorageDestination.FLOWS,
@@ -34,9 +34,28 @@ class FlowRepository(
             ).bind()
         }
 
-    fun findByFlowUid(uid: Uid): Either<AppException, Flow?> =
+    fun findByUid(uid: Uid): Either<AppException, Flow?> =
         either {
-            flowDao.findByUid(uid)
+            val flow = flowDao.findByUid(uid)
+
+            if (flow?.isDeleted == true) {
+                raise(DeletedEntityAccessException(Flow::class))
+            }
+
+            flow
+        }
+
+    fun getByUid(uid: Uid): Either<AppException, Flow> =
+        either {
+            findByUid(uid).bind()
+                ?: raise(EntityNotFoundByUidException(Flow::class, uid))
+        }
+
+    fun getFlowsByProjectUid(projectUid: Uid): Either<AppException, List<Flow>> =
+        either {
+            flowDao.getAll()
+                .filterNotDeleted()
+                .filter { flow -> flow.projectUid == projectUid }
         }
 
     fun getFlowsByUserUid(userUid: Uid): Either<AppException, List<Flow>> =
@@ -46,6 +65,7 @@ class FlowRepository(
                 .toSet()
 
             val flows = flowDao.getAll()
+                .filterNotDeleted()
                 .filter { flow -> flow.projectUid in projectUids }
 
             flows
@@ -65,6 +85,7 @@ class FlowRepository(
             }
 
             val flows = flowDao.getAll()
+                .filterNotDeleted()
                 .filter { flow -> flow.projectUid == projectUid }
                 .filter { flow -> flow.groupUid == groupUid }
 
@@ -94,8 +115,8 @@ class FlowRepository(
     fun add(flow: Flow): Either<AppException, Flow> =
         either {
             flowDao.add(flow)
-            flowDao.findByUid(flow.uid)
-                ?: raise(EntityNotFoundByUidException(Flow::class, flow.uid))
+
+            getByUid(flow.uid).bind()
         }
 
     fun update(flow: Flow): Either<AppException, Flow> =
@@ -106,4 +127,6 @@ class FlowRepository(
 
             flowDao.update(flow)
         }
+
+    private fun List<Flow>.filterNotDeleted(): List<Flow> = this.filter { flow -> !flow.isDeleted }
 }

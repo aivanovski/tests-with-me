@@ -43,6 +43,8 @@
 
   "group" (api/get-groups-request)
 
+  "delete-group" (api/delete-group-by-uid-request (second-arg args ""))
+
   nil (println "No arguments were specified"))
 
 

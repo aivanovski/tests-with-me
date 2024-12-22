@@ -19,7 +19,7 @@ import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.web.extensions.aggregateGroupsByParent
 import java.util.LinkedList
 
-class PathResolver(
+class ReferenceResolver(
     private val projectRepository: ProjectRepository,
     private val groupRepository: GroupRepository
 ) {
@@ -45,9 +45,7 @@ class PathResolver(
 
                 groupId != null -> {
                     val group = findGroupByUid(groupId, user).bind()
-
-                    val project = projectRepository.findByUid(group.projectUid).bind()
-                        ?: raise(EntityNotFoundByUidException(Project::class, group.projectUid))
+                    val project = projectRepository.getByUid(group.projectUid).bind()
 
                     project to group
                 }
@@ -124,8 +122,7 @@ class PathResolver(
             val uid = Uid.parse(projectUid).getOrNull()
                 ?: raise(InvalidUidString(projectUid))
 
-            val project = projectRepository.findByUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(Project::class, uid))
+            val project = projectRepository.getByUid(uid).bind()
 
             if (project.userUid != user.uid) {
                 raise(InvalidAccessException("Unable to access the project: ${project.name}"))
@@ -142,8 +139,7 @@ class PathResolver(
             val uid = Uid.parse(groupUid).getOrNull()
                 ?: raise(InvalidUidString(groupUid))
 
-            val group = groupRepository.findByUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(Group::class, uid))
+            val group = groupRepository.getByUid(uid).bind()
 
             if (group.projectUid != projectUid) {
                 raise(InvalidAccessException("Failed to access the group: ${group.name}"))
@@ -191,8 +187,7 @@ class PathResolver(
 
                 resolveGroupsByName(groupNames, groups).bind()
             } else {
-                val rootGroup = groupRepository.findByUid(project.rootGroupUid).bind()
-                    ?: raise(EntityNotFoundByUidException(Group::class, project.rootGroupUid))
+                val rootGroup = groupRepository.getByUid(project.rootGroupUid).bind()
 
                 listOf(rootGroup)
             }

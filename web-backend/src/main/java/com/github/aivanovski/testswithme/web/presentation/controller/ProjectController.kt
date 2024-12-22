@@ -41,14 +41,16 @@ class ProjectController(
                 description = request.description?.trim()?.orNull(),
                 downloadUrl = request.downloadUrl.trim(),
                 imageUrl = request.imageUrl?.trim()?.orNull(),
-                siteUrl = request.siteUrl?.trim()?.orNull()
+                siteUrl = request.siteUrl?.trim()?.orNull(),
+                isDeleted = false
             )
 
             val rootGroup = Group(
                 uid = rootGroupUid,
                 parentUid = null,
                 projectUid = projectUid,
-                name = GroupRepository.ROOT_GROUP_NAME
+                name = GroupRepository.ROOT_GROUP_NAME,
+                isDeleted = false
             )
 
             projectRepository.add(project).bind()

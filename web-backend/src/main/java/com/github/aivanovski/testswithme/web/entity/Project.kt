@@ -44,7 +44,10 @@ data class Project(
     val imageUrl: String?,
 
     @Column(name = "site_url", nullable = true)
-    val siteUrl: String?
+    val siteUrl: String?,
+
+    @Column(name = "is_deleted")
+    val isDeleted: Boolean
 ) {
     // TODO: add db fields
 }

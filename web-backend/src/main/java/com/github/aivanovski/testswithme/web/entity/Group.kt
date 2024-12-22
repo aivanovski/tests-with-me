@@ -29,7 +29,10 @@ data class Group(
     val projectUid: Uid,
 
     @Column(name = DbFields.NAME)
-    val name: String
+    val name: String,
+
+    @Column(name = DbFields.IS_DELETED)
+    val isDeleted: Boolean
 ) {
     object DbFields {
         const val TABLE_NAME = "Groups"
@@ -38,5 +41,6 @@ data class Group(
         const val PARENT_UID = "parent_uid"
         const val PROJECT_UID = "project_uid"
         const val NAME = "name"
+        const val IS_DELETED = "is_deleted"
     }
 }

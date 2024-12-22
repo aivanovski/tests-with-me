@@ -17,7 +17,7 @@ import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.domain.AccessResolver
-import com.github.aivanovski.testswithme.web.domain.PathResolver
+import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Project
@@ -25,20 +25,17 @@ import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.BadRequestException
-import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExistsException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
-import com.github.aivanovski.testswithme.web.entity.exception.FlowNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.web.extensions.encodeToBase64
-import com.github.aivanovski.testswithme.web.extensions.filterNotDeleted
 import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
 
 class FlowController(
     private val flowRepository: FlowRepository,
-    private val pathResolver: PathResolver,
+    private val referenceResolver: ReferenceResolver,
     private val accessResolver: AccessResolver
 ) {
 
@@ -47,7 +44,7 @@ class FlowController(
         request: PostFlowRequest
     ): Either<AppException, PostFlowResponse> =
         either {
-            val (project, group) = pathResolver.resolveProjectAndGroup(
+            val (project, group) = referenceResolver.resolveProjectAndGroup(
                 path = request.path,
                 projectUid = request.projectId,
                 groupUid = request.groupId,
@@ -105,14 +102,10 @@ class FlowController(
 
             val flows = allFlows.filter { flow -> flow.uid == uid }
             if (flows.isEmpty()) {
-                raise(FlowNotFoundByUidException(flowUid))
+                raise(EntityNotFoundByUidException(Flow::class, uid))
             }
 
             val flow = flows.first()
-            if (flow.isDeleted) {
-                raise(DeletedEntityAccessException(Flow::class))
-            }
-
             val rawContent = flowRepository.getFlowContent(flow.uid).bind()
             val hash = rawContent.trimLines().sha256()
 
@@ -130,9 +123,7 @@ class FlowController(
 
     fun getFlows(user: User): Either<AppException, FlowsResponse> =
         either {
-            val flows = flowRepository.getFlowsByUserUid(user.uid)
-                .bind()
-                .filterNotDeleted()
+            val flows = flowRepository.getFlowsByUserUid(user.uid).bind()
 
             val items = flows.map { flow ->
                 FlowsItemDto(
@@ -152,15 +143,8 @@ class FlowController(
         flowUid: String
     ): Either<AppException, DeleteFlowResponse> =
         either {
-            val uid = Uid.parse(flowUid).getOrNull()
-                ?: raise(InvalidParameterException(ID))
-
-            val flow = flowRepository.findByFlowUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(Flow::class, uid))
-
-            if (flow.isDeleted) {
-                raise(DeletedEntityAccessException(Flow::class))
-            }
+            val uid = Uid.parse(flowUid).bind()
+            val flow = flowRepository.getByUid(uid).bind()
 
             accessResolver.canModifyFlow(user, flowUid = uid).bind()
 
