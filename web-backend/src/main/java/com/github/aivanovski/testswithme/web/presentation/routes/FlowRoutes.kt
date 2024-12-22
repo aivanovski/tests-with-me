@@ -11,6 +11,7 @@ import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.routing.Routing
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 
@@ -21,23 +22,27 @@ fun Routing.flowRoutes() {
     authenticate(AUTH_PROVIDER) {
         get("/$FLOW") {
             handleResponseWithUser(authService, call) { user ->
-                flowController
-                    .getFlows(user)
+                flowController.getFlows(user)
             }
         }
 
         get("/$FLOW/{$ID}") {
             handleResponseWithUser(authService, call) { user ->
                 val uid = call.parameters[ID].orEmpty()
-                flowController
-                    .getFlow(user, uid)
+                flowController.getFlow(user, uid)
             }
         }
 
         post("/$FLOW") {
             handleResponseWithUser(authService, call) { user ->
-                flowController
-                    .postFlow(user, call.receive())
+                flowController.postFlow(user, call.receive())
+            }
+        }
+
+        delete("/$FLOW/{$ID}") {
+            handleResponseWithUser(authService, call) { user ->
+                val uid = call.parameters[ID].orEmpty()
+                flowController.deleteFLow(user, uid)
             }
         }
     }

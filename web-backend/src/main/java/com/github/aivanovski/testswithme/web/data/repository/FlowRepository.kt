@@ -14,6 +14,7 @@ import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
+import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
 
 class FlowRepository(
     private val flowDao: FlowDao,
@@ -95,5 +96,14 @@ class FlowRepository(
             flowDao.add(flow)
             flowDao.findByUid(flow.uid)
                 ?: raise(EntityNotFoundByUidException(Flow::class, flow.uid))
+        }
+
+    fun update(flow: Flow): Either<AppException, Flow> =
+        either {
+            if (flow.id == 0L) {
+                raise(InvalidEntityIdException(Flow::class))
+            }
+
+            flowDao.update(flow)
         }
 }
