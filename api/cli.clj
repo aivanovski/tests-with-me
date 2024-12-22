@@ -17,15 +17,19 @@
   "login" (let [response (api/login-request "admin" "abc123")
                 has-body (not (empty? (:body response)))]
             (if has-body (api/save-token (api/parse-token response)) ))
+
   "sign-up" (api/sign-up-request
               "admin1"
               "abc123"
               {:email "example@gmail.com"})
+
   "user" (api/get-users-request)
 
   "flow" (if (nil? (second args))
            (api/get-flows-request)
            (api/get-flow-by-uid-request (second-arg args "")))
+
+  "delete-flow" (api/delete-flow-by-uid-request (second-arg args ""))
 
   "flow-run" (if (nil? (second args))
                (api/get-flow-runs-request)

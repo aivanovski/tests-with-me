@@ -72,6 +72,14 @@
                     :method :get
                     :client (http-client)}))
 
+          :DELETE (http/delete
+                   url
+                   (merge
+                     other-params
+                     {:throw false
+                      :method :delete
+                      :client (http-client)}))
+
           :POST (http/post
                   url
                   (merge
@@ -120,9 +128,16 @@
 (defn get-flow-by-uid-request
   [uid]
   (request
-        {:type :GET
-         :endpoint (str "/flow/" uid)
-         :headers (auth-header)}))
+    {:type :GET
+     :endpoint (str "/flow/" uid)
+     :headers (auth-header)}))
+
+(defn delete-flow-by-uid-request
+  [uid]
+  (request
+    {:type :DELETE
+     :endpoint (str "/flow/" uid)
+     :headers (auth-header)}))
 
 (defn get-flows-request
   []
