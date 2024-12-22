@@ -24,8 +24,20 @@
 
     <!-- Login screen -->
     <string name="username">Username</string>
+    <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="login">Login</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="log_in">Log in</string>
+    <string name="dont_have_an_account">Don\'t have an account?</string>
+    <string name="join">Join %s</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="create">Create</string>
+    <string name="empty_username_message">Username cannot be empty</string>
+    <string name="empty_password_message">Password cannot be empty</string>
+    <string name="empty_email_message">Email cannot be empty</string>
+    <string name="invalid_email_message">Please enter a valid email address</string>
+    <string name="empty_password_confirmation_message">Password confirmation cannot be empty</string>
+    <string name="password_do_not_match_message">Passwords do not match</string>
 
     <!-- Projects screen -->
     <string name="projects">Projects</string>

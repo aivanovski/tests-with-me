@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginScreenArgs(
-    val mode: LoginScreenMode
+    val type: LoginScreenType
 )

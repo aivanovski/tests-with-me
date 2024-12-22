@@ -10,6 +10,7 @@ interface Router {
 
     fun setRoot(screen: Screen)
     fun navigateTo(screen: Screen)
+    fun replaceCurrent(screen: Screen)
     fun exit()
     fun showBottomSheet(
         menu: BottomSheetMenu,

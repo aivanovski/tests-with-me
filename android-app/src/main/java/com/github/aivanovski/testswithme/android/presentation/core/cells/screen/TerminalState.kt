@@ -2,15 +2,15 @@ package com.github.aivanovski.testswithme.android.presentation.core.cells.screen
 
 import com.github.aivanovski.testswithme.android.entity.ErrorMessage
 
-sealed interface ScreenState {
+sealed interface TerminalState {
 
-    data object Loading : ScreenState
+    data object Loading : TerminalState
 
     data class Empty(
         val message: String
-    ) : ScreenState
+    ) : TerminalState
 
     data class Error(
         val message: ErrorMessage
-    ) : ScreenState
+    ) : TerminalState
 }

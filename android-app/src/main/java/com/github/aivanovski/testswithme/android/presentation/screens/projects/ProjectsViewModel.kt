@@ -5,8 +5,8 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardScreenArgs
@@ -43,7 +43,7 @@ class ProjectsViewModel(
     private val router: Router
 ) : BaseViewModel() {
 
-    val state = MutableStateFlow(ProjectsState(screenState = ScreenState.Loading))
+    val state = MutableStateFlow(ProjectsState(terminalState = TerminalState.Loading))
     private val intents = Channel<ProjectsIntent>()
     private var data: ProjectsData? = null
     private var isSubscribed = false
@@ -130,12 +130,12 @@ class ProjectsViewModel(
 
     private fun loadData(): Flow<ProjectsState> {
         return flow {
-            emit(ProjectsState(screenState = ScreenState.Loading))
+            emit(ProjectsState(terminalState = TerminalState.Loading))
 
             if (!interactor.isLoggedIn()) {
                 emit(
                     ProjectsState(
-                        screenState = ScreenState.Empty(
+                        terminalState = TerminalState.Empty(
                             message = resourceProvider.getString(R.string.not_logged_in_message)
                         )
                     )
@@ -147,8 +147,8 @@ class ProjectsViewModel(
             if (loadDataResult.isLeft()) {
                 val state = loadDataResult
                     .formatError(resourceProvider)
-                    .toTerminalState()
-                emit(ProjectsState(screenState = state))
+                    .toScreenState()
+                emit(ProjectsState(terminalState = state))
                 return@flow
             }
 
@@ -168,12 +168,12 @@ class ProjectsViewModel(
                     )
                 )
             } else {
-                val emptyState = ScreenState.Empty(
+                val emptyState = TerminalState.Empty(
                     message = resourceProvider.getString(R.string.no_projects_message)
                 )
                 emit(
                     ProjectsState(
-                        screenState = emptyState,
+                        terminalState = emptyState,
                         isAddButtonVisible = true
                     )
                 )

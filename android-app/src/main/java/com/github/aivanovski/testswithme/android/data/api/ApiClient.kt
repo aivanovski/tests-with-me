@@ -13,6 +13,7 @@ import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
 import com.github.aivanovski.testswithme.web.api.request.PostGroupRequest
 import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
+import com.github.aivanovski.testswithme.web.api.request.SignUpRequest
 import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowRunsResponse
@@ -24,6 +25,7 @@ import com.github.aivanovski.testswithme.web.api.response.PostFlowRunResponse
 import com.github.aivanovski.testswithme.web.api.response.PostGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 import com.github.aivanovski.testswithme.web.api.response.ProjectsResponse
+import com.github.aivanovski.testswithme.web.api.response.SignUpResponse
 import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.UsersResponse
 
@@ -97,6 +99,14 @@ class ApiClient(
     suspend fun login(request: LoginRequest): Either<ApiException, LoginResponse> =
         executor.post<LoginResponse>(
             url = urlFactory.login(),
+            body = jsonSerializer.serialize(request),
+            isAuthenticateAutomatically = false,
+            isAppendAuthHeader = false
+        )
+
+    suspend fun signUp(request: SignUpRequest): Either<ApiException, SignUpResponse> =
+        executor.post<SignUpResponse>(
+            url = urlFactory.signUp(),
             body = jsonSerializer.serialize(request),
             isAuthenticateAutomatically = false,
             isAppendAuthHeader = false

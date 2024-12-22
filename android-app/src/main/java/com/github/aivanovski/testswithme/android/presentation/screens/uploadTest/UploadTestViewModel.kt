@@ -6,8 +6,8 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -167,7 +167,7 @@ class UploadTestViewModel(
         val group = getSelectedGroup()
 
         return flow {
-            emit(initialState.copy(terminalState = ScreenState.Loading))
+            emit(initialState.copy(terminalState = TerminalState.Loading))
 
             val request = PostFlowRequest(
                 projectId = project.uid,
@@ -183,7 +183,7 @@ class UploadTestViewModel(
             if (uploadResult.isLeft()) {
                 val terminalState = uploadResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toTerminalState()
+                    .toScreenState()
 
                 emit(initialState.copy(terminalState = terminalState))
                 return@flow
@@ -197,13 +197,13 @@ class UploadTestViewModel(
 
     private fun loadData(): Flow<UploadTestState> {
         return flow {
-            emit(UploadTestState(terminalState = ScreenState.Loading))
+            emit(UploadTestState(terminalState = TerminalState.Loading))
 
             val loadDataResult = interactor.loadData(args.flowUid)
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toTerminalState()
+                    .toScreenState()
 
                 emit(UploadTestState(terminalState = terminalState))
                 return@flow
@@ -214,7 +214,7 @@ class UploadTestViewModel(
 
             if (data.projects.isEmpty()) {
                 val message = resourceProvider.getString(R.string.no_projects_message)
-                emit(UploadTestState(terminalState = ScreenState.Empty(message)))
+                emit(UploadTestState(terminalState = TerminalState.Empty(message)))
                 return@flow
             }
 
@@ -291,7 +291,7 @@ class UploadTestViewModel(
     }
 
     private fun newInitialState(): UploadTestState {
-        return UploadTestState(terminalState = ScreenState.Loading)
+        return UploadTestState(terminalState = TerminalState.Loading)
     }
 
     companion object {

@@ -5,6 +5,7 @@ import com.github.aivanovski.testswithme.web.api.Endpoints.FLOW_RUN
 import com.github.aivanovski.testswithme.web.api.Endpoints.GROUP
 import com.github.aivanovski.testswithme.web.api.Endpoints.LOGIN
 import com.github.aivanovski.testswithme.web.api.Endpoints.PROJECT
+import com.github.aivanovski.testswithme.web.api.Endpoints.SIGN_UP
 import com.github.aivanovski.testswithme.web.api.Endpoints.USER
 
 class ApiUrlFactory {
@@ -24,6 +25,8 @@ class ApiUrlFactory {
     fun groups(): String = "$SERVER_URL/$GROUP"
 
     fun group(groupUid: String): String = "$SERVER_URL/$GROUP/$groupUid"
+
+    fun signUp(): String = "$SERVER_URL/$SIGN_UP"
 
     companion object {
         private const val SERVER_URL = "https://10.0.2.2:8443"

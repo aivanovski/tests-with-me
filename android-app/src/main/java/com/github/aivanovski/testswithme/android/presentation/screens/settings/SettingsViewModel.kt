@@ -8,7 +8,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.ScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.BottomBarState
@@ -44,7 +44,7 @@ class SettingsViewModel(
     private val router: Router
 ) : BaseViewModel() {
 
-    val state = MutableStateFlow(SettingsState(screenState = ScreenState.Loading))
+    val state = MutableStateFlow(SettingsState(terminalState = TerminalState.Loading))
 
     private val _events = Channel<SettingsUiEvent>(capacity = Channel.BUFFERED)
     val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()

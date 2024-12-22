@@ -109,7 +109,7 @@ fun TestRunScreenPreview() {
 
 private fun newDataState(): TestRunState =
     TestRunState(
-        screenState = null,
+        terminalState = null,
         viewModels = listOf(
             newHeaderCell(),
             newShortTextCell(),

@@ -9,12 +9,14 @@ import com.github.aivanovski.testswithme.android.presentation.core.decompose.Vie
 import com.github.aivanovski.testswithme.android.presentation.core.decompose.attach
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.ScreenComponent
+import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 
 class LoginScreenComponent(
     context: ComponentContext,
     private val rootViewModel: RootViewModel,
-    private val router: Router
+    private val router: Router,
+    private val args: LoginScreenArgs
 ) : ScreenComponent,
     ComponentContext by context,
     ViewModelStoreOwner by ViewModelStoreOwnerImpl() {
@@ -22,7 +24,7 @@ class LoginScreenComponent(
     private val viewModel: LoginViewModel by lazy {
         ViewModelProvider(
             owner = this,
-            factory = ViewModelFactory(rootViewModel, router)
+            factory = ViewModelFactory(rootViewModel, router, args)
         )[LoginViewModel::class]
     }
 
