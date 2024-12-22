@@ -19,9 +19,9 @@
             (if has-body (api/save-token (api/parse-token response)) ))
 
   "sign-up" (api/sign-up-request
-              "admin1"
+              (second-arg args "")
               "abc123"
-              {:email "example@gmail.com"})
+              {:email (str (second-arg args "") "@mail.com")})
 
   "user" (api/get-users-request)
 
