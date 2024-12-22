@@ -11,10 +11,12 @@ import com.github.aivanovski.testswithme.web.api.FlowItemDto
 import com.github.aivanovski.testswithme.web.api.FlowsItemDto
 import com.github.aivanovski.testswithme.web.api.Sha256HashDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
+import com.github.aivanovski.testswithme.web.api.response.DeleteFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
+import com.github.aivanovski.testswithme.web.domain.AccessResolver
 import com.github.aivanovski.testswithme.web.domain.PathResolver
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Group
@@ -23,17 +25,21 @@ import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.BadRequestException
+import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExistsException
+import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.FlowNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
 import com.github.aivanovski.testswithme.web.extensions.encodeToBase64
+import com.github.aivanovski.testswithme.web.extensions.filterNotDeleted
 import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
 
 class FlowController(
     private val flowRepository: FlowRepository,
-    private val pathResolver: PathResolver
+    private val pathResolver: PathResolver,
+    private val accessResolver: AccessResolver
 ) {
 
     fun postFlow(
@@ -76,7 +82,8 @@ class FlowController(
                 groupUid = group.uid,
                 name = parsedFlow.name,
                 path = path,
-                contentHash = content.trimLines().sha256()
+                contentHash = content.trimLines().sha256(),
+                isDeleted = false
             )
 
             flowRepository.add(flow).bind()
@@ -102,6 +109,10 @@ class FlowController(
             }
 
             val flow = flows.first()
+            if (flow.isDeleted) {
+                raise(DeletedEntityAccessException(Flow::class))
+            }
+
             val rawContent = flowRepository.getFlowContent(flow.uid).bind()
             val hash = rawContent.trimLines().sha256()
 
@@ -119,7 +130,9 @@ class FlowController(
 
     fun getFlows(user: User): Either<AppException, FlowsResponse> =
         either {
-            val flows = flowRepository.getFlowsByUserUid(user.uid).bind()
+            val flows = flowRepository.getFlowsByUserUid(user.uid)
+                .bind()
+                .filterNotDeleted()
 
             val items = flows.map { flow ->
                 FlowsItemDto(
@@ -132,6 +145,34 @@ class FlowController(
             }
 
             FlowsResponse(items)
+        }
+
+    fun deleteFLow(
+        user: User,
+        flowUid: String
+    ): Either<AppException, DeleteFlowResponse> =
+        either {
+            val uid = Uid.parse(flowUid).getOrNull()
+                ?: raise(InvalidParameterException(ID))
+
+            val flow = flowRepository.findByFlowUid(uid).bind()
+                ?: raise(EntityNotFoundByUidException(Flow::class, uid))
+
+            if (flow.isDeleted) {
+                raise(DeletedEntityAccessException(Flow::class))
+            }
+
+            accessResolver.canModifyFlow(user, flowUid = uid).bind()
+
+            flowRepository.update(
+                flow.copy(
+                    isDeleted = true
+                )
+            )
+
+            DeleteFlowResponse(
+                isSuccess = true
+            )
         }
 
     private fun validateFlowName(

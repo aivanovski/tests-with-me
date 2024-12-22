@@ -10,7 +10,7 @@
     (api/request
       {:type :POST
        :endpoint "/flow"
-       :headers (merge api/HEADER_CONTENT_TYPE api/HEADER_AUTH)
+       :headers (merge api/HEADER_CONTENT_TYPE (api/auth-header))
        :body (api/to-json
                {:path path
                 :base64Content content})})))
@@ -21,6 +21,10 @@
   "admin"
   "abc123"
   {:email "example@gmail.com"})
+
+(api/save-token
+  (api/parse-token
+    (api/login-request "admin" "abc123")))
 
 ;; Projeects
 (println "Creaing project: KeePassVault")
@@ -47,6 +51,11 @@
   "Screens"
   "KeePassVault/Root")
 
+(println "Creaing group: KeePassVault/Root/Common")
+(api/post-group-request
+  "Common"
+  "KeePassVault/Root")
+
 (println "Creaing group: KeePassVault/Root/Screens/About")
 (api/post-group-request
   "About"
@@ -62,38 +71,22 @@
   "Unlock"
   "KeePassVault/Root/Screens")
 
-;; Flows
-; (post-flow-file
-;   "flows/keepassvault/about_navigate-back.yaml"
-;   "KeePassVault/Root/Screens/About")
+; Flows
+(post-flow-file
+  "flows/keepassvault/reset-and-setup-passwords-database.yaml"
+  "KeePassVault/Root/Common")
 
-; (post-flow-file
-;   "flows/keepassvault/about_open-screen.yaml"
-;   "KeePassVault/Root/Screens/About")
+(post-flow-file
+  "flows/keepassvault/unlock-with-key-file-and-password.yaml"
+  "KeePassVault/Root/Screens/Unlock")
 
-; (post-flow-file
-;   "flows/keepassvault/about_feedback-url-should-be-shown.yaml"
-;   "KeePassVault/Root/Screens/About")
+(post-flow-file
+  "flows/keepassvault/unlock-with-password.yaml"
+  "KeePassVault/Root/Screens/Unlock")
 
-; (post-flow-file
-;   "flows/keepassvault/failing.yaml"
-;   "KeePassVault/Root/Screens/About")
-
-; (post-flow-file
-;   "flows/keepassvault/new_db_create-new.yaml"
-;   "KeePassVault/Root/Screens/New Database")
-
-; (post-flow-file
-;   "flows/keepassvault/unlock_open-database.yaml"
-;   "KeePassVault/Root/Screens/Unlock")
-
-; (post-flow-file
-;   "flows/keepassvault/unlock_remove-file.yaml"
-;   "KeePassVault/Root/Screens/Unlock")
-
-; (post-flow-file
-;   "flows/keepassvault/all.yaml"
-;   "KeePassVault/Root")
+(post-flow-file
+  "flows/keepassvault/unlock-with-key-file.yaml"
+  "KeePassVault/Root/Screens/Unlock")
 
 (comment
   )

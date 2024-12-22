@@ -40,7 +40,10 @@ data class Flow(
 
     @Column(name = "content_hash")
     @Convert(converter = HashConverter::class)
-    val contentHash: Hash
+    val contentHash: Hash,
+
+    @Column(name = "is_deleted")
+    val isDeleted: Boolean
 ) {
     // TODO: Add db fields
 }
