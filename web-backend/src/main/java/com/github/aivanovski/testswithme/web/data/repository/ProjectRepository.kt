@@ -6,7 +6,7 @@ import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
-import com.github.aivanovski.testswithme.web.entity.exception.ProjectNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 
 class ProjectRepository(
     private val dao: ProjectDao
@@ -21,15 +21,21 @@ class ProjectRepository(
             dao.getByUserUid(userUid)
         }
 
-    fun findByUid(uid: Uid): Either<AppException, Project?> {
-        return Either.Right(dao.findByUid(uid))
-    }
+    fun findByUid(uid: Uid): Either<AppException, Project?> =
+        either {
+            dao.findByUid(uid)
+        }
+
+    fun getByUid(uid: Uid): Either<AppException, Project> =
+        either {
+            findByUid(uid).bind()
+                ?: raise(EntityNotFoundByUidException(Project::class, uid))
+        }
 
     fun add(project: Project): Either<AppException, Project> =
         either {
             dao.add(project)
 
-            dao.findByUid(project.uid)
-                ?: raise(ProjectNotFoundByUidException(project.uid))
+            getByUid(project.uid).bind()
         }
 }

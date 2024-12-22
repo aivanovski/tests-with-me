@@ -174,6 +174,13 @@
      :endpoint "/group"
      :headers (auth-header)}))
 
+(defn delete-group-by-uid-request
+  [uid]
+  (request
+    {:type :DELETE
+     :endpoint (str "/group/" uid)
+     :headers (auth-header)}))
+
 (defn update-group-request
   [uid params]
   (request

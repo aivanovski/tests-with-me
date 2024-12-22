@@ -16,7 +16,7 @@ import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.data.repository.UserRepository
 import com.github.aivanovski.testswithme.web.domain.AccessResolver
-import com.github.aivanovski.testswithme.web.domain.PathResolver
+import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
@@ -35,8 +35,8 @@ object WebAppModule {
         // core
         single<FileSystemProvider> { FileSystemProviderImpl() }
         single { FileStorage() }
-        single { PathResolver(get(), get()) }
-        single { AccessResolver(get(), get()) }
+        single { ReferenceResolver(get(), get()) }
+        single { AccessResolver(get(), get(), get()) }
 
         // Database
         single { AppDatabase() }
@@ -68,6 +68,6 @@ object WebAppModule {
         single { ProjectController(get(), get()) }
         single { FlowRunController(get(), get(), get()) }
         single { UserController(get()) }
-        single { GroupController(get(), get(), get()) }
+        single { GroupController(get(), get(), get(), get()) }
     }
 }

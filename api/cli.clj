@@ -19,9 +19,9 @@
             (if has-body (api/save-token (api/parse-token response)) ))
 
   "sign-up" (api/sign-up-request
-              "admin1"
+              (second-arg args "")
               "abc123"
-              {:email "example@gmail.com"})
+              {:email (str (second-arg args "") "@mail.com")})
 
   "user" (api/get-users-request)
 
@@ -42,6 +42,8 @@
   "project" (api/get-projects-request)
 
   "group" (api/get-groups-request)
+
+  "delete-group" (api/delete-group-by-uid-request (second-arg args ""))
 
   nil (println "No arguments were specified"))
 

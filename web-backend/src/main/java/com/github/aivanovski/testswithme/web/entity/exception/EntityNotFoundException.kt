@@ -1,7 +1,5 @@
 package com.github.aivanovski.testswithme.web.entity.exception
 
-import com.github.aivanovski.testswithme.web.entity.Flow
-import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.presentation.Errors.ENTITY_NOT_FOUND
@@ -58,24 +56,6 @@ class UserNotFoundByUidException(
     uid: Uid
 ) : EntityNotFoundException(
     entity = User::class.java.simpleName,
-    key = "uid",
-    value = uid.toString()
-)
-
-// TODO: remove
-class FlowNotFoundByUidException(
-    uid: String
-) : EntityNotFoundException(
-    entity = Flow::class.java.simpleName,
-    key = "uid",
-    value = uid
-)
-
-// TODO: remove
-class ProjectNotFoundByUidException(
-    uid: Uid
-) : EntityNotFoundException(
-    entity = Project::class.java.simpleName,
     key = "uid",
     value = uid.toString()
 )
