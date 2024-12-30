@@ -49,7 +49,8 @@ data class FlowRun(
     val appVersionName: String,
 
     @Column(name = "app_version_code")
-    val appVersionCode: String
-) {
-    // TODO: Add db fields
-}
+    val appVersionCode: String,
+
+    @Column(name = "is_expired")
+    val isExpired: Boolean
+)

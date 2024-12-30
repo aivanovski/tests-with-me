@@ -41,4 +41,16 @@ class AccessResolver(
                 raise(InvalidAccessException("Unable to access Group with uid: $groupUid"))
             }
         }
+
+    fun canModifyProject(
+        user: User,
+        projectUid: Uid
+    ): Either<AppException, Unit> =
+        either {
+            val project = projectRepository.getByUid(projectUid).bind()
+
+            if (project.userUid != user.uid) {
+                raise(InvalidAccessException("Unable to access Project with uid: $projectUid"))
+            }
+        }
 }
