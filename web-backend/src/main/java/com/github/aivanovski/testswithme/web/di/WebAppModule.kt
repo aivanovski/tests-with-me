@@ -1,6 +1,7 @@
 package com.github.aivanovski.testswithme.web.di
 
 import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
+import com.github.aivanovski.testswithme.web.data.arguments.ArgumentParser
 import com.github.aivanovski.testswithme.web.data.database.AppDatabase
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowDao
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowRunDao
@@ -27,6 +28,7 @@ import com.github.aivanovski.testswithme.web.presentation.controller.LoginContro
 import com.github.aivanovski.testswithme.web.presentation.controller.ProjectController
 import com.github.aivanovski.testswithme.web.presentation.controller.SignUpController
 import com.github.aivanovski.testswithme.web.presentation.controller.UserController
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 object WebAppModule {
@@ -37,6 +39,7 @@ object WebAppModule {
         single { FileStorage() }
         single { ReferenceResolver(get(), get()) }
         single { AccessResolver(get(), get(), get()) }
+        singleOf(::ArgumentParser)
 
         // Database
         single { AppDatabase() }
