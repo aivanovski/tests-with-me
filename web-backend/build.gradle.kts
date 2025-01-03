@@ -78,8 +78,8 @@ dependencies {
     // Arrow
     implementation(libs.arrow.core)
     implementation(libs.arrow.coroutines)
-    implementation(project(":tests-with-me"))
 
     // TestsWithMe API
+    implementation(project(":tests-with-me"))
     implementation(project(":web-api"))
 }
