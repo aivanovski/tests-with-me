@@ -32,7 +32,6 @@ fun main(args: Array<String>) {
 
     val arguments = argumentParser.parse(args).unwrapOrReport()
 
-    val keyStore = getKeyStoreUseCase.getKeyStore().unwrapOrReport()
     val environment = applicationEngineEnvironment {
         when (arguments.protocolType) {
             NetworkProtocolType.HTTP -> {
@@ -42,6 +41,8 @@ fun main(args: Array<String>) {
             }
 
             NetworkProtocolType.HTTPS -> {
+                val keyStore = getKeyStoreUseCase.getKeyStore().unwrapOrReport()
+
                 sslConnector(
                     keyStore = keyStore.keyStore,
                     keyAlias = keyStore.alias,
