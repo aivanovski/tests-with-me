@@ -65,3 +65,4 @@ metals.sbt
 .parcel-cache
 yarn.lock
 .vscode/
+kls_database.db

@@ -67,6 +67,9 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectEdi
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.cells.ProjectsCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.ResetRunsInteractor
+import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.ResetRunsViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsInteractor
@@ -143,6 +146,7 @@ object AndroidAppModule {
         singleOf(::GroupEditorInteractor)
         singleOf(::GatewayReceiverInteractor)
         singleOf(::SettingsInteractor)
+        singleOf(::ResetRunsInteractor)
 
         // Flow runner
         singleOf(::FlowRunnerInteractor)
@@ -275,6 +279,15 @@ object AndroidAppModule {
                 get(),
                 vm,
                 router
+            )
+        }
+        factory { (vm: RootViewModel, router: Router, args: ResetRunsScreenArgs) ->
+            ResetRunsViewModel(
+                get(),
+                get(),
+                vm,
+                router,
+                args
             )
         }
     }

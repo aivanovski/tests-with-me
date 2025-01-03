@@ -137,12 +137,14 @@ class FlowRunController(
 
     fun resetFlowRuns(
         user: User,
-        request: ResetFlowRunsRequest,
+        request: ResetFlowRunsRequest
     ): Either<AppException, ResetFlowRunsResponse> =
         either {
             val projectUid = Uid.parse(request.projectId).bind()
             val versionName = request.versionName.ifBlank {
-                raise(BadRequestException("Invalid 'versionName' parameter: ${request.versionName}"))
+                raise(
+                    BadRequestException("Invalid 'versionName' parameter: ${request.versionName}")
+                )
             }
 
             accessResolver.canModifyProject(user, projectUid).bind()

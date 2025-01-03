@@ -5,6 +5,7 @@ import com.github.aivanovski.testswithme.web.api.Endpoints.FLOW_RUN
 import com.github.aivanovski.testswithme.web.api.Endpoints.GROUP
 import com.github.aivanovski.testswithme.web.api.Endpoints.LOGIN
 import com.github.aivanovski.testswithme.web.api.Endpoints.PROJECT
+import com.github.aivanovski.testswithme.web.api.Endpoints.RESET_FLOW_RUN
 import com.github.aivanovski.testswithme.web.api.Endpoints.SIGN_UP
 import com.github.aivanovski.testswithme.web.api.Endpoints.USER
 
@@ -17,6 +18,8 @@ class ApiUrlFactory {
     fun projects(): String = "$SERVER_URL/$PROJECT"
 
     fun flowRuns(): String = "$SERVER_URL/$FLOW_RUN"
+
+    fun resetFlowRun(): String = "$SERVER_URL/$RESET_FLOW_RUN"
 
     fun users(): String = "$SERVER_URL/$USER"
 

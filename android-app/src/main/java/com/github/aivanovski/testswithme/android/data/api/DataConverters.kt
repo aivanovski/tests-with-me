@@ -58,7 +58,8 @@ fun List<FlowRunsItemDto>.toFlowRuns(): List<FlowRun> {
             finishedAt = item.finishedAtTimestamp,
             isSuccess = item.isSuccess,
             appVersionName = item.appVersionName,
-            appVersionCode = item.appVersionCode
+            appVersionCode = item.appVersionCode,
+            isExpired = item.isExpired
         )
     }
 }

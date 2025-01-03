@@ -11,8 +11,11 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
@@ -27,6 +30,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardState
+import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
@@ -43,6 +47,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -82,6 +87,8 @@ class ProjectDashboardViewModel(
                         state.value = newState
                     }
             }
+        } else {
+            sendIntent(ProjectDashboardIntent.ReloadData)
         }
     }
 
@@ -93,6 +100,7 @@ class ProjectDashboardViewModel(
             is FlowCellIntent.OnClick -> navigateToFlowScreen(intent.cellId)
             is GroupCellIntent.OnClick -> navigateToGroupScreen(intent.cellId)
             is GroupCellIntent.OnDetailsClick -> navigateToGroupDetailsScreen(intent.cellId)
+            is TitleWithIconCellIntent.OnIconClick -> onTitleCellClicked(intent.cellId)
         }
     }
 
@@ -116,6 +124,10 @@ class ProjectDashboardViewModel(
                 navigateToNewGroupScreen()
                 emptyFlow()
             }
+
+            ProjectDashboardIntent.OnDismissOptionDialog -> dismissOptionDialog()
+
+            is ProjectDashboardIntent.OnOptionDialogClick -> handleDialogAction(intent.action)
         }
     }
 
@@ -141,7 +153,8 @@ class ProjectDashboardViewModel(
 
             selectedVersionName.value = versionName ?: data.versions.firstOrNull()?.name
 
-            if (data.allGroups.isNotEmpty() || data.allFlows.isNotEmpty()) {
+            val isNotEmpty = (data.allFlows.isNotEmpty() && data.allGroups.size > 1)
+            if (isNotEmpty) {
                 val viewModels = cellFactory.createCellViewModels(
                     data = data,
                     selectedVersion = selectedVersionName.value,
@@ -150,10 +163,21 @@ class ProjectDashboardViewModel(
                 emit(ProjectDashboardState(viewModels = viewModels))
             } else {
                 val empty = TerminalState.Empty(
-                    message = resourceProvider.getString(R.string.no_tests_in_project_message)
+                    message = resourceProvider.getString(R.string.empty_project_message)
                 )
                 emit(ProjectDashboardState(terminalState = empty))
             }
+        }
+    }
+
+    private fun handleDialogAction(action: DialogAction): Flow<ProjectDashboardState> {
+        return when (action.actionId) {
+            ACTION_RESET_PROGRESS -> {
+                navigateToResetRunsScreen()
+                dismissOptionDialog()
+            }
+
+            else -> dismissOptionDialog()
         }
     }
 
@@ -161,6 +185,13 @@ class ProjectDashboardViewModel(
         when (cellId) {
             CellId.REMAINED_FLOWS_HEADER -> navigateToRemainedFlowsScreen()
             CellId.GROUPS_HEADER -> navigateToGroupsScreen()
+            else -> throw IllegalArgumentException("Invalid cellId: $cellId")
+        }
+    }
+
+    private fun onTitleCellClicked(cellId: String) {
+        when (cellId) {
+            CellId.TITLE -> showProjectOptionsDialog()
             else -> throw IllegalArgumentException("Invalid cellId: $cellId")
         }
     }
@@ -269,6 +300,40 @@ class ProjectDashboardViewModel(
         }
     }
 
+    private fun navigateToResetRunsScreen() {
+        router.navigateTo(
+            Screen.ResetRuns(
+                ResetRunsScreenArgs(
+                    projectUid = args.projectUid
+                )
+            )
+        )
+    }
+
+    private fun showProjectOptionsDialog() {
+        val options = listOf(
+            resourceProvider.getString(R.string.reset_progress)
+        )
+        val actions = listOf(
+            DialogAction(ACTION_RESET_PROGRESS)
+        )
+
+        state.value = state.value.copy(
+            optionDialogState = OptionDialogState(
+                options = options,
+                actions = actions
+            )
+        )
+    }
+
+    private fun dismissOptionDialog(): Flow<ProjectDashboardState> {
+        return flowOf(
+            state.value.copy(
+                optionDialogState = null
+            )
+        )
+    }
+
     private fun findGroupByUid(groupUid: String): GroupEntry? {
         return data.value?.allGroups?.firstOrNull { group -> group.uid == groupUid }
     }
@@ -287,5 +352,9 @@ class ProjectDashboardViewModel(
             title = args.screenTitle,
             isBackVisible = true
         )
+    }
+
+    companion object {
+        private const val ACTION_RESET_PROGRESS = 100
     }
 }

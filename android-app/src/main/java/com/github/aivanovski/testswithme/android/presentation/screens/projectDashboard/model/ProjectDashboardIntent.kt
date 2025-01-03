@@ -1,12 +1,20 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model
 
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+
 sealed interface ProjectDashboardIntent {
 
-    object Initialize : ProjectDashboardIntent
+    data object Initialize : ProjectDashboardIntent
 
-    object OnAddButtonClick : ProjectDashboardIntent
+    data object OnAddButtonClick : ProjectDashboardIntent
 
-    object ReloadData : ProjectDashboardIntent
+    data object ReloadData : ProjectDashboardIntent
+
+    data object OnDismissOptionDialog : ProjectDashboardIntent
+
+    data class OnOptionDialogClick(
+        val action: DialogAction
+    ) : ProjectDashboardIntent
 
     data class OnVersionClick(
         val versionName: String
