@@ -22,7 +22,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.S
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipItem
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
@@ -76,9 +76,7 @@ class ProjectDashboardCellFactory(
             if (data.remainedFlows.isNotEmpty()) {
                 models.addAll(createRemainedSection(data))
             }
-        }
 
-        if (data.allGroups.isNotEmpty()) {
             if (models.isEmpty()) {
                 models.add(SpaceCellModel(ElementMargin))
             } else {
@@ -98,9 +96,10 @@ class ProjectDashboardCellFactory(
                 height = SmallMargin,
                 shape = CornersShape.TOP
             ),
-            TitleCellModel(
+            TitleWithIconCellModel(
                 id = CellId.TITLE,
                 title = resourceProvider.getString(R.string.completion),
+                icon = AppIcons.Menu,
                 shape = CornersShape.NONE
             )
         )

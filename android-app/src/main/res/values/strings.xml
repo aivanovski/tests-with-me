@@ -97,7 +97,8 @@
     <string name="in_progress">in progress</string>
     <string name="remained">Remained</string>
     <string name="remained_tests">Remained tests</string>
-    <string name="no_tests_in_project_message">This project doesn\'t have tests</string>
+    <string name="empty_project_message">This project doesn\'t have any tests yet</string>
+    <string name="reset_progress">Reset progress</string>
 
     <!-- Project Editor -->
     <string name="create_project">Create Project</string>
@@ -122,6 +123,10 @@
     <string name="driver_gateway_title">Driver Gateway</string>
     <string name="driver_gateway_description">Enable this to start the Driver Gateway, an HTTP server running on port 7077. It allows external clients, like a Command Line Interface (CLI) application, to communicate with the Test Driver and send tests for execution.</string>
     <string name="driver_is">Driver is %s</string>
+
+    <!-- Reset Runs -->
+    <string name="application_version">Application version</string>
+    <string name="reset">Reset</string>
 
     <!--    <string name=""></string>-->
 </resources>

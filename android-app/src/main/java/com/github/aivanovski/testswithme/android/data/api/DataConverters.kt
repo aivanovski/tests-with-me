@@ -52,13 +52,14 @@ fun List<GroupItemDto>.toGroups(): List<GroupEntry> {
 fun List<FlowRunsItemDto>.toFlowRuns(): List<FlowRun> {
     return map { item ->
         FlowRun(
-            uid = item.uid,
-            flowUid = item.flowUid,
-            userUid = item.userUid,
+            uid = item.id,
+            flowUid = item.flowId,
+            userUid = item.userId,
             finishedAt = item.finishedAtTimestamp,
             isSuccess = item.isSuccess,
             appVersionName = item.appVersionName,
-            appVersionCode = item.appVersionCode
+            appVersionCode = item.appVersionCode,
+            isExpired = item.isExpired
         )
     }
 }

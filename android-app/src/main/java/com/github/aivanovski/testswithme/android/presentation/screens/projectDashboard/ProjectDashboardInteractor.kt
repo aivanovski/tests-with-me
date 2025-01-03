@@ -38,7 +38,7 @@ class ProjectDashboardInteractor(
 
             val allRuns = flowRunRepository.getRuns()
                 .bind()
-                .filter { run -> run.flowUid in allFlowUids }
+                .filter { run -> run.flowUid in allFlowUids && !run.isExpired }
 
             val versions = getVersionsFromRuns(allRuns)
 

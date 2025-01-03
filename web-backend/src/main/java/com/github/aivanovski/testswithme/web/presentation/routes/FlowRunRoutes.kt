@@ -1,6 +1,7 @@
 package com.github.aivanovski.testswithme.web.presentation.routes
 
 import com.github.aivanovski.testswithme.web.api.Endpoints.FLOW_RUN
+import com.github.aivanovski.testswithme.web.api.Endpoints.RESET_FLOW_RUN
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.presentation.AUTH_PROVIDER
@@ -35,6 +36,12 @@ fun Routing.flowRunRoutes() {
         post("/$FLOW_RUN") {
             handleResponseWithUser(authService, call) { user ->
                 flowRunController.postFlowRun(user, call.receive())
+            }
+        }
+
+        post("/$RESET_FLOW_RUN") {
+            handleResponseWithUser(authService, call) { user ->
+                flowRunController.resetFlowRuns(user, call.receive())
             }
         }
     }

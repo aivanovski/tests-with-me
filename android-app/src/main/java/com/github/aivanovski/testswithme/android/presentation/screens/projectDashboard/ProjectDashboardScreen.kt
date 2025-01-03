@@ -27,6 +27,9 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newT
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTitleCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
@@ -42,6 +45,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.cells.ui.newLargeBarCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.cells.viewModel.LargeBarCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent
+import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnDismissOptionDialog
+import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnOptionDialogClick
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardState
 
 @Composable
@@ -92,6 +97,22 @@ private fun ProjectDashboardScreen(
                 )
             }
         }
+
+        if (state.optionDialogState != null) {
+            val onDismiss = rememberOnClickedCallback {
+                onIntent.invoke(OnDismissOptionDialog)
+            }
+
+            val onClick = rememberCallback { action: DialogAction ->
+                onIntent.invoke(OnOptionDialogClick(action))
+            }
+
+            OptionDialog(
+                state = state.optionDialogState,
+                onDismiss = onDismiss,
+                onClick = onClick
+            )
+        }
     }
 }
 
@@ -137,7 +158,7 @@ fun ProjectDashboardScreenEmptyPreview() {
 private fun newEmptyState() =
     ProjectDashboardState(
         terminalState = TerminalState.Empty(
-            message = stringResource(R.string.no_tests_in_project_message)
+            message = stringResource(R.string.empty_project_message)
         )
     )
 

@@ -7,5 +7,6 @@ data class FlowRun(
     val finishedAt: Long,
     val isSuccess: Boolean,
     val appVersionName: String,
-    val appVersionCode: String
+    val appVersionCode: String,
+    val isExpired: Boolean
 )

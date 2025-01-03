@@ -7,5 +7,6 @@ object Endpoints {
     const val GROUP = "group"
     const val PROJECT = "project"
     const val FLOW_RUN = "flow-run"
+    const val RESET_FLOW_RUN = "reset-flow-run"
     const val USER = "user"
 }

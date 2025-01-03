@@ -204,6 +204,16 @@
               :appVersionCode "10700"
               :reportBase64Content (encode-base64 "[Step 1] Finished")})}))
 
+(defn reset-flow-run-request
+  [project-uid version-name]
+  (request
+    {:type :POST
+     :endpoint "/reset-flow-run"
+     :headers (merge HEADER_CONTENT_TYPE (auth-header))
+     :body (to-json
+             {:projectId project-uid
+              :versionName version-name})}))
+
 (defn post-project-request
   [params]
   (request
@@ -235,4 +245,8 @@
     "0be53378-2abc-4fa2-960f-2f58eb5de00d"
     {:name "Test"
      :parent {:path "KeePassVault/Other"}})
+
+  (reset-flow-run-request
+    "40693df8-4681-4c58-aae0-64cb4e5ff0bd"
+    "1.7.0")
   )

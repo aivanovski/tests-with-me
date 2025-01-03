@@ -20,6 +20,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.S
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ButtonCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.DividerCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.EmptyTextCell
@@ -36,6 +37,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.Spac
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextChipRowCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextWithChipCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleWithIconCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ButtonCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.DividerCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.EmptyTextCellViewModel
@@ -52,6 +54,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.viewMod
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleWithIconCellViewModel
 
 @Composable
 fun CreateCoreCell(viewModel: CellViewModel) {
@@ -72,6 +75,7 @@ fun CreateCoreCell(viewModel: CellViewModel) {
         is EmptyTextCellViewModel -> EmptyTextCell(viewModel)
         is DividerCellViewModel -> DividerCell(viewModel)
         is MenuCellViewModel -> MenuCell(viewModel)
+        is TitleWithIconCellViewModel -> TitleWithIconCell(viewModel)
         else -> throw UnsupportedCellViewModelException(viewModel)
     }
 }
@@ -97,6 +101,7 @@ fun createCoreCellViewModel(
         is EmptyTextCellModel -> EmptyTextCellViewModel(model)
         is DividerCellModel -> DividerCellViewModel(model)
         is MenuCellModel -> MenuCellViewModel(model, intentProvider)
+        is TitleWithIconCellModel -> TitleWithIconCellViewModel(model, intentProvider)
         else -> throw UnsupportedCellModelException(model)
     }
 }

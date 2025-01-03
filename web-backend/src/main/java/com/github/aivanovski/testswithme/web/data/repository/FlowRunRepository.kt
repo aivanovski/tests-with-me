@@ -14,6 +14,7 @@ import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
 
 class FlowRunRepository(
     private val flowRunDao: FlowRunDao,
@@ -29,6 +30,12 @@ class FlowRunRepository(
     fun findByUid(uid: Uid): Either<AppException, FlowRun?> =
         either {
             flowRunDao.findByUid(uid)
+        }
+
+    fun getByUid(uid: Uid): Either<AppException, FlowRun> =
+        either {
+            findByUid(uid).bind()
+                ?: raise(EntityNotFoundByUidException(FlowRun::class, uid))
         }
 
     fun getByUserUid(userUid: Uid): Either<AppException, List<FlowRun>> =
@@ -75,8 +82,7 @@ class FlowRunRepository(
 
     fun getReportContent(flowRunUid: Uid): Either<AppException, String> =
         either {
-            val flowRun = flowRunDao.findByUid(flowRunUid)
-                ?: raise(EntityNotFoundByUidException(FlowRun::class, flowRunUid))
+            val flowRun = getByUid(flowRunUid).bind()
 
             fileStorage.getContent(
                 destination = StorageDestination.REPORTS,
@@ -88,7 +94,15 @@ class FlowRunRepository(
         either {
             flowRunDao.add(flowRun)
 
-            flowRunDao.findByUid(flowRun.uid)
-                ?: raise(EntityNotFoundByUidException(FlowRun::class, flowRun.uid))
+            getByUid(flowRun.uid).bind()
+        }
+
+    fun update(flowRun: FlowRun): Either<AppException, FlowRun> =
+        either {
+            if (flowRun.id == 0L) {
+                raise(InvalidEntityIdException(FlowRun::class))
+            }
+
+            flowRunDao.update(flowRun)
         }
 }

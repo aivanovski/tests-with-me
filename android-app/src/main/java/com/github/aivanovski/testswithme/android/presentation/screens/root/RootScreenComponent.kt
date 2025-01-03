@@ -19,6 +19,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.login.Logi
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.ProjectEditorScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsScreenComponent
+import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.ResetRunsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.TestRunsScreenComponent
@@ -71,101 +72,41 @@ class RootScreenComponent(
         childContext: ComponentContext
     ): ComponentContext {
         return when (screen) {
-            is Screen.Login -> {
-                LoginScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.Login ->
+                LoginScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.Projects -> {
-                ProjectsScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router
-                )
-            }
+            is Screen.Projects ->
+                ProjectsScreenComponent(childContext, viewModel, router)
 
-            is Screen.ProjectEditor -> {
-                ProjectEditorScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.ProjectEditor ->
+                ProjectEditorScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.Groups -> {
-                GroupsScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.Groups ->
+                GroupsScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.GroupEditor -> {
-                GroupEditorScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.GroupEditor ->
+                GroupEditorScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.Flow -> {
-                FlowScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.Flow ->
+                FlowScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.TestRuns -> {
-                TestRunsScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router
-                )
-            }
+            is Screen.TestRuns ->
+                TestRunsScreenComponent(childContext, viewModel, router)
 
-            is Screen.TestRun -> {
-                TestRunScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.TestRun ->
+                TestRunScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.UploadTest -> {
-                UploadTestScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.UploadTest ->
+                UploadTestScreenComponent(childContext, viewModel, router, screen.args)
 
-            is Screen.ProjectDashboard -> {
-                ProjectDashboardScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router,
-                    args = screen.args
-                )
-            }
+            is Screen.ProjectDashboard ->
+                ProjectDashboardScreenComponent(childContext, viewModel, router, screen.args)
 
-            Screen.Settings -> {
-                SettingsScreenComponent(
-                    context = childContext,
-                    rootViewModel = viewModel,
-                    router = router
-                )
-            }
+            Screen.Settings ->
+                SettingsScreenComponent(childContext, viewModel, router)
+
+            is Screen.ResetRuns ->
+                ResetRunsScreenComponent(childContext, viewModel, router, screen.args)
         }
     }
 }
