@@ -1,6 +1,7 @@
 package com.github.aivanovski.testswithme.android.di
 
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
+import com.github.aivanovski.testswithme.android.data.api.ApiUrlFactory
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testswithme.android.data.db.AppDatabase
 import com.github.aivanovski.testswithme.android.data.db.dao.FlowEntryDao
@@ -34,6 +35,7 @@ import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteracto
 import com.github.aivanovski.testswithme.android.domain.flow.ReferenceResolver
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
+import com.github.aivanovski.testswithme.android.domain.usecases.ClearDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
@@ -114,6 +116,7 @@ object AndroidAppModule {
 
         // Network
         singleOf(::HttpRequestExecutor)
+        singleOf(::ApiUrlFactory)
         singleOf(::ApiClient)
 
         // Repositories
@@ -131,6 +134,7 @@ object AndroidAppModule {
         singleOf(::GetCurrentJobUseCase)
         singleOf(::GetExternalApplicationDataUseCase)
         singleOf(::ValidateEmailUseCase)
+        singleOf(::ClearDataUseCase)
 
         // Interactors
         singleOf(::RootInteractor)

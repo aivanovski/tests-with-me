@@ -65,4 +65,8 @@ class GroupRepository(
                 .firstOrNull { group -> group.uid == uid }
                 ?: raise(FailedToFindEntityByUidException(GroupEntry::class, uid))
         }
+
+    fun clear() {
+        groupDao.removeAll()
+    }
 }

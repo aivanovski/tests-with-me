@@ -7,6 +7,7 @@ interface Settings {
     var authToken: String?
     var isSslVerificationDisabled: Boolean
     var account: Account?
+    var serverUrl: String
 
     fun subscribe(listener: OnSettingsChangeListener)
     fun unsubscribe(listener: OnSettingsChangeListener)

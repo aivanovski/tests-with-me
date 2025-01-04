@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.settings.cells
 
+import com.github.aivanovski.testswithme.android.BuildConfig
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
@@ -16,7 +17,9 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightAppColors
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.model.SwitchCellModel
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.model.TwoTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.SwitchCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.TwoTextCellViewModel
 
 class SettingsCellFactory(
     private val resourceProvider: ResourceProvider
@@ -37,6 +40,7 @@ class SettingsCellFactory(
         ).map { model ->
             when (model) {
                 is SwitchCellModel -> SwitchCellViewModel(model, intentProvider)
+                is TwoTextCellModel -> TwoTextCellViewModel(model, intentProvider)
                 else -> createCoreCellViewModel(model, intentProvider)
             }
         }
@@ -49,6 +53,16 @@ class SettingsCellFactory(
         isGatewaySwitchEnabled: Boolean
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+
+        if (BuildConfig.DEBUG) {
+            models.add(
+                TwoTextCellModel(
+                    id = CellId.SERVER_URL,
+                    title = resourceProvider.getString(R.string.server_url),
+                    description = settings.serverUrl
+                )
+            )
+        }
 
         models.add(
             SwitchCellModel(
@@ -119,6 +133,7 @@ class SettingsCellFactory(
     }
 
     object CellId {
+        const val SERVER_URL = "server_url"
         const val SSL_VALIDATION_SWITCH = "ssl_verification_switch"
         const val DRIVER_DESCRIPTION = "driver_description"
         const val DRIVER_BUTTON = "driver_button"

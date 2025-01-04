@@ -57,4 +57,8 @@ class ProjectRepository(
             projectDao.getByUid(uid)
                 ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, uid))
         }
+
+    fun clear() {
+        projectDao.removeAll()
+    }
 }

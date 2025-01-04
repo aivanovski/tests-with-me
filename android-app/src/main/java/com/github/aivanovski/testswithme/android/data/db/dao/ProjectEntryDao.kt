@@ -23,4 +23,7 @@ interface ProjectEntryDao {
 
     @Query("DELETE FROM project_entry WHERE uid = :uid")
     fun removeByUid(uid: String)
+
+    @Query("DELETE FROM project_entry")
+    fun removeAll()
 }
