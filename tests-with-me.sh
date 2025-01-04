@@ -14,14 +14,14 @@ show_help() {
 start_test_server() {
     echo "Starting test server..."
     adb shell am broadcast \
-        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.domain.driverServer.DriverServerCommandReceiver \
+        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.domain.driverServer.GatewayCommandReceiver \
         --es "command" "start"
 }
 
 stop_test_server() {
     echo "Stopping test server..."
     adb shell am broadcast \
-        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.domain.driverServer.DriverServerCommandReceiver \
+        -n com.github.aivanovski.testswithme.android/com.github.aivanovski.testswithme.android.domain.driverServer.GatewayCommandReceiver \
         --es "command" "stop"
 }
 

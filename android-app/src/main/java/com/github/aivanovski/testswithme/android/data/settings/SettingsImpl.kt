@@ -3,9 +3,11 @@ package com.github.aivanovski.testswithme.android.data.settings
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import com.github.aivanovski.testswithme.android.data.api.ApiUrlFactory
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.ACCOUNT
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.AUTH_TOKEN
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.IS_SSL_VERIFICATION_DISABLED
+import com.github.aivanovski.testswithme.android.data.settings.SettingKey.SERVER_URL
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.START_JOB_UID
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipher
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProvider
@@ -48,6 +50,12 @@ class SettingsImpl(
         set(value) {
             val data = value?.formatToString()
             putString(ACCOUNT, data?.let { cipher.encode(it) })
+        }
+
+    override var serverUrl: String
+        get() = getString(SERVER_URL) ?: ApiUrlFactory.PROD_URL
+        set(value) {
+            putString(SERVER_URL, value)
         }
 
     override fun subscribe(listener: OnSettingsChangeListener) {

@@ -179,4 +179,9 @@ class FlowRepository(
     private fun getFlowUidByStepUid(stepUid: String): String? {
         return stepDao.getByUid(stepUid)?.flowUid
     }
+
+    fun clear() {
+        flowDao.removeAll()
+        stepDao.removeAll()
+    }
 }

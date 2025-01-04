@@ -33,10 +33,9 @@ import com.github.aivanovski.testswithme.web.api.response.UsersResponse
 
 class ApiClient(
     private val executor: HttpRequestExecutor,
-    private val jsonSerializer: JsonSerializer
+    private val jsonSerializer: JsonSerializer,
+    private val urlFactory: ApiUrlFactory
 ) {
-
-    private val urlFactory = ApiUrlFactory()
 
     suspend fun getGroups(): Either<ApiException, List<GroupEntry>> =
         executor.get<GroupsResponse>(url = urlFactory.groups())

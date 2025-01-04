@@ -20,12 +20,18 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newH
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.events.SingleEventEffect
+import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
+import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.HalfMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.SwitchCell
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.TwoTextCell
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.newSwitchCell
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.SwitchCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.TwoTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsState
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsUiEvent
@@ -68,12 +74,29 @@ private fun SettingsScreen(
             cellFactory = { viewModel -> CreateCell(viewModel) }
         )
     }
+
+    if (state.optionDialogState != null) {
+        val onDismiss = rememberOnClickedCallback {
+            onIntent.invoke(SettingsIntent.OnDismissOptionDialog)
+        }
+
+        val onClick = rememberCallback { action: DialogAction ->
+            onIntent.invoke(SettingsIntent.OnOptionDialogClick(action))
+        }
+
+        OptionDialog(
+            state = state.optionDialogState,
+            onDismiss = onDismiss,
+            onClick = onClick
+        )
+    }
 }
 
 @Composable
 private fun CreateCell(viewModel: CellViewModel) {
     when (viewModel) {
         is SwitchCellViewModel -> SwitchCell(viewModel)
+        is TwoTextCellViewModel -> TwoTextCell(viewModel)
         else -> CreateCoreCell(viewModel)
     }
 }

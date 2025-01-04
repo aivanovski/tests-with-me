@@ -29,4 +29,7 @@ interface FlowEntryDao {
 
     @Query("DELETE FROM flow_entry WHERE uid = :uid")
     fun removeByUid(uid: String)
+
+    @Query("DELETE FROM flow_entry")
+    fun removeAll()
 }

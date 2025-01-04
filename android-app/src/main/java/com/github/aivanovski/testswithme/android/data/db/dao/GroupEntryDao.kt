@@ -17,4 +17,7 @@ interface GroupEntryDao {
 
     @Update
     fun update(group: GroupEntry)
+
+    @Query("DELETE FROM group_entry")
+    fun removeAll()
 }
