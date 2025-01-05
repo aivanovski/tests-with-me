@@ -16,6 +16,8 @@ import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
 import com.github.aivanovski.testswithme.web.api.request.ResetFlowRunsRequest
 import com.github.aivanovski.testswithme.web.api.request.SignUpRequest
 import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
+import com.github.aivanovski.testswithme.web.api.response.DeleteFlowResponse
+import com.github.aivanovski.testswithme.web.api.response.DeleteGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowRunsResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
@@ -90,6 +92,9 @@ class ApiClient(
             body = jsonSerializer.serialize(request)
         )
 
+    suspend fun deleteGroup(groupUid: String): Either<ApiException, DeleteGroupResponse> =
+        executor.delete(urlFactory.group(groupUid))
+
     suspend fun getFlowRuns(): Either<ApiException, List<FlowRun>> =
         executor.get<FlowRunsResponse>(urlFactory.flowRuns())
             .map { response -> response.stats.toFlowRuns() }
@@ -104,6 +109,9 @@ class ApiClient(
 
     suspend fun getFlow(flowUid: String): Either<ApiException, FlowResponse> =
         executor.get<FlowResponse>(urlFactory.flow(flowUid))
+
+    suspend fun deleteFlow(flowUid: String): Either<ApiException, DeleteFlowResponse> =
+        executor.delete<DeleteFlowResponse>(urlFactory.flow(flowUid))
 
     suspend fun login(request: LoginRequest): Either<ApiException, LoginResponse> =
         executor.post<LoginResponse>(

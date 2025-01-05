@@ -15,7 +15,7 @@ class ClearDataUseCase(
     private val authRepository: AuthRepository
 ) {
 
-    fun clearData(): Either<AppException, Unit> =
+    fun clearUserData(): Either<AppException, Unit> =
         either {
             projectRepository.clear()
             groupRepository.clear()

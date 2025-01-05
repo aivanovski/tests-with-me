@@ -7,4 +7,8 @@ sealed interface FlowCellIntent : BaseCellIntent {
     data class OnClick(
         val cellId: String
     ) : FlowCellIntent
+
+    data class OnLongClick(
+        val cellId: String
+    ) : FlowCellIntent
 }

@@ -3,6 +3,7 @@ package com.github.aivanovski.testswithme.android.data.repository
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
+import com.github.aivanovski.testswithme.android.data.db.dao.FlowEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.GroupEntryDao
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
@@ -14,6 +15,7 @@ import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
 
 class GroupRepository(
     private val groupDao: GroupEntryDao,
+    private val flowDao: FlowEntryDao,
     private val api: ApiClient,
     private val authRepository: AuthRepository
 ) {
@@ -37,18 +39,14 @@ class GroupRepository(
                 return@either groupDao.getAll()
             }
 
-            val remoteGroups = api.getGroups().bind()
-            val uidToLocalGroupMap = groupDao.getAll()
-                .associateBy { group -> group.uid }
-
-            for (remote in remoteGroups) {
-                val local = uidToLocalGroupMap[remote.uid]
-                if (local != null) {
-                    groupDao.update(remote.copy(id = local.id))
-                } else {
-                    groupDao.insert(remote)
-                }
-            }
+            mergeEntities(
+                localEntities = groupDao.getAll(),
+                remoteEntities = api.getGroups().bind(),
+                entityToUidMapper = { group -> group.uid },
+                onInsert = { group -> groupDao.insert(group) },
+                onUpdate = { local, remote -> groupDao.update(remote.copy(id = local.id)) },
+                onDelete = { group -> groupDao.removeByUid(group.uid) }
+            )
 
             groupDao.getAll()
         }
@@ -64,6 +62,24 @@ class GroupRepository(
             getGroups().bind()
                 .firstOrNull { group -> group.uid == uid }
                 ?: raise(FailedToFindEntityByUidException(GroupEntry::class, uid))
+        }
+
+    suspend fun removeByUid(uid: String): Either<AppException, Unit> =
+        either {
+            val response = api.deleteGroup(groupUid = uid).bind()
+
+            val removedGroupUids = response.modifiedGroupIds
+            val removedFlowUids = response.modifiedFlowIds
+
+            for (flowUid in removedFlowUids) {
+                flowDao.removeByUid(flowUid)
+            }
+
+            for (groupUid in removedGroupUids) {
+                groupDao.removeByUid(groupUid)
+            }
+
+            groupDao.removeByUid(uid)
         }
 
     fun clear() {

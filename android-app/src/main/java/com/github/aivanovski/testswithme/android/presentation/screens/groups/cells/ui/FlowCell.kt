@@ -1,6 +1,7 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.ui
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,11 +37,16 @@ import com.github.aivanovski.testswithme.android.presentation.screens.groups.cel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.FlowCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.viewModel.FlowCellViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FlowCell(viewModel: FlowCellViewModel) {
     val model = viewModel.model
     val onClick = rememberOnClickedCallback {
         viewModel.sendIntent(FlowCellIntent.OnClick(model.id))
+    }
+
+    val onLongClick = rememberOnClickedCallback {
+        viewModel.sendIntent(FlowCellIntent.OnLongClick(model.id))
     }
 
     Card(
@@ -55,7 +61,10 @@ fun FlowCell(viewModel: FlowCellViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
                 .padding(horizontal = ElementMargin)
                 .height(height = TwoLineMediumItemHeight)
         ) {
