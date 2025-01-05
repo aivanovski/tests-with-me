@@ -1,7 +1,8 @@
 #!/usr/bin/env bb
 
 (ns api.cli
-  (:require [api.api :as api]))
+  (:require [api.api :as api]
+            [api.data :as data]))
 
 (defn send-n-times
   [n action]
@@ -44,6 +45,8 @@
   "group" (api/get-groups-request)
 
   "delete-group" (api/delete-group-by-uid-request (second-arg args ""))
+
+  "setup-data" (data/setup-data)
 
   nil (println "No arguments were specified"))
 
