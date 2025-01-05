@@ -20,4 +20,7 @@ interface GroupEntryDao {
 
     @Query("DELETE FROM group_entry")
     fun removeAll()
+
+    @Query("DELETE FROM group_entry WHERE uid = :uid")
+    fun removeByUid(uid: String)
 }

@@ -58,4 +58,10 @@ class GroupsInteractor(
                 )
             }
         }
+
+    suspend fun removeGroup(groupUid: String): Either<AppException, Unit> =
+        groupRepository.removeByUid(groupUid)
+
+    suspend fun removeFlow(flowUid: String): Either<AppException, Unit> =
+        flowRepository.removeByUid(flowUid)
 }

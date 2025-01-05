@@ -29,6 +29,6 @@ class SettingsInteractor(
     }
 
     fun clearAccountRelatedData() {
-        clearDataUseCase.clearData()
+        clearDataUseCase.clearUserData()
     }
 }

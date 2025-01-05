@@ -13,6 +13,7 @@ import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import com.github.aivanovski.testswithme.web.api.response.ErrorMessage
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -109,6 +110,22 @@ class HttpRequestExecutor(
             }
         )
 
+    suspend inline fun <reified T> delete(
+        url: String,
+        isAuthenticateAutomatically: Boolean = true,
+        isAppendAuthHeader: Boolean = true
+    ): Either<ApiException, T> =
+        sendRequest(
+            type = RequestType.DELETE,
+            url = url,
+            isAuthenticateAutomatically = isAuthenticateAutomatically,
+            block = {
+                if (isAppendAuthHeader) {
+                    appendAuthHeader(authRepository)
+                }
+            }
+        )
+
     suspend inline fun <reified T> sendRequest(
         type: RequestType,
         url: String,
@@ -178,6 +195,7 @@ class HttpRequestExecutor(
                     RequestType.GET -> get(urlString = url, block = block)
                     RequestType.POST -> post(urlString = url, block = block)
                     RequestType.PUT -> put(urlString = url, block = block)
+                    RequestType.DELETE -> delete(urlString = url, block = block)
                 }
             } catch (exception: IOException) {
                 raise(NetworkException(cause = exception))
@@ -189,6 +207,7 @@ class HttpRequestExecutor(
     enum class RequestType {
         GET,
         POST,
-        PUT
+        PUT,
+        DELETE
     }
 }

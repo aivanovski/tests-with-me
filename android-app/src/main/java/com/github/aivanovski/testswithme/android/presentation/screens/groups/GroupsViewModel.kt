@@ -3,6 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.groups
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
+import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
@@ -30,14 +31,17 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.utils.StringUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -54,9 +58,9 @@ class GroupsViewModel(
     val state = MutableStateFlow(GroupsState(terminalState = TerminalState.Loading))
     private val intents = Channel<GroupsIntent>()
 
-    private var isSubscribed = false
-    private var data: GroupsData? = null
-    private var selectedGroup: GroupEntry? = null
+    private var data = MutableStateFlow<GroupsData?>(null)
+    private var selectedGroup = MutableStateFlow<GroupEntry?>(null)
+    private var selectedFlow = MutableStateFlow<FlowEntry?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
@@ -65,13 +69,12 @@ class GroupsViewModel(
         rootViewModel.sendIntent(SetTopBarState(createInitialTopBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
-        if (!isSubscribed) {
-            isSubscribed = true
-
+        doOnceWhenStarted {
             viewModelScope.launch {
                 intents.receiveAsFlow()
                     .onStart { emit(GroupsIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
                     }
@@ -85,6 +88,7 @@ class GroupsViewModel(
             is GroupCellIntent.OnLongClick -> showGroupOptionDialog(intent.cellId)
             is GroupCellIntent.OnDetailsClick -> navigateToFlowGroupScreen(intent.cellId)
             is FlowCellIntent.OnClick -> navigateToFlowScreen(intent.cellId)
+            is FlowCellIntent.OnLongClick -> showFlowOptionDialog(intent.cellId)
         }
     }
 
@@ -108,20 +112,15 @@ class GroupsViewModel(
 
     private fun handleDialogAction(action: DialogAction): Flow<GroupsState> {
         return when (action.actionId) {
-            ACTION_EDIT_GROUP -> {
-                val group = selectedGroup ?: return emptyFlow()
-
-                navigateToEditGroupScreen(group)
-
-                dismissOptionDialog()
-            }
-
+            ACTION_EDIT_GROUP -> onEditGroupClicked()
+            ACTION_REMOVE_GROUP -> onRemoveGroupClicked()
+            ACTION_REMOVE_FLOW -> onRemoveFlowClicked()
             else -> dismissOptionDialog()
         }
     }
 
     private fun navigateToFlowScreen(flowUid: String) {
-        val flow = data?.flows
+        val flow = data.value?.flows
             ?.firstOrNull { flow -> flow.uid == flowUid }
             ?: return
 
@@ -202,7 +201,7 @@ class GroupsViewModel(
                 return@flow
             }
 
-            data = loadDataResult.unwrap()
+            data.value = loadDataResult.unwrap()
             val data = loadDataResult.unwrap()
 
             val topBarState = TopBarState(
@@ -224,7 +223,7 @@ class GroupsViewModel(
     }
 
     private fun createInitialTopBarState(): TopBarState {
-        val title = data?.group?.name ?: resourceProvider.getString(R.string.groups)
+        val title = data.value?.group?.name ?: resourceProvider.getString(R.string.groups)
 
         return TopBarState(
             title = title,
@@ -233,22 +232,99 @@ class GroupsViewModel(
     }
 
     private fun showGroupOptionDialog(groupUid: String) {
-        val group = data?.groups
+        val group = data.value?.groups
             ?.firstOrNull { group -> group.uid == groupUid }
             ?: return
 
-        selectedGroup = group
+        selectedGroup.value = group
 
         val options = listOf(
-            resourceProvider.getString(R.string.edit)
+            resourceProvider.getString(R.string.edit),
+            resourceProvider.getString(R.string.remove)
         )
         val actions = listOf(
-            DialogAction(ACTION_EDIT_GROUP)
+            DialogAction(ACTION_EDIT_GROUP),
+            DialogAction(ACTION_REMOVE_GROUP)
         )
 
         state.value = state.value.copy(
             optionDialogState = OptionDialogState(options, actions)
         )
+    }
+
+    private fun showFlowOptionDialog(flowUid: String) {
+        val flow = data.value?.allFlows
+            ?.firstOrNull { flow -> flow.uid == flowUid }
+            ?: return
+
+        selectedFlow.value = flow
+
+        val options = listOf(
+            resourceProvider.getString(R.string.remove)
+        )
+        val actions = listOf(
+            DialogAction(ACTION_REMOVE_FLOW)
+        )
+
+        state.value = state.value.copy(
+            optionDialogState = OptionDialogState(options, actions)
+        )
+    }
+
+    private fun onEditGroupClicked(): Flow<GroupsState> {
+        val group = selectedGroup.value ?: return emptyFlow()
+        navigateToEditGroupScreen(group)
+        return dismissOptionDialog()
+    }
+
+    private fun onRemoveGroupClicked(): Flow<GroupsState> {
+        val group = selectedGroup.value ?: return emptyFlow()
+
+        return flow {
+            emit(
+                state.value.copy(
+                    terminalState = TerminalState.Loading,
+                    optionDialogState = null
+                )
+            )
+
+            val removeResult = interactor.removeGroup(group.uid)
+            if (removeResult.isLeft()) {
+                val terminalState = removeResult
+                    .formatError(resourceProvider)
+                    .toScreenState()
+
+                emit(state.value.copy(terminalState = terminalState))
+                return@flow
+            }
+
+            emitAll(loadData())
+        }
+    }
+
+    private fun onRemoveFlowClicked(): Flow<GroupsState> {
+        val flow = selectedFlow.value ?: return emptyFlow()
+
+        return flow {
+            emit(
+                state.value.copy(
+                    terminalState = TerminalState.Loading,
+                    optionDialogState = null
+                )
+            )
+
+            val removeResult = interactor.removeFlow(flow.uid)
+            if (removeResult.isLeft()) {
+                val terminalState = removeResult
+                    .formatError(resourceProvider)
+                    .toScreenState()
+
+                emit(state.value.copy(terminalState = terminalState))
+                return@flow
+            }
+
+            emitAll(loadData())
+        }
     }
 
     private fun dismissOptionDialog(): Flow<GroupsState> {
@@ -261,5 +337,7 @@ class GroupsViewModel(
 
     companion object {
         private const val ACTION_EDIT_GROUP = 100
+        private const val ACTION_REMOVE_GROUP = 101
+        private const val ACTION_REMOVE_FLOW = 102
     }
 }

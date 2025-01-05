@@ -180,6 +180,12 @@ class FlowRepository(
         return stepDao.getByUid(stepUid)?.flowUid
     }
 
+    suspend fun removeByUid(uid: String): Either<AppException, Unit> =
+        either {
+            api.deleteFlow(uid).bind()
+            flowDao.removeByUid(uid)
+        }
+
     fun clear() {
         flowDao.removeAll()
         stepDao.removeAll()
