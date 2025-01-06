@@ -5,6 +5,7 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.FlowRunUploadResult
+import com.github.aivanovski.testswithme.android.entity.FlowRunWithReport
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
 import com.github.aivanovski.testswithme.web.api.request.ResetFlowRunsRequest
@@ -14,10 +15,10 @@ class FlowRunRepository(
     private val api: ApiClient
 ) {
 
-    suspend fun getRuns(): Either<AppException, List<FlowRun>> =
-        either {
-            api.getFlowRuns().bind()
-        }
+    suspend fun getRuns(): Either<AppException, List<FlowRun>> = api.getFlowRuns()
+
+    suspend fun getRun(runUid: String): Either<AppException, FlowRunWithReport> =
+        api.getFlowRun(runUid)
 
     suspend fun uploadRun(run: PostFlowRunRequest): Either<AppException, FlowRunUploadResult> =
         either {

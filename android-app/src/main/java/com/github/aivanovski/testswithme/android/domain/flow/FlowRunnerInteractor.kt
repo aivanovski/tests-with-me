@@ -351,14 +351,16 @@ class FlowRunnerInteractor(
                 }
                 val isSuccess = (stepResult != null && stepResult.isSuccess)
 
+                val encodedReport = Base64Utils.encode(reportContent)
+
                 val flowRun = PostFlowRunRequest(
                     flowId = job.flowUid,
                     durationInMillis = job.executionTime ?: 0L,
                     isSuccess = isSuccess,
-                    result = stepToUpload.result ?: StringUtils.EMPTY,
+                    result = stepResult?.result ?: StringUtils.EMPTY,
                     appVersionName = appData.appVersion.name,
                     appVersionCode = appData.appVersion.code.toString(),
-                    reportBase64Content = Base64Utils.encode(reportContent)
+                    reportBase64Content = encodedReport
                 )
 
                 val uploadResult = uploadFlowRunWithRetry(flowRun).bind()

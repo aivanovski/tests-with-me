@@ -25,7 +25,7 @@ object HttpClientFactory {
                         Timber.d(message)
                     }
                 }
-                level = LogLevel.INFO
+                level = LogLevel.BODY
             }
 
             if (BuildConfig.DEBUG && !isSslVerificationEnabled) {

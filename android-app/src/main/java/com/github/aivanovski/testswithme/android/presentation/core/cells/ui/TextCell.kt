@@ -1,4 +1,4 @@
-package com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.ui
+package com.github.aivanovski.testswithme.android.presentation.core.cells.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,12 +8,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.models.TextCellModel
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.viewModel.TextCellViewModel
 
 @Composable
 fun TextCell(viewModel: TextCellViewModel) {

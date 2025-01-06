@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.HashType
+import com.github.aivanovski.testswithme.web.api.FlowRunItemDto
 import com.github.aivanovski.testswithme.web.api.FlowRunsItemDto
 import com.github.aivanovski.testswithme.web.api.FlowsItemDto
 import com.github.aivanovski.testswithme.web.api.GroupItemDto
@@ -62,6 +63,19 @@ fun List<FlowRunsItemDto>.toFlowRuns(): List<FlowRun> {
             isExpired = item.isExpired
         )
     }
+}
+
+fun FlowRunItemDto.toFlowRun(): FlowRun {
+    return FlowRun(
+        uid = id,
+        flowUid = flowId,
+        userUid = userId,
+        finishedAt = finishedAtTimestamp,
+        isSuccess = isSuccess,
+        appVersionName = appVersionName,
+        appVersionCode = appVersionCode,
+        isExpired = isExpired
+    )
 }
 
 fun List<ProjectsItemDto>.toProjects(): List<ProjectEntry> {

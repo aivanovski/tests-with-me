@@ -1,13 +1,16 @@
 package com.github.aivanovski.testswithme.android.data.api
 
 import arrow.core.Either
+import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.entity.FlowRun
+import com.github.aivanovski.testswithme.android.entity.FlowRunWithReport
 import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.ApiException
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.web.api.request.LoginRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
@@ -19,6 +22,7 @@ import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
 import com.github.aivanovski.testswithme.web.api.response.DeleteFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.DeleteGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
+import com.github.aivanovski.testswithme.web.api.response.FlowRunResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowRunsResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
 import com.github.aivanovski.testswithme.web.api.response.GroupsResponse
@@ -98,6 +102,20 @@ class ApiClient(
     suspend fun getFlowRuns(): Either<ApiException, List<FlowRun>> =
         executor.get<FlowRunsResponse>(urlFactory.flowRuns())
             .map { response -> response.stats.toFlowRuns() }
+
+    suspend fun getFlowRun(flowRunUid: String): Either<ApiException, FlowRunWithReport> =
+        either {
+            val response = executor.get<FlowRunResponse>(urlFactory.flowRun(flowRunUid)).bind()
+
+            val report = Base64Utils.decode(response.flowRun.reportBase64Content)
+                .mapLeft { exception -> ApiException(cause = exception) }
+                .bind()
+
+            FlowRunWithReport(
+                run = response.flowRun.toFlowRun(),
+                report = report
+            )
+        }
 
     suspend fun getProjects(): Either<ApiException, List<ProjectEntry>> =
         executor.get<ProjectsResponse>(urlFactory.projects())

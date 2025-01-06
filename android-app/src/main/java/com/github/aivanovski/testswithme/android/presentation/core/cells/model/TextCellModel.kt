@@ -1,4 +1,4 @@
-package com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.models
+package com.github.aivanovski.testswithme.android.presentation.core.cells.model
 
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 

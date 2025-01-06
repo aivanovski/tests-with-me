@@ -13,5 +13,6 @@ data class FlowRunsItemDto(
     val isSuccess: Boolean,
     val appVersionName: String,
     val appVersionCode: String,
-    val isExpired: Boolean
+    val isExpired: Boolean,
+    val result: String
 )

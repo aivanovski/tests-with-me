@@ -76,6 +76,10 @@ class StepRunRepository(
             )
         }
 
+    fun clear() {
+        runDao.removeAll()
+    }
+
     private fun newFailedToFindEntityError(): FailedToFindEntityException {
         return FailedToFindEntityException(
             entityName = LocalStepRun::class.java.simpleName,

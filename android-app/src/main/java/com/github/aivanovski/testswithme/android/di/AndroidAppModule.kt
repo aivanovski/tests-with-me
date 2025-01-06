@@ -77,6 +77,10 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.RootV
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.SettingsCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.testReport.TestReportInteractor
+import com.github.aivanovski.testswithme.android.presentation.screens.testReport.TestReportViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.testReport.cells.TestReportCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.testReport.model.TestReportScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.TestRunCellFactory
@@ -151,6 +155,7 @@ object AndroidAppModule {
         singleOf(::GatewayReceiverInteractor)
         singleOf(::SettingsInteractor)
         singleOf(::ResetRunsInteractor)
+        singleOf(::TestReportInteractor)
 
         // Flow runner
         singleOf(::FlowRunnerInteractor)
@@ -170,6 +175,7 @@ object AndroidAppModule {
         singleOf(::ProjectDashboardCellFactory)
         singleOf(::SettingsCellFactory)
         singleOf(::BottomSheetMenuCellFactory)
+        singleOf(::TestReportCellFactory)
 
         // ViewModels
         factory { (menu: BottomSheetMenu) -> BottomSheetMenuViewModel(get(), menu) }
@@ -287,6 +293,16 @@ object AndroidAppModule {
         }
         factory { (vm: RootViewModel, router: Router, args: ResetRunsScreenArgs) ->
             ResetRunsViewModel(
+                get(),
+                get(),
+                vm,
+                router,
+                args
+            )
+        }
+        factory { (vm: RootViewModel, router: Router, args: TestReportScreenArgs) ->
+            TestReportViewModel(
+                get(),
                 get(),
                 get(),
                 vm,

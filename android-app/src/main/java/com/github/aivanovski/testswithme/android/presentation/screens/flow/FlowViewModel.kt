@@ -29,6 +29,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
+import com.github.aivanovski.testswithme.android.presentation.screens.testReport.model.TestReportScreenArgs
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.android.utils.infiniteRepeatFlow
 import com.github.aivanovski.testswithme.android.utils.toUids
@@ -174,8 +175,9 @@ class FlowViewModel(
     }
 
     private fun onHistoryItemClicked(intent: HistoryItemCellIntent.OnItemClick) {
-        // TODO: implement
-        Timber.d("onHistoryItemClicked: runUid=${intent.id}")
+        val runUid = CellId.extractRunUid(intent.cellId) ?: return
+
+        navigateToTestReportScreen(runUid)
     }
 
     private fun startFlowGroup(
@@ -475,6 +477,16 @@ class FlowViewModel(
             actionButton = MessageDialogButton.ActionButton(
                 title = resourceProvider.getString(R.string.cancel),
                 actionId = CANCEL_FLOW_DIALOG_ACTION
+            )
+        )
+    }
+
+    private fun navigateToTestReportScreen(runUid: String) {
+        router.navigateTo(
+            Screen.TestReport(
+                TestReportScreenArgs(
+                    flowRunUid = runUid
+                )
             )
         )
     }

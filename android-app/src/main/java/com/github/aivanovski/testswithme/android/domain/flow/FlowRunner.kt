@@ -6,8 +6,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.settings.Settings
-import com.github.aivanovski.testswithme.android.domain.flow.logger.TimberLogger
-import com.github.aivanovski.testswithme.android.domain.flow.reporter.TimberFlowReporter
+import com.github.aivanovski.testswithme.android.domain.flow.logger.TimberFlowLogger
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.OnStepFinishedAction
@@ -23,6 +22,8 @@ import com.github.aivanovski.testswithme.flow.driver.Driver
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import com.github.aivanovski.testswithme.flow.runner.listener.ListenerComposite
 import com.github.aivanovski.testswithme.flow.runner.reporter.ReportCollector
+import com.github.aivanovski.testswithme.flow.runner.reporter.ReportWriter
+import com.github.aivanovski.testswithme.flow.runner.reporter.ReportWriter.ShortNameTransformer
 import com.github.aivanovski.testswithme.flow.runner.reporter.TimeCollector
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -41,7 +42,7 @@ class FlowRunner(
     driver: Driver<AccessibilityNodeInfo>
 ) {
 
-    private val logger = TimberLogger(tag = TimberFlowReporter::class.java.simpleName)
+    private val logger = TimberFlowLogger(tag = TimberFlowLogger::class.java.simpleName)
     private val stateRef = AtomicReference(RunnerState.IDLE)
     private val stepIndex = AtomicInteger(0)
     private val jobUidRef = AtomicReference<String?>(null)
@@ -59,7 +60,12 @@ class FlowRunner(
     private val reportCollector = ReportCollector()
 
     init {
-        listeners.add(TimberFlowReporter(logger))
+        listeners.add(
+            ReportWriter(
+                writer = logger,
+                flowTransformer = ShortNameTransformer()
+            )
+        )
         listeners.add(timeCollector)
         listeners.add(reportCollector)
     }

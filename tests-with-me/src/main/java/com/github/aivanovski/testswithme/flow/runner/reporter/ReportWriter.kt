@@ -8,16 +8,17 @@ import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
-import com.github.aivanovski.testswithme.utils.Logger
 import com.github.aivanovski.testswithme.utils.StringUtils
 
-open class FlowReporter(
-    private val logger: Logger,
+class ReportWriter(
+    writer: OutputWriter,
     private val flowTransformer: FlowTransformer = DefaultNameTransformer()
 ) : FlowLifecycleListener {
 
+    private val output = LeveledOutputWriter(writer)
+
     override fun onFlowStarted(flow: Flow) {
-        logger.debug("Start flow '%s'".format(flow.name))
+        output.debug("Start flow '%s'".format(flow.name))
     }
 
     override fun onFlowFinished(
@@ -25,20 +26,21 @@ open class FlowReporter(
         result: Either<FlowExecutionException, Any>
     ) {
         if (result.isRight()) {
-            logger.debug("Flow '%s' finished successfully".format(flowTransformer.transform(flow)))
+            output.debug("Flow '%s' finished successfully".format(flowTransformer.transform(flow)))
         } else {
             val exception = result.unwrapError()
             val cause = exception.getRootCause()
             val message = cause.message ?: cause.javaClass.simpleName
 
-            logger.error(
+            output.error(
                 "Flow '%s' failed: %s".format(
                     flowTransformer.transform(flow),
                     message
                 )
             )
 
-            logger.printStackTrace(exception)
+            val stacktrace = exception.stackTraceToString()
+            output.error(stacktrace)
         }
     }
 
@@ -49,7 +51,7 @@ open class FlowReporter(
         attemptIndex: Int
     ) {
         if (attemptIndex == 0) {
-            logger.debug(
+            output.debug(
                 "[%s] Step %s: %s".format(
                     flowTransformer.transform(flow),
                     stepIndex + 1,
@@ -57,7 +59,7 @@ open class FlowReporter(
                 )
             )
         } else {
-            logger.debug(
+            output.debug(
                 "[%s] Retry %s: %s".format(
                     flowTransformer.transform(flow),
                     stepIndex + 1,
@@ -74,7 +76,7 @@ open class FlowReporter(
         result: Either<FlowExecutionException, Any>
     ) {
         if (result.isRight()) {
-            logger.debug(
+            output.debug(
                 "[%s] Step %s: SUCCESS".format(
                     flowTransformer.transform(flow),
                     stepIndex + 1
@@ -84,7 +86,7 @@ open class FlowReporter(
             val exception = result.unwrapError()
             val message = exception.message ?: exception.javaClass.simpleName
 
-            logger.error(
+            output.error(
                 "[%s] Step %s: FAILED, %s".format(
                     flowTransformer.transform(flow),
                     stepIndex + 1,

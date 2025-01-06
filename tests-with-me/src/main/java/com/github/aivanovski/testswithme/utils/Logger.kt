@@ -1,9 +1,14 @@
 package com.github.aivanovski.testswithme.utils
 
-import java.lang.Exception
+import com.github.aivanovski.testswithme.flow.runner.reporter.OutputWriter
+import com.github.aivanovski.testswithme.flow.runner.reporter.OutputWriter.Level
 
-interface Logger {
-    fun debug(message: String)
-    fun error(message: String)
-    fun printStackTrace(exception: Exception)
+interface Logger : OutputWriter {
+    fun debug(message: String) {
+        println(Level.DEBUG, message)
+    }
+
+    fun error(message: String) {
+        println(Level.ERROR, message)
+    }
 }

@@ -130,5 +130,7 @@
     <string name="application_version">Application version</string>
     <string name="reset">Reset</string>
 
-    <!--    <string name=""></string>-->
+    <!-- Test Report -->
+    <string name="report">Report</string>
+
 </resources>

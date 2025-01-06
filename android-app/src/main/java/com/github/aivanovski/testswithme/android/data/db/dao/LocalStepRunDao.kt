@@ -30,4 +30,7 @@ interface LocalStepRunDao {
 
     @Update
     fun update(entry: LocalStepRun)
+
+    @Query("DELETE FROM local_step_run")
+    fun removeAll()
 }

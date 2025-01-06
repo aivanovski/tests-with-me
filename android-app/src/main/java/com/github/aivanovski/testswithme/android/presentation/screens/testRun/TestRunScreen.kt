@@ -13,10 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.CreateCoreCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.CellsScreen
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.HeaderCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newHeaderCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newLongTextCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newShortTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
@@ -25,10 +28,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.remem
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.ui.TextCell
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.ui.newLongTextCell
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.ui.newShortTextCell
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.viewModel.TextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.model.TestRunIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.model.TestRunState
 
@@ -90,9 +89,8 @@ private fun TestRunScreen(
 private fun CreateCell(cellViewModel: CellViewModel) {
     when (cellViewModel) {
         is SpaceCellViewModel -> SpaceCell(cellViewModel)
-        is TextCellViewModel -> TextCell(cellViewModel)
         is HeaderCellViewModel -> HeaderCell(cellViewModel)
-        else -> throw IllegalStateException()
+        else -> CreateCoreCell(cellViewModel)
     }
 }
 

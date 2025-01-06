@@ -55,7 +55,8 @@ class FlowRunController(
                     isSuccess = flowRun.isSuccess,
                     appVersionName = flowRun.appVersionName,
                     appVersionCode = flowRun.appVersionCode,
-                    isExpired = flowRun.isExpired
+                    isExpired = flowRun.isExpired,
+                    result = flowRun.result
                 )
             }
 
@@ -87,6 +88,7 @@ class FlowRunController(
                     appVersionName = flowRun.appVersionName,
                     appVersionCode = flowRun.appVersionCode,
                     isExpired = flowRun.isExpired,
+                    result = flowRun.result,
                     reportBase64Content = Base64Utils.encode(reportContent)
                 )
             )
@@ -101,6 +103,8 @@ class FlowRunController(
                 ?: raise(InvalidRequestFieldException(FIELD_FLOW_ID))
 
             val flow = flowRepository.getByUid(flowUid).bind()
+
+            accessResolver.canModifyFlow(user, flowUid).bind()
 
             val report = Base64Utils.decode(request.reportBase64Content).getOrNull()
                 ?: raise(InvalidBase64String())

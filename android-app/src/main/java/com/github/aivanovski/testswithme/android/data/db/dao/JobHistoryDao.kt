@@ -23,4 +23,7 @@ interface JobHistoryDao {
 
     @Query("DELETE FROM job_history_entry WHERE uid = :uid")
     fun removeByUid(uid: String)
+
+    @Query("DELETE FROM job_history_entry")
+    fun removeAll()
 }

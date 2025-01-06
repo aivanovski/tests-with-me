@@ -23,6 +23,8 @@ class ApiUrlFactory(
 
     fun flowRuns(): String = getServerUrl() + "/$FLOW_RUN"
 
+    fun flowRun(flowRunUid: String): String = getServerUrl() + "/$FLOW_RUN/$flowRunUid"
+
     fun resetFlowRun(): String = getServerUrl() + "/$RESET_FLOW_RUN"
 
     fun users(): String = getServerUrl() + "/$USER"

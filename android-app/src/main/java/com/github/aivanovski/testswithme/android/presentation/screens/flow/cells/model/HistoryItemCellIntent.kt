@@ -4,6 +4,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 
 sealed interface HistoryItemCellIntent : BaseCellIntent {
     data class OnItemClick(
-        val id: String
+        val cellId: String
     ) : HistoryItemCellIntent
 }
