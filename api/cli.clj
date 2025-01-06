@@ -1,15 +1,41 @@
 #!/usr/bin/env bb
 
 (ns api.cli
-  (:require [api.api :as api]))
-
-(defn send-n-times
-  [n action]
-  (dotimes [index n] action))
+  (:require [api.api :as api]
+            [api.data :as data]))
 
 (defn second-arg
   [args default]
   (nth args 1 default))
+
+(defn third-arg
+  [args default]
+  (nth args 2 default))
+
+(defn fourth-arg
+  [args default]
+  (nth args 3 default))
+
+(defn print-help
+  []
+  (let [lines ["Options:"
+               ""
+               "login                                                 Sends login request with default credentials"
+               "sing-up                                               Creates user with default credentials"
+               "sing-up *USER_NAME*                                   Creates user with *USER_NAME*"
+               "user                                                  Get all users"
+               "project                                               Get all projects"
+               "group                                                 Get all groups"
+               "delete-group *GROUP_UID*                              Deletes group by uid"
+               "flow                                                  Get all flows"
+               "flow *FLOW_UID*                                       Get flow by uid"
+               "delete-flow *FLOW_UID*                                Deletes flow by uid"
+               "post-flow-run *FLOW_UID* *VER_NAME* *VER_CODE*        Sends flow execution report"
+               "setup-data                                            Creates default test data on server"
+               ""
+               ]]
+    (doseq [line lines]
+      (println line))))
 
 (def args *command-line-args*)
 
@@ -18,10 +44,12 @@
                 has-body (not (empty? (:body response)))]
             (if has-body (api/save-token (api/parse-token response)) ))
 
-  "sign-up" (api/sign-up-request
-              (second-arg args "")
-              "abc123"
-              {:email (str (second-arg args "") "@mail.com")})
+  "sign-up" (let [username (second-arg args "admin")
+                  email (str username "@mail.com")]
+              (api/sign-up-request
+                username
+                "abc123"
+                {:email email}))
 
   "user" (api/get-users-request)
 
@@ -35,9 +63,13 @@
                (api/get-flow-runs-request)
                (api/get-flow-run-by-uid-request (second-arg args "")))
 
-  "post-flow-run" (send-n-times
-                    (Integer/parseInt (second-arg args "1"))
-                    (api/post-flow-run-request "40693df8-4681-4c58-aae0-64cb4e5ff0bd:2bd4e35a-f153-4d06-898a-c965fb1a575e"))
+  "post-flow-run" (let [flow-uid (second-arg args "")
+                        version-name (third-arg args "1.7.0")
+                        version-code (fourth-arg args "10700")]
+                    (api/post-flow-run-request
+                      flow-uid
+                      {:version-name version-name
+                       :version-code version-code}))
 
   "project" (api/get-projects-request)
 
@@ -45,7 +77,9 @@
 
   "delete-group" (api/delete-group-by-uid-request (second-arg args ""))
 
-  nil (println "No arguments were specified"))
+  "setup-data" (data/setup-data)
+
+  nil (print-help))
 
 
 (comment

@@ -190,7 +190,7 @@
      :body (to-json params)}))
 
 (defn post-flow-run-request
-  [flow-uid]
+  [flow-uid params]
   (request
     {:type :POST
      :endpoint "/flow-run"
@@ -200,8 +200,8 @@
               :durationInMillis 360
               :isSuccess true
               :result "Either.Right(Unit)"
-              :appVersionName "1.7.0"
-              :appVersionCode "10700"
+              :appVersionName (:version-name params "1.7.0")
+              :appVersionCode (:version-code params "10700")
               :reportBase64Content (encode-base64 "[Step 1] Finished")})}))
 
 (defn reset-flow-run-request
