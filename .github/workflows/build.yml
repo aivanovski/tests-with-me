@@ -56,6 +56,11 @@ jobs:
       - name: Build debug jar
         run: ./gradlew android-app:assembleDebug
 
+      - name: Store APK file
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-with-me-debug.apk
+          path: ./android-app/build/outputs/apk/debug/android-app-debug.apk
 
   build-server-jar:
     name: Build server jar
