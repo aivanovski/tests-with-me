@@ -32,8 +32,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -136,33 +136,31 @@ class TestRunsViewModel(
     }
 
     private fun loadData(): Flow<TestRunsState> {
-        return flow {
-            emit(TestRunsState(terminalState = TerminalState.Loading))
+        return interactor.loadData()
+            .map { loadDataResult ->
+                if (loadDataResult.isLeft()) {
+                    val terminalState = loadDataResult
+                        .formatError(resourceProvider)
+                        .toScreenState()
 
-            val loadDataResult = interactor.loadData()
-            if (loadDataResult.isLeft()) {
-                val terminalState = loadDataResult
-                    .formatError(resourceProvider)
-                    .toScreenState()
+                    return@map TestRunsState(terminalState = terminalState)
+                }
 
-                emit(TestRunsState(terminalState = terminalState))
-                return@flow
+                data.value = loadDataResult.unwrap()
+                val data = loadDataResult.unwrap()
+
+                if (data.localRuns.isNotEmpty()) {
+                    val viewModels = cellFactory.createCellViewModels(
+                        data = data,
+                        intentProvider = intentProvider
+                    )
+                    TestRunsState(viewModels = viewModels)
+                } else {
+                    val message = resourceProvider.getString(R.string.no_tests)
+                    TestRunsState(terminalState = TerminalState.Empty(message))
+                }
             }
-
-            data.value = loadDataResult.unwrap()
-            val data = loadDataResult.unwrap()
-
-            if (data.localRuns.isNotEmpty()) {
-                val viewModels = cellFactory.createCellViewModels(
-                    data = data,
-                    intentProvider = intentProvider
-                )
-                emit(TestRunsState(viewModels = viewModels))
-            } else {
-                val message = resourceProvider.getString(R.string.no_tests)
-                emit(TestRunsState(terminalState = TerminalState.Empty(message)))
-            }
-        }
+            .onStart { emit(TestRunsState(terminalState = TerminalState.Loading)) }
     }
 
     private fun createInitialTopBarState(): TopBarState {

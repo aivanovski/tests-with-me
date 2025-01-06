@@ -2,6 +2,7 @@ package com.github.aivanovski.testswithme.android.data.repository
 
 import arrow.core.Either
 import arrow.core.raise.either
+import arrow.core.right
 import com.github.aivanovski.testswithme.android.data.api.ApiClient
 import com.github.aivanovski.testswithme.android.data.db.dao.FlowEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobHistoryDao
@@ -15,8 +16,12 @@ import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
+import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 
 class FlowRepository(
     private val stepDao: StepEntryDao,
@@ -116,6 +121,44 @@ class FlowRepository(
             flowDao.insert(flow.entry)
             stepDao.insert(flow.steps)
         }
+
+    fun getFlowsFlow(): Flow<Either<AppException, List<FlowEntry>>> =
+        flow {
+            val localFlows = flowDao.getAll()
+
+            if (!authRepository.isUserLoggedIn()) {
+                emit(localFlows.right())
+                return@flow
+            }
+
+            if (localFlows.isNotEmpty()) {
+                emit(localFlows.right())
+            }
+
+            val getRemoteFlowsResult = api.getFlows()
+            if (getRemoteFlowsResult.isLeft()) {
+                if (localFlows.isEmpty()) {
+                    emit(getRemoteFlowsResult)
+                }
+                return@flow
+            }
+
+            val remoteFlows = getRemoteFlowsResult.unwrap()
+
+            val uidToLocalFlowMap = flowDao.getAll()
+                .associateBy { flow -> flow.uid }
+            for (remote in remoteFlows) {
+                val local = uidToLocalFlowMap[remote.uid]
+                if (local == null) {
+                    flowDao.insert(remote)
+                } else {
+                    flowDao.update(remote.copy(id = local.id))
+                }
+            }
+
+            emit(flowDao.getAll().right())
+        }
+            .distinctUntilChanged()
 
     suspend fun getFlows(): Either<AppException, List<FlowEntry>> =
         either {

@@ -337,10 +337,14 @@ class FlowRunnerInteractor(
                 val appData = getAppDataUseCase.getApplicationData(project.packageName).bind()
                 val reportContent = fileCache.get(job.uid).bind()
 
-                val stepToUpload = steps.firstOrNull { step ->
-                    step.syncStatus == SyncStatus.WAITING_FOR_SYNC
-                }
+                val stepToUpload = steps
+                    .sortedByDescending { step -> step.id }
+                    .firstOrNull { step ->
+                        step.syncStatus == SyncStatus.WAITING_FOR_SYNC
+                    }
                     ?: raise(AppException("Failed to find step to upload"))
+
+                Timber.d("stepToUpload: stepUid=${stepToUpload.stepUid}")
 
                 val stepResult = if (!stepToUpload.result.isNullOrEmpty()) {
                     jsonSerializer.deserialize<StepResult>(stepToUpload.result)

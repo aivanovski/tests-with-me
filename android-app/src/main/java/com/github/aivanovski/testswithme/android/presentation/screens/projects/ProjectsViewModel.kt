@@ -25,12 +25,14 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -62,6 +64,7 @@ class ProjectsViewModel(
                 intents.receiveAsFlow()
                     .onStart { emit(ProjectsIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent, state.value) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
                     }
@@ -129,56 +132,49 @@ class ProjectsViewModel(
     }
 
     private fun loadData(): Flow<ProjectsState> {
-        return flow {
-            emit(ProjectsState(terminalState = TerminalState.Loading))
-
-            if (!interactor.isLoggedIn()) {
-                emit(
-                    ProjectsState(
+        return interactor.loadData()
+            .map { loadDataResult ->
+                if (!interactor.isLoggedIn()) {
+                    return@map ProjectsState(
                         terminalState = TerminalState.Empty(
                             message = resourceProvider.getString(R.string.not_logged_in_message)
                         )
                     )
-                )
-                return@flow
-            }
+                }
 
-            val loadDataResult = interactor.loadData()
-            if (loadDataResult.isLeft()) {
-                val state = loadDataResult
-                    .formatError(resourceProvider)
-                    .toScreenState()
-                emit(ProjectsState(terminalState = state))
-                return@flow
-            }
+                if (loadDataResult.isLeft()) {
+                    val state = loadDataResult
+                        .formatError(resourceProvider)
+                        .toScreenState()
+                    return@map ProjectsState(terminalState = state)
+                }
 
-            data = loadDataResult.unwrap()
-            val data = loadDataResult.unwrap()
+                data = loadDataResult.unwrap()
+                val data = loadDataResult.unwrap()
 
-            if (data.projects.isNotEmpty()) {
-                val viewModels = cellFactory.createCellViewModels(
-                    projects = data.projects,
-                    intentProvider = intentProvider
-                )
+                if (data.projects.isNotEmpty()) {
+                    val viewModels = cellFactory.createCellViewModels(
+                        projects = data.projects,
+                        intentProvider = intentProvider
+                    )
 
-                emit(
                     ProjectsState(
                         viewModels = viewModels,
                         isAddButtonVisible = true
                     )
-                )
-            } else {
-                val emptyState = TerminalState.Empty(
-                    message = resourceProvider.getString(R.string.no_projects_message)
-                )
-                emit(
+                } else {
+                    val emptyState = TerminalState.Empty(
+                        message = resourceProvider.getString(R.string.no_projects_message)
+                    )
                     ProjectsState(
                         terminalState = emptyState,
                         isAddButtonVisible = true
                     )
-                )
+                }
             }
-        }
+            .onStart {
+                ProjectsState(terminalState = TerminalState.Loading)
+            }
     }
 
     private fun createTopBarState(): TopBarState {

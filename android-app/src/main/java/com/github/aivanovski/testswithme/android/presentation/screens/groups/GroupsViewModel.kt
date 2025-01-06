@@ -42,9 +42,11 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class GroupsViewModel(
     private val interactor: GroupsInteractor,
@@ -185,41 +187,43 @@ class GroupsViewModel(
     }
 
     private fun loadData(): Flow<GroupsState> {
-        return flow {
-            emit(GroupsState(terminalState = TerminalState.Loading))
+        return interactor.loadDataFlow(
+            projectUid = args.projectUid,
+            groupUid = args.groupUid
+        )
+            .map { loadDataResult ->
+                if (loadDataResult.isLeft()) {
+                    val terminalState = loadDataResult
+                        .formatError(resourceProvider)
+                        .toScreenState()
+                    return@map GroupsState(terminalState = terminalState)
+                }
 
-            val loadDataResult = interactor.loadData(
-                projectUid = args.projectUid,
-                groupUid = args.groupUid
-            )
-            if (loadDataResult.isLeft()) {
-                val terminalState = loadDataResult
-                    .formatError(resourceProvider)
-                    .toScreenState()
+                Timber.d("thread=${Thread.currentThread()}")
 
-                emit(GroupsState(terminalState = terminalState))
-                return@flow
-            }
+                data.value = loadDataResult.unwrap()
+                val data = loadDataResult.unwrap()
 
-            data.value = loadDataResult.unwrap()
-            val data = loadDataResult.unwrap()
-
-            val topBarState = TopBarState(
-                title = data.group?.name ?: resourceProvider.getString(R.string.groups),
-                isBackVisible = true
-            )
-            rootViewModel.sendIntent(SetTopBarState(topBarState))
-
-            if (data.flows.isNotEmpty() || data.groups.isNotEmpty()) {
-                val viewModels = cellFactory.createCellViewModels(data, intentProvider)
-                emit(GroupsState(viewModels = viewModels))
-            } else {
-                val emptyState = TerminalState.Empty(
-                    message = resourceProvider.getString(R.string.this_group_is_empty)
+                val topBarState = TopBarState(
+                    title = data.group?.name ?: resourceProvider.getString(R.string.groups),
+                    isBackVisible = true
                 )
-                emit(GroupsState(terminalState = emptyState))
+                rootViewModel.sendIntent(SetTopBarState(topBarState))
+
+                if (data.flows.isNotEmpty() || data.groups.isNotEmpty()) {
+                    val viewModels = cellFactory.createCellViewModels(data, intentProvider)
+                    GroupsState(viewModels = viewModels)
+                } else {
+                    val emptyState = TerminalState.Empty(
+                        message = resourceProvider.getString(R.string.this_group_is_empty)
+                    )
+                    GroupsState(terminalState = emptyState)
+                }
             }
-        }
+            .onStart {
+                emit(GroupsState(terminalState = TerminalState.Loading))
+            }
+            .flowOn(Dispatchers.IO)
     }
 
     private fun createInitialTopBarState(): TopBarState {

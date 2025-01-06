@@ -12,6 +12,10 @@ fun <E, V> Either<E, V>.unwrapError(): E {
     return error
 }
 
+fun <E, V, V1> Either<E, V>.remapError(): Either<E, V1> {
+    return Either.Left(unwrapError())
+}
+
 fun <E : Exception, V> Either<E, V>.unwrapOrReport(): V {
     return if (isRight()) {
         unwrap()

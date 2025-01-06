@@ -5,8 +5,8 @@ import com.github.aivanovski.testswithme.android.domain.buildGroupTree
 import com.github.aivanovski.testswithme.android.domain.findNodeByUid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
@@ -309,7 +309,7 @@ class ProjectDashboardCellFactory(
 
     private fun createFlowCellModels(
         flows: List<FlowEntry>,
-        allRuns: List<FlowRun>
+        allRuns: List<FlowRunEntry>
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
         val flowUidToLastRunMap = allRuns.aggregateLastRunByFlowUid()

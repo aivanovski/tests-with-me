@@ -3,11 +3,11 @@ package com.github.aivanovski.testswithme.android.presentation.screens.flow.cell
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.entity.FlowRun
-import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
@@ -364,7 +364,7 @@ class FlowCellFactory(
         return models
     }
 
-    private fun createStatsModels(runs: List<FlowRun>): List<BaseCellModel> {
+    private fun createStatsModels(runs: List<FlowRunEntry>): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         val totalRuns = runs.size
@@ -411,7 +411,7 @@ class FlowCellFactory(
 
     private fun createTestListModels(
         flows: List<FlowEntry>,
-        runs: List<FlowRun>
+        runs: List<FlowRunEntry>
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
@@ -466,8 +466,8 @@ class FlowCellFactory(
     }
 
     private fun createRecentRunsModels(
-        runs: List<FlowRun>,
-        users: List<User>
+        runs: List<FlowRunEntry>,
+        users: List<UserEntry>
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
@@ -535,7 +535,7 @@ class FlowCellFactory(
     }
 
     private fun List<FlowEntry>.sortByRunsAndName(
-        flowUidToRunsMap: Map<String, List<FlowRun>>
+        flowUidToRunsMap: Map<String, List<FlowRunEntry>>
     ): List<FlowEntry> {
         val sortedByRuns = this.mapNotNull { flow ->
             val runs = flowUidToRunsMap[flow.uid] ?: emptyList()

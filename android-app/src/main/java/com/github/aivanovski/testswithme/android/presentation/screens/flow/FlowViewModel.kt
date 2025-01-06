@@ -37,16 +37,18 @@ import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.utils.StringUtils
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -88,6 +90,7 @@ class FlowViewModel(
                 intents.receiveAsFlow()
                     .onStart { emit(FlowIntent.Initialize) }
                     .flatMapLatest { intent -> handleIntent(intent, state.value) }
+                    .flowOn(Dispatchers.IO)
                     .collect { newState ->
                         state.value = newState
                     }
@@ -268,29 +271,28 @@ class FlowViewModel(
     }
 
     private fun loadData(): Flow<FlowState> {
-        return flow {
-            emit(FlowState(terminalState = TerminalState.Loading))
+        return interactor.loadData(args.mode)
+            .map { loadDataResult ->
+                if (loadDataResult.isLeft()) {
+                    val terminalState = loadDataResult
+                        .formatError(resourceProvider)
+                        .toScreenState()
+                    return@map FlowState(terminalState = terminalState)
+                }
 
-            val loadDataResult = interactor.loadData(args.mode)
-            if (loadDataResult.isLeft()) {
-                val terminalState = loadDataResult
-                    .formatError(resourceProvider)
-                    .toScreenState()
+                data = loadDataResult.unwrap()
+                val data = loadDataResult.unwrap()
 
-                emit(FlowState(terminalState = terminalState))
-                return@flow
+                appData = interactor.getApplicationData(data.project.packageName).getOrNull()
+                isDriverRunning = interactor.isDriverServiceRunning()
+
+                rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
+
+                buildScreenState(data)
             }
-
-            data = loadDataResult.unwrap()
-            val data = loadDataResult.unwrap()
-
-            appData = interactor.getApplicationData(data.project.packageName).getOrNull()
-            isDriverRunning = interactor.isDriverServiceRunning()
-
-            rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
-
-            emitAll(buildScreenState(data))
-        }
+            .onStart {
+                emit(FlowState(terminalState = TerminalState.Loading))
+            }
     }
 
     private fun rebuildState(): Flow<FlowState> {
@@ -300,13 +302,13 @@ class FlowViewModel(
         appData = interactor.getApplicationData(project.packageName).getOrNull()
         isDriverRunning = interactor.isDriverServiceRunning()
 
-        return buildScreenState(data)
+        return flowOf(buildScreenState(data))
     }
 
-    private fun buildScreenState(data: FlowData): Flow<FlowState> {
+    private fun buildScreenState(data: FlowData): FlowState {
         return when (args.mode) {
             is FlowScreenMode.Flow -> {
-                val state = FlowState(
+                FlowState(
                     viewModels = cellFactory.createFlowCellViewModels(
                         data = data,
                         requiredAppVersion = args.mode.requiredVersion,
@@ -315,12 +317,10 @@ class FlowViewModel(
                         intentProvider = intentProvider
                     )
                 )
-
-                flowOf(state)
             }
 
             is FlowScreenMode.Group -> {
-                val state = FlowState(
+                FlowState(
                     viewModels = cellFactory.createGroupCellViewModels(
                         data = data,
                         installedAppData = appData,
@@ -328,12 +328,10 @@ class FlowViewModel(
                         intentProvider = intentProvider
                     )
                 )
-
-                flowOf(state)
             }
 
             is FlowScreenMode.RemainedFlows -> {
-                val state = FlowState(
+                FlowState(
                     viewModels = cellFactory.createRemainedFlowsCellViewModels(
                         data = data,
                         requiredAppVersion = args.mode.version,
@@ -342,8 +340,6 @@ class FlowViewModel(
                         intentProvider = intentProvider
                     )
                 )
-
-                flowOf(state)
             }
         }
     }

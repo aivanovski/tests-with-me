@@ -5,12 +5,14 @@ import com.github.aivanovski.testswithme.android.data.api.ApiUrlFactory
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testswithme.android.data.db.AppDatabase
 import com.github.aivanovski.testswithme.android.data.db.dao.FlowEntryDao
+import com.github.aivanovski.testswithme.android.data.db.dao.FlowRunEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.GroupEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobHistoryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.LocalStepRunDao
 import com.github.aivanovski.testswithme.android.data.db.dao.ProjectEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.StepEntryDao
+import com.github.aivanovski.testswithme.android.data.db.dao.UserEntryDao
 import com.github.aivanovski.testswithme.android.data.file.FileCache
 import com.github.aivanovski.testswithme.android.data.file.FileCacheImpl
 import com.github.aivanovski.testswithme.android.data.repository.AuthRepository
@@ -117,6 +119,8 @@ object AndroidAppModule {
         single { provideJobHistoryEntryDao(get()) }
         single { provideProjectEntryDao(get()) }
         single { provideGroupEntryDao(get()) }
+        single { provideFlowRunEntryDao(get()) }
+        single { provideUserEntryDao(get()) }
 
         // Network
         singleOf(::HttpRequestExecutor)
@@ -325,4 +329,8 @@ object AndroidAppModule {
     private fun provideProjectEntryDao(db: AppDatabase): ProjectEntryDao = db.projectEntryDao
 
     private fun provideGroupEntryDao(db: AppDatabase): GroupEntryDao = db.groupEntryDao
+
+    private fun provideFlowRunEntryDao(db: AppDatabase): FlowRunEntryDao = db.flowRunEntryDao
+
+    private fun provideUserEntryDao(db: AppDatabase): UserEntryDao = db.userEntryDao
 }

@@ -7,19 +7,23 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.github.aivanovski.testswithme.android.data.db.converters.FlowStepConverter
 import com.github.aivanovski.testswithme.android.data.db.dao.FlowEntryDao
+import com.github.aivanovski.testswithme.android.data.db.dao.FlowRunEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.GroupEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobDao
 import com.github.aivanovski.testswithme.android.data.db.dao.JobHistoryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.LocalStepRunDao
 import com.github.aivanovski.testswithme.android.data.db.dao.ProjectEntryDao
 import com.github.aivanovski.testswithme.android.data.db.dao.StepEntryDao
+import com.github.aivanovski.testswithme.android.data.db.dao.UserEntryDao
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.db.JobHistoryEntry
 import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
+import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 
 @Database(
     entities = [
@@ -29,7 +33,9 @@ import com.github.aivanovski.testswithme.android.entity.db.StepEntry
         LocalStepRun::class,
         JobHistoryEntry::class,
         ProjectEntry::class,
-        GroupEntry::class
+        GroupEntry::class,
+        FlowRunEntry::class,
+        UserEntry::class
     ],
     version = 1
 )
@@ -45,6 +51,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val jobHistoryDao: JobHistoryDao
     abstract val projectEntryDao: ProjectEntryDao
     abstract val groupEntryDao: GroupEntryDao
+    abstract val flowRunEntryDao: FlowRunEntryDao
+    abstract val userEntryDao: UserEntryDao
 
     companion object {
 
