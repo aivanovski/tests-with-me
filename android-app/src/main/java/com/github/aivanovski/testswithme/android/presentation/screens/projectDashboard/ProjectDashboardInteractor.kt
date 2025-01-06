@@ -5,10 +5,13 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.android.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.android.data.repository.GroupRepository
+import com.github.aivanovski.testswithme.android.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.android.domain.VersionParser
+import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
+import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityException
 import com.github.aivanovski.testswithme.android.extensions.filterByGroupUid
@@ -17,10 +20,12 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.utils.aggregatePassedFailedAndRemainedFlows
 
 class ProjectDashboardInteractor(
+    private val projectRepository: ProjectRepository,
     private val groupRepository: GroupRepository,
     private val flowRepository: FlowRepository,
     private val flowRunRepository: FlowRunRepository,
-    private val versionParser: VersionParser
+    private val versionParser: VersionParser,
+    private val getAppDataUseCase: GetExternalApplicationDataUseCase
 ) {
 
     suspend fun loadData(
@@ -28,6 +33,8 @@ class ProjectDashboardInteractor(
         versionName: String?
     ): Either<AppException, ProjectDashboardData> =
         either {
+            val project = projectRepository.getProjectByUid(projectUid).bind()
+
             val allGroups = groupRepository.getGroupsByProjectUid(projectUid).bind()
             val allFlows = flowRepository.getFlowsByProjectUid(projectUid).bind()
                 .filterRemoteOnly()
@@ -40,7 +47,10 @@ class ProjectDashboardInteractor(
                 .bind()
                 .filter { run -> run.flowUid in allFlowUids && !run.isExpired }
 
-            val versions = getVersionsFromRuns(allRuns)
+            val versions = getVersions(
+                project = project,
+                runs = allRuns
+            )
 
             val selectedVersion = if (versionName != null) {
                 versions.firstOrNull { version -> version.name == versionName }
@@ -87,8 +97,11 @@ class ProjectDashboardInteractor(
             )
         }
 
-    private fun getVersionsFromRuns(runs: List<FlowRun>): List<AppVersion> {
-        return runs
+    private fun getVersions(
+        project: ProjectEntry,
+        runs: List<FlowRun>
+    ): List<AppVersion> {
+        val versionsFromRuns = runs
             .map { run ->
                 versionParser.parseVersions(
                     versionName = run.appVersionName,
@@ -97,5 +110,16 @@ class ProjectDashboardInteractor(
             }
             .distinct()
             .sortedByDescending { version -> version.code }
+
+        val installedAppVersion = getAppDataUseCase.getApplicationData(project.packageName)
+            .getOrNull()
+            ?.appVersion
+
+        return if (installedAppVersion != null && installedAppVersion !in versionsFromRuns) {
+            versionsFromRuns.plus(installedAppVersion)
+                .sortedByDescending { version -> version.code }
+        } else {
+            versionsFromRuns
+        }
     }
 }

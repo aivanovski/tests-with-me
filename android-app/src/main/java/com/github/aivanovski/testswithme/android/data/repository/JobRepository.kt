@@ -61,6 +61,11 @@ class JobRepository(
         jobHistoryDao.update(entry.toHistoryEntry())
     }
 
+    fun clear() {
+        jobDao.removeAll()
+        jobHistoryDao.removeAll()
+    }
+
     private fun newFailedToFindEntityError(uid: String): FailedToFindEntityException {
         return FailedToFindEntityException(
             entityName = JobEntry::class.java.simpleName,

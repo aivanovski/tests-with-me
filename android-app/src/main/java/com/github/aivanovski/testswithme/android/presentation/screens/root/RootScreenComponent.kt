@@ -21,6 +21,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectEdi
 import com.github.aivanovski.testswithme.android.presentation.screens.projects.ProjectsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.ResetRunsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsScreenComponent
+import com.github.aivanovski.testswithme.android.presentation.screens.testReport.TestReportScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.TestRunsScreenComponent
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestScreenComponent
@@ -107,6 +108,9 @@ class RootScreenComponent(
 
             is Screen.ResetRuns ->
                 ResetRunsScreenComponent(childContext, viewModel, router, screen.args)
+
+            is Screen.TestReport ->
+                TestReportScreenComponent(childContext, viewModel, router, screen.args)
         }
     }
 }

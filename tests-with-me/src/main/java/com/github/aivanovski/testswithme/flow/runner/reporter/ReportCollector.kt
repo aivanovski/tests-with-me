@@ -5,15 +5,13 @@ import com.github.aivanovski.testswithme.entity.Flow
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
-import com.github.aivanovski.testswithme.flow.runner.reporter.FlowReporter.DefaultNameTransformer
-import com.github.aivanovski.testswithme.utils.Logger
-import com.github.aivanovski.testswithme.utils.StringUtils.NEW_LINE
+import com.github.aivanovski.testswithme.flow.runner.reporter.ReportWriter.DefaultNameTransformer
 
 class ReportCollector : FlowLifecycleListener {
 
     private val lines = mutableListOf<String>()
-    private val logger = FlowReporter(
-        logger = createLogger(),
+    private val logger = ReportWriter(
+        writer = createOutputWriter(),
         flowTransformer = DefaultNameTransformer()
     )
 
@@ -52,22 +50,13 @@ class ReportCollector : FlowLifecycleListener {
         logger.onStepFinished(flow, command, stepIndex, result)
     }
 
-    private fun createLogger(): Logger {
-        return object : Logger {
-            override fun debug(message: String) {
-                lines.add(message)
-            }
-
-            override fun error(message: String) {
-                lines.add(message)
-            }
-
-            override fun printStackTrace(exception: Exception) {
-                val content = exception.stackTraceToString()
-                    .split(NEW_LINE)
-                    .filter { line -> line.isNotBlank() }
-
-                lines.addAll(content)
+    private fun createOutputWriter(): OutputWriter {
+        return object : OutputWriter {
+            override fun println(
+                level: OutputWriter.Level,
+                line: String
+            ) {
+                lines.add(line)
             }
         }
     }

@@ -509,7 +509,7 @@ class FlowCellFactory(
 
             models.add(
                 HistoryItemCellModel(
-                    id = CellId.RUN.format(idx),
+                    id = CellId.createRunCellId(run.uid),
                     icon = icon,
                     iconTint = if (run.isSuccess) {
                         IconTint.GREEN
@@ -573,6 +573,16 @@ class FlowCellFactory(
         const val RECENT_RUNS_HEADER = "recent-runs-header"
         const val TESTS_HEADER = "tests-header"
 
-        const val RUN = "run_%s"
+        private const val RUN_PREFIX = "run_"
+
+        fun createRunCellId(runUid: String): String = RUN_PREFIX + runUid
+
+        fun extractRunUid(cellId: String): String? {
+            return if (cellId.contains(RUN_PREFIX)) {
+                cellId.removePrefix(RUN_PREFIX)
+            } else {
+                null
+            }
+        }
     }
 }

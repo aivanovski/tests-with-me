@@ -1,23 +1,19 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells
 
-import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.entity.exception.UnsupportedCellModelException
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.models.TextCellModel
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.viewModel.TextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRun.model.TestRunScreenData
 import com.github.aivanovski.testswithme.utils.StringUtils
 
-class TestRunCellFactory(
-    private val resourceProvider: ResourceProvider
-) {
+class TestRunCellFactory {
 
     fun createCellViewModels(
         data: TestRunScreenData,
@@ -26,9 +22,8 @@ class TestRunCellFactory(
         return createModels(data).map { model ->
             when (model) {
                 is SpaceCellModel -> SpaceCellViewModel(model)
-                is TextCellModel -> TextCellViewModel(model)
                 is HeaderCellModel -> HeaderCellViewModel(model, intentProvider)
-                else -> throw UnsupportedCellModelException(model)
+                else -> createCoreCellViewModel(model, intentProvider)
             }
         }
     }

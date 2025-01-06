@@ -31,7 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class FlowInteractor(
-    private val testInteractor: FlowRunnerInteractor,
+    private val flowRunnerInteractor: FlowRunnerInteractor,
     private val flowRepository: FlowRepository,
     private val projectRepository: ProjectRepository,
     private val flowRunRepository: FlowRunRepository,
@@ -148,7 +148,9 @@ class FlowInteractor(
     ): Either<AppException, List<FlowEntry>> =
         either {
             val filteredRuns = if (version != null) {
-                allRuns.filter { run -> run.appVersionName == version.name }
+                allRuns.filter { run ->
+                    !run.isExpired && run.appVersionName == version.name
+                }
             } else {
                 allRuns
             }
@@ -195,11 +197,7 @@ class FlowInteractor(
     ): Either<AppException, List<String>> =
         withContext(Dispatchers.IO) {
             either {
-                val currentJobs = testInteractor.getJobs().bind()
-
-                currentJobs
-                    .filter { job -> job.status == JobStatus.PENDING }
-                    .onEach { job -> testInteractor.removeJob(job.uid) }
+                flowRunnerInteractor.removeAllJobs()
 
                 for (index in flowUids.indices.reversed()) {
                     val flowUid = flowUids[index]
@@ -211,7 +209,7 @@ class FlowInteractor(
                         OnFinishAction.SHOW_DETAILS
                     }
 
-                    testInteractor.addFlowToJobQueue(
+                    flowRunnerInteractor.addFlowToJobQueue(
                         flowUid = flowUid,
                         jobUid = jobUid,
                         onFinishAction = onFinishAction
@@ -237,13 +235,13 @@ class FlowInteractor(
     suspend fun cancelJob(jobUid: String): Either<AppException, Unit> =
         withContext(Dispatchers.IO) {
             either {
-                val getJobResult = testInteractor.getJobByUid(jobUid)
+                val getJobResult = flowRunnerInteractor.getJobByUid(jobUid)
                 if (getJobResult.isLeft()) {
                     return@either
                 }
 
                 val job = getJobResult.bind()
-                testInteractor.updateJob(
+                flowRunnerInteractor.updateJob(
                     job.copy(
                         status = JobStatus.CANCELLED
                     )

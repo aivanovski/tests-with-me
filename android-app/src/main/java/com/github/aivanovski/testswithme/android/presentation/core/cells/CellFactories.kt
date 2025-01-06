@@ -17,6 +17,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.L
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.MenuCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ShapedSpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleCellModel
@@ -34,6 +35,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.Labe
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.MenuCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ShapedSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextChipRowCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextWithChipCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleCell
@@ -51,6 +53,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.viewMod
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.MenuCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ShapedSpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleCellViewModel
@@ -76,6 +79,7 @@ fun CreateCoreCell(viewModel: CellViewModel) {
         is DividerCellViewModel -> DividerCell(viewModel)
         is MenuCellViewModel -> MenuCell(viewModel)
         is TitleWithIconCellViewModel -> TitleWithIconCell(viewModel)
+        is TextCellViewModel -> TextCell(viewModel)
         else -> throw UnsupportedCellViewModelException(viewModel)
     }
 }
@@ -102,6 +106,7 @@ fun createCoreCellViewModel(
         is DividerCellModel -> DividerCellViewModel(model)
         is MenuCellModel -> MenuCellViewModel(model, intentProvider)
         is TitleWithIconCellModel -> TitleWithIconCellViewModel(model, intentProvider)
+        is TextCellModel -> TextCellViewModel(model)
         else -> throw UnsupportedCellModelException(model)
     }
 }

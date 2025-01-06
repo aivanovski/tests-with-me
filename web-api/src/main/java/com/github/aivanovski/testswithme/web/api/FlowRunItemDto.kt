@@ -14,5 +14,6 @@ data class FlowRunItemDto(
     val appVersionName: String,
     val appVersionCode: String,
     val isExpired: Boolean,
+    val result: String,
     val reportBase64Content: String
 )
