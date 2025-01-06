@@ -9,7 +9,7 @@ import com.github.aivanovski.testswithme.android.data.repository.ProjectReposito
 import com.github.aivanovski.testswithme.android.domain.VersionParser
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.entity.FlowRun
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
@@ -99,7 +99,7 @@ class ProjectDashboardInteractor(
 
     private fun getVersions(
         project: ProjectEntry,
-        runs: List<FlowRun>
+        runs: List<FlowRunEntry>
     ): List<AppVersion> {
         val versionsFromRuns = runs
             .map { run ->

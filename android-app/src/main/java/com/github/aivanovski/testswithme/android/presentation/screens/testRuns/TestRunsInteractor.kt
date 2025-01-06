@@ -10,7 +10,10 @@ import com.github.aivanovski.testswithme.android.data.repository.StepRunReposito
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.SourceType
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
+import com.github.aivanovski.testswithme.android.extensions.filterBySourceType
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.model.TestRunsData
+import com.github.aivanovski.testswithme.android.utils.combineEitherFlows
+import kotlinx.coroutines.flow.Flow
 
 class TestRunsInteractor(
     private val projectRepository: ProjectRepository,
@@ -24,39 +27,40 @@ class TestRunsInteractor(
 
     fun isLoggedInFlow() = authRepository.isLoggedInFlow()
 
-    suspend fun loadData(): Either<AppException, TestRunsData> =
-        either {
-            val projects = projectRepository.getProjects().bind()
+    fun loadData(): Flow<Either<AppException, TestRunsData>> =
+        combineEitherFlows(
+            projectRepository.getProjectsFlow(),
+            flowRepository.getFlowsFlow()
+        ) { allProjects, allFlows ->
+            either {
+                val jobHistory = jobRepository.getAllHistory()
 
-            val jobHistory = jobRepository.getAllHistory()
+                val filteredHistory = if (authRepository.isUserLoggedIn()) {
+                    jobHistory
+                } else {
+                    val localFlowUids = allFlows
+                        .filterBySourceType(SourceType.LOCAL)
+                        .map { flow -> flow.uid }
+                        .toSet()
 
-            val filteredHistory = if (authRepository.isUserLoggedIn()) {
-                jobHistory
-            } else {
-                val flows = flowRepository.getFlows().bind()
+                    jobHistory.filter { history -> history.flowUid in localFlowUids }
+                }
 
-                val localFlowUids = flows
-                    .filter { flow -> flow.sourceType == SourceType.LOCAL }
-                    .map { flow -> flow.uid }
-                    .toSet()
+                val steps = stepRunRepository.getAll()
 
-                jobHistory.filter { history -> history.flowUid in localFlowUids }
+                val flowWithSteps = mutableListOf<FlowWithSteps>()
+
+                for (job in filteredHistory) {
+                    val flow = flowRepository.getCachedFlowByUid(job.flowUid).bind()
+                    flowWithSteps.add(flow)
+                }
+
+                TestRunsData(
+                    allProjects = allProjects,
+                    allFlows = flowWithSteps,
+                    jobHistory = filteredHistory,
+                    localRuns = steps
+                )
             }
-
-            val steps = stepRunRepository.getAll()
-
-            val flowWithSteps = mutableListOf<FlowWithSteps>()
-
-            for (job in filteredHistory) {
-                val flow = flowRepository.getCachedFlowByUid(job.flowUid).bind()
-                flowWithSteps.add(flow)
-            }
-
-            TestRunsData(
-                allProjects = projects,
-                allFlows = flowWithSteps,
-                jobHistory = filteredHistory,
-                localRuns = steps
-            )
         }
 }

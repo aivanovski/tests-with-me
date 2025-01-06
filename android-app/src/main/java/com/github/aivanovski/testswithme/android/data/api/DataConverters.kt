@@ -1,11 +1,11 @@
 package com.github.aivanovski.testswithme.android.data.api
 
-import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.SourceType
-import com.github.aivanovski.testswithme.android.entity.User
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.HashType
 import com.github.aivanovski.testswithme.web.api.FlowRunItemDto
@@ -30,9 +30,9 @@ fun List<FlowsItemDto>.toFlows(): List<FlowEntry> {
     }
 }
 
-fun List<UsersItemDto>.toUsers(): List<User> {
+fun List<UsersItemDto>.toUsers(): List<UserEntry> {
     return map { item ->
-        User(
+        UserEntry(
             uid = item.id,
             name = item.name
         )
@@ -50,9 +50,9 @@ fun List<GroupItemDto>.toGroups(): List<GroupEntry> {
     }
 }
 
-fun List<FlowRunsItemDto>.toFlowRuns(): List<FlowRun> {
+fun List<FlowRunsItemDto>.toFlowRuns(): List<FlowRunEntry> {
     return map { item ->
-        FlowRun(
+        FlowRunEntry(
             uid = item.id,
             flowUid = item.flowId,
             userUid = item.userId,
@@ -65,8 +65,8 @@ fun List<FlowRunsItemDto>.toFlowRuns(): List<FlowRun> {
     }
 }
 
-fun FlowRunItemDto.toFlowRun(): FlowRun {
-    return FlowRun(
+fun FlowRunItemDto.toFlowRun(): FlowRunEntry {
+    return FlowRunEntry(
         uid = id,
         flowUid = flowId,
         userUid = userId,

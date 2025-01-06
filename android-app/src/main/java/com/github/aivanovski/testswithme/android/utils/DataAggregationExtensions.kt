@@ -1,9 +1,9 @@
 package com.github.aivanovski.testswithme.android.utils
 
 import com.github.aivanovski.testswithme.android.domain.getDescendantNodes
-import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.TreeNode
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 
 fun findParentGroups(
@@ -27,9 +27,9 @@ fun findParentGroups(
     return parents.reversed()
 }
 
-fun List<FlowRun>.aggregateByFlowUid(): Map<String, List<FlowRun>> {
+fun List<FlowRunEntry>.aggregateByFlowUid(): Map<String, List<FlowRunEntry>> {
     val runs = this
-    val flowUidToRunsMap = HashMap<String, MutableList<FlowRun>>()
+    val flowUidToRunsMap = HashMap<String, MutableList<FlowRunEntry>>()
 
     for (run in runs) {
         val flowUid = run.flowUid
@@ -49,7 +49,7 @@ fun List<FlowRun>.aggregateByFlowUid(): Map<String, List<FlowRun>> {
     return flowUidToRunsMap
 }
 
-fun List<FlowRun>.aggregateRunCountByFlowUid(): Map<String, Int> {
+fun List<FlowRunEntry>.aggregateRunCountByFlowUid(): Map<String, Int> {
     val runs = this
     val flowUidToRunCountMap = HashMap<String, Int>()
 
@@ -73,8 +73,8 @@ fun List<GroupEntry>.aggregateFlowCountByGroupUid(): Map<String, Int> {
     return groupUidToFlowCountMap
 }
 
-fun List<FlowRun>.aggregateLastRunByFlowUid(): Map<String, FlowRun> {
-    val flowUidToLastRunMap = HashMap<String, FlowRun>()
+fun List<FlowRunEntry>.aggregateLastRunByFlowUid(): Map<String, FlowRunEntry> {
+    val flowUidToLastRunMap = HashMap<String, FlowRunEntry>()
     val runs = this
 
     for (run in runs) {
@@ -89,7 +89,7 @@ fun List<FlowRun>.aggregateLastRunByFlowUid(): Map<String, FlowRun> {
 }
 
 fun List<FlowEntry>.aggregatePassedFailedAndRemainedFlows(
-    runs: List<FlowRun>
+    runs: List<FlowRunEntry>
 ): Triple<List<FlowEntry>, List<FlowEntry>, List<FlowEntry>> {
     val flowUidToLastRunMap = runs.aggregateLastRunByFlowUid()
     val flows = this

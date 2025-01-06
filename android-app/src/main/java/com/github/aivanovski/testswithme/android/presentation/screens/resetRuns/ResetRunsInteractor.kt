@@ -7,7 +7,7 @@ import com.github.aivanovski.testswithme.android.data.repository.FlowRunReposito
 import com.github.aivanovski.testswithme.android.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.android.domain.VersionParser
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.entity.FlowRun
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.extensions.filterRemoteOnly
 import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsData
@@ -49,7 +49,7 @@ class ResetRunsInteractor(
     ): Either<AppException, ResetFlowRunsResponse> =
         flowRunRepository.resetRuns(projectUid, versionName)
 
-    private fun getVersionsFromRuns(runs: List<FlowRun>): List<AppVersion> {
+    private fun getVersionsFromRuns(runs: List<FlowRunEntry>): List<AppVersion> {
         return runs
             .map { run ->
                 versionParser.parseVersions(

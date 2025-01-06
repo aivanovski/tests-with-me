@@ -14,20 +14,25 @@ import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.DriverServiceState
-import com.github.aivanovski.testswithme.android.entity.FlowRun
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
+import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
+import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
+import com.github.aivanovski.testswithme.android.extensions.filterByProjectUid
+import com.github.aivanovski.testswithme.android.extensions.filterGroupsByProjectUid
 import com.github.aivanovski.testswithme.android.extensions.filterRemoteOnly
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
 import com.github.aivanovski.testswithme.android.utils.aggregateDescendantFlows
 import com.github.aivanovski.testswithme.android.utils.aggregateRunCountByFlowUid
+import com.github.aivanovski.testswithme.android.utils.combineEitherFlows
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class FlowInteractor(
@@ -44,22 +49,34 @@ class FlowInteractor(
         return FlowRunnerManager.getDriverState() == DriverServiceState.RUNNING
     }
 
-    suspend fun loadData(mode: FlowScreenMode): Either<AppException, FlowData> =
-        withContext(Dispatchers.IO) {
+    fun loadData(mode: FlowScreenMode): Flow<Either<AppException, FlowData>> =
+        combineEitherFlows(
+            projectRepository.getProjectsFlow(),
+            groupRepository.getGroupsFlow(),
+            flowRepository.getFlowsFlow(),
+            flowRunRepository.getRunsFlow(),
+            userRepository.getUsersFlow()
+        ) { allProjects, allGroups, allFlows, allRuns, allUsers ->
             either {
-                val projectUid = resolveProjectUid(mode).bind()
-                val project = projectRepository.getProjectByUid(projectUid).bind()
+                val projectUid = resolveProjectUid(mode, allFlows, allGroups).bind()
+                val project = allProjects
+                    .firstOrNull { project -> project.uid == projectUid }
+                    ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, projectUid))
 
-                val allGroups = groupRepository.getGroupsByProjectUid(projectUid).bind()
-                val allFlows = flowRepository.getFlowsByProjectUid(projectUid).bind()
+                val groups = allGroups.filterGroupsByProjectUid(projectUid = projectUid)
+
+                val flows = allFlows
+                    .filterByProjectUid(projectUid = projectUid)
                     .filterRemoteOnly()
 
-                val flowUids = allFlows.map { flow -> flow.uid }
-                val allRuns = flowRunRepository.getRuns().bind()
-                    .filter { run -> run.flowUid in flowUids }
+                val flowUids = flows
+                    .map { flow -> flow.uid }
+                    .toSet()
+
+                val runs = allRuns.filter { run -> run.flowUid in flowUids }
 
                 val group = if (mode is FlowScreenMode.Group) {
-                    allGroups
+                    groups
                         .firstOrNull { group -> group.uid == mode.groupUid }
                         ?: raise(FailedToFindEntityByUidException(GroupEntry::class, mode.groupUid))
                 } else {
@@ -74,16 +91,16 @@ class FlowInteractor(
 
                     is FlowScreenMode.Group -> {
                         getGroupFlows(
-                            allGroups = allGroups,
-                            allFlows = allFlows,
+                            allGroups = groups,
+                            allFlows = flows,
                             groupUid = mode.groupUid
                         ).bind()
                     }
 
                     is FlowScreenMode.RemainedFlows -> {
                         getRemainedFlows(
-                            allFlows = allFlows,
-                            allRuns = allRuns,
+                            allFlows = flows,
+                            allRuns = runs,
                             version = mode.version
                         ).bind()
                     }
@@ -96,30 +113,28 @@ class FlowInteractor(
                 val visibleRuns = when (mode) {
                     is FlowScreenMode.Flow -> {
                         if (mode.requiredVersion != null) {
-                            allRuns.filter { run ->
+                            runs.filter { run ->
                                 run.flowUid in visibleFlowUids &&
                                     run.appVersionName == mode.requiredVersion.name
                             }
                         } else {
-                            allRuns.filter { run ->
+                            runs.filter { run ->
                                 run.flowUid in visibleFlowUids
                             }
                         }
                     }
 
                     is FlowScreenMode.Group -> {
-                        allRuns.filter { run -> run.flowUid in visibleFlowUids }
+                        runs.filter { run -> run.flowUid in visibleFlowUids }
                     }
 
                     else -> emptyList()
                 }
 
-                val allUsers = userRepository.getUsers().bind()
-
                 FlowData(
                     project = project,
-                    allGroups = allGroups,
-                    allRuns = allRuns,
+                    allGroups = groups,
+                    allRuns = runs,
                     group = group,
                     visibleFlows = visibleFlows,
                     visibleRuns = visibleRuns,
@@ -143,7 +158,7 @@ class FlowInteractor(
 
     private fun getRemainedFlows(
         allFlows: List<FlowEntry>,
-        allRuns: List<FlowRun>,
+        allRuns: List<FlowRunEntry>,
         version: AppVersion?
     ): Either<AppException, List<FlowEntry>> =
         either {
@@ -164,24 +179,27 @@ class FlowInteractor(
             }
         }
 
-    private suspend fun resolveProjectUid(data: FlowScreenMode): Either<AppException, String> =
+    private fun resolveProjectUid(
+        mode: FlowScreenMode,
+        allFlows: List<FlowEntry>,
+        allGroups: List<GroupEntry>
+    ): Either<AppException, String> =
         either {
-            when (data) {
+            when (mode) {
                 is FlowScreenMode.Flow -> {
-                    flowRepository.getFlowByUid(data.flowUid)
-                        .bind()
-                        .entry
-                        .projectUid
+                    allFlows.firstOrNull { flow -> flow.uid == mode.flowUid }
+                        ?.projectUid
+                        ?: raise(FailedToFindEntityByUidException(FlowEntry::class, mode.flowUid))
                 }
 
                 is FlowScreenMode.Group -> {
-                    groupRepository.getGroupByUid(data.groupUid)
-                        .bind()
-                        .projectUid
+                    allGroups.firstOrNull { group -> group.uid == mode.groupUid }
+                        ?.projectUid
+                        ?: raise(FailedToFindEntityByUidException(GroupEntry::class, mode.groupUid))
                 }
 
                 is FlowScreenMode.RemainedFlows -> {
-                    data.projectUid
+                    mode.projectUid
                 }
             }
         }
