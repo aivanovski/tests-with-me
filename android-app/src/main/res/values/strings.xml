@@ -125,6 +125,10 @@
     <string name="driver_gateway_description">Enable this to start the Driver Gateway, an HTTP server running on port 7077. It allows external clients, like a Command Line Interface (CLI) application, to communicate with the Test Driver and send tests for execution.</string>
     <string name="driver_is">Driver is %s</string>
     <string name="server_url">Server url</string>
+    <string name="flakiness_configuration">Flakiness Configuration</string>
+    <string name="flakiness_configuration_description">Configure settings to handle flaky tests and improve the reliability. A higher value may improve test stability on slower devices.</string>
+    <string name="delay_scale_factor_title">Delay Scale Factor</string>
+    <string name="number_of_retries_title">Number of Retries</string>
 
     <!-- Reset Runs -->
     <string name="application_version">Application version</string>

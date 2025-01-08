@@ -51,7 +51,8 @@ class FlowRunner(
     private val scope = CoroutineScope(Dispatchers.Main)
     private val executionContext = ExecutionContext(
         driver = driver,
-        logger = logger
+        logger = logger,
+        environment = Environment(settings)
     )
     private val commandExecutor = CommandExecutor(interactor, executionContext, listeners)
     private val commandFactory = StepCommandFactory(interactor)
@@ -192,7 +193,7 @@ class FlowRunner(
 
             runCurrentStep(
                 isFirstStep = true,
-                initialDelay = DELAY_BETWEEN_STEPS
+                initialDelay = interactor.getDelayBetweenSteps()
             ).bind()
         }
 
@@ -224,7 +225,7 @@ class FlowRunner(
 
     private suspend fun runCurrentStep(
         isFirstStep: Boolean,
-        initialDelay: Long = DELAY_BETWEEN_STEPS
+        initialDelay: Long = interactor.getDelayBetweenSteps()
     ): Either<AppException, Unit> =
         either {
             delay(initialDelay)
@@ -385,6 +386,5 @@ class FlowRunner(
     }
 
     companion object {
-        const val DELAY_BETWEEN_STEPS = 2000L // in milliseconds
     }
 }

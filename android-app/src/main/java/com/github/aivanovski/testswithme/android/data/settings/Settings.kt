@@ -8,6 +8,8 @@ interface Settings {
     var isSslVerificationDisabled: Boolean
     var account: Account?
     var serverUrl: String
+    var delayScaleFactor: Int
+    var numberOfRetries: Int
 
     fun subscribe(listener: OnSettingsChangeListener)
     fun unsubscribe(listener: OnSettingsChangeListener)

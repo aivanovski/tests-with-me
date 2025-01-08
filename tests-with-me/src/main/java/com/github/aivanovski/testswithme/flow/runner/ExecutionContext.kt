@@ -5,5 +5,6 @@ import com.github.aivanovski.testswithme.utils.Logger
 
 data class ExecutionContext<NodeType>(
     val driver: Driver<NodeType>,
-    val logger: Logger
+    val logger: Logger,
+    val environment: ExecutionEnvironment
 )

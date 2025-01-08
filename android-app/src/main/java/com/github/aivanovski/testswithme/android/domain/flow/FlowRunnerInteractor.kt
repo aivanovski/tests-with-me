@@ -43,6 +43,7 @@ import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -547,7 +548,7 @@ class FlowRunnerInteractor(
                 (error != null && error.isFlakyException())
             )
 
-        return isFlaky && attemptCount < FLAKY_STEP_RETRY_COUNT
+        return isFlaky && attemptCount < getFlakyStepMaxRetryCount()
     }
 
     private fun createStepResult(result: Either<FlowExecutionException, Any>): StepResult {
@@ -576,8 +577,16 @@ class FlowRunnerInteractor(
         }
     }
 
+    private fun getFlakyStepMaxRetryCount(): Int {
+        return settings.numberOfRetries
+    }
+
+    fun getDelayBetweenSteps(): Long {
+        return DELAY_BETWEEN_STEPS * settings.delayScaleFactor
+    }
+
     companion object {
-        private const val FLAKY_STEP_RETRY_COUNT = 3
+        private val DELAY_BETWEEN_STEPS = 2.seconds.inWholeMilliseconds
         const val LOCAL_PROJECT_UID = "Local"
     }
 }

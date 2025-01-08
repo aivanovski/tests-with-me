@@ -37,8 +37,12 @@ class WaitUntil(
 
             var uiRoot: UiNode<NodeType>? = null
 
-            while ((System.currentTimeMillis() - startTime) <= timeout.toMilliseconds()) {
-                delay(step.toMilliseconds())
+            val delayScale = context.environment.getDelayScaleFactor()
+            val timeoutInMs = timeout.toMilliseconds() * delayScale
+            val stepInMs = step.toMilliseconds() * delayScale
+
+            while ((System.currentTimeMillis() - startTime) <= timeoutInMs) {
+                delay(stepInMs)
 
                 uiRoot = context.driver.getUiTree().bind()
                 if (uiRoot.hasElement(element)) {

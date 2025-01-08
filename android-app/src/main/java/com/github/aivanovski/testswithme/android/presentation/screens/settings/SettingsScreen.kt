@@ -30,6 +30,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.SwitchCell
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.TwoTextCell
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.newSwitchCell
+import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.ui.newTwoTextCell
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.SwitchCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.TwoTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsIntent
@@ -111,13 +112,19 @@ fun SettingsScreenDataPreview() {
             state = SettingsState(
                 terminalState = null,
                 viewModels = listOf(
+                    newTwoTextCell(
+                        title = stringResource(R.string.server_url),
+                        description = "https://testswithme.org"
+                    ),
                     newSwitchCell(
                         title = stringResource(R.string.validate_ssl_certificates),
                         description = stringResource(R.string.requires_application_restart)
                     ),
+
                     newSpaceCell(height = HalfMargin),
                     newDividerCell(),
                     newSpaceCell(height = HalfMargin),
+
                     newHeaderWithDescriptionCell(
                         title = stringResource(R.string.test_driver_title),
                         description = stringResource(R.string.test_driver_description)
@@ -127,12 +134,31 @@ fun SettingsScreenDataPreview() {
                         iconText = stringResource(R.string.settings),
                         icon = AppIcons.ArrowForward
                     ),
+
                     newSpaceCell(height = HalfMargin),
                     newDividerCell(),
                     newSpaceCell(height = HalfMargin),
+
                     newSwitchCell(
                         title = stringResource(R.string.driver_gateway_title),
                         description = stringResource(R.string.driver_gateway_description)
+                    ),
+
+                    newSpaceCell(height = HalfMargin),
+                    newDividerCell(),
+                    newSpaceCell(height = HalfMargin),
+
+                    newHeaderWithDescriptionCell(
+                        title = stringResource(R.string.flakiness_configuration),
+                        description = stringResource(R.string.flakiness_configuration_description)
+                    ),
+                    newTwoTextCell(
+                        title = stringResource(R.string.delay_scale_factor_title),
+                        description = "1x"
+                    ),
+                    newTwoTextCell(
+                        title = stringResource(R.string.number_of_retries_title),
+                        description = "3"
                     )
                 )
             ),
