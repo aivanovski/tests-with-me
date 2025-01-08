@@ -74,16 +74,7 @@ class SettingsCellFactory(
             )
         )
 
-        models.addAll(
-            listOf(
-                SpaceCellModel(height = SmallMargin),
-                DividerCellModel(
-                    padding = ElementMargin,
-                    color = LightAppColors.dividerOnPrimary
-                ),
-                SpaceCellModel(height = SmallMargin)
-            )
-        )
+        models.addAll(createSeparatorCells())
 
         models.add(
             HeaderWithDescriptionCellModel(
@@ -108,16 +99,7 @@ class SettingsCellFactory(
             )
         )
 
-        models.addAll(
-            listOf(
-                SpaceCellModel(height = SmallMargin),
-                DividerCellModel(
-                    padding = ElementMargin,
-                    color = LightAppColors.dividerOnPrimary
-                ),
-                SpaceCellModel(height = SmallMargin)
-            )
-        )
+        models.addAll(createSeparatorCells())
 
         models.add(
             SwitchCellModel(
@@ -129,14 +111,51 @@ class SettingsCellFactory(
             )
         )
 
+        models.addAll(createSeparatorCells())
+        models.addAll(createFlakinessSection(settings))
+
         return models
     }
 
+    private fun createFlakinessSection(settings: Settings): List<BaseCellModel> =
+        listOf(
+            HeaderWithDescriptionCellModel(
+                id = CellId.FLAKINESS_CONFIGURATION_HEADER,
+                title = resourceProvider.getString(R.string.flakiness_configuration),
+                description = resourceProvider.getString(
+                    R.string.flakiness_configuration_description
+                )
+            ),
+            TwoTextCellModel(
+                id = CellId.DELAY_SCALE_FACTOR,
+                title = resourceProvider.getString(R.string.delay_scale_factor_title),
+                description = "${settings.delayScaleFactor}x"
+            ),
+            TwoTextCellModel(
+                id = CellId.NUMBER_OF_RETRIES,
+                title = resourceProvider.getString(R.string.number_of_retries_title),
+                description = settings.numberOfRetries.toString()
+            )
+        )
+
+    private fun createSeparatorCells(): List<BaseCellModel> =
+        listOf(
+            SpaceCellModel(height = SmallMargin),
+            DividerCellModel(
+                padding = ElementMargin,
+                color = LightAppColors.dividerOnPrimary
+            ),
+            SpaceCellModel(height = SmallMargin)
+        )
+
     object CellId {
-        const val SERVER_URL = "server_url"
+        const val SERVER_URL = "server_url_dropdown"
         const val SSL_VALIDATION_SWITCH = "ssl_verification_switch"
         const val DRIVER_DESCRIPTION = "driver_description"
         const val DRIVER_BUTTON = "driver_button"
         const val GATEWAY_SWITCH = "gateway_switch"
+        const val FLAKINESS_CONFIGURATION_HEADER = "flakiness_configuration_header"
+        const val DELAY_SCALE_FACTOR = "delay_scale_factor"
+        const val NUMBER_OF_RETRIES = "number_of_retries"
     }
 }

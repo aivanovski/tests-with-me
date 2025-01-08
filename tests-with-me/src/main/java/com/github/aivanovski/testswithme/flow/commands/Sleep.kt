@@ -19,7 +19,7 @@ class Sleep(
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
     ): Either<FlowError, Unit> {
-        delay(duration.toMilliseconds())
+        delay(duration.toMilliseconds() * context.environment.getDelayScaleFactor())
         return Either.Right(Unit)
     }
 }

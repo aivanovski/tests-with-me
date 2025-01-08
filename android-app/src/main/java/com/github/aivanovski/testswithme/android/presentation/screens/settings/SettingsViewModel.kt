@@ -102,7 +102,12 @@ class SettingsViewModel(
     override fun handleCellIntent(intent: BaseCellIntent) {
         when (intent) {
             is TwoTextCellIntent.OnClick -> {
-                showServerUrlDialog()
+                when (intent.cellId) {
+                    CellId.SERVER_URL -> showServerUrlDialog()
+                    CellId.DELAY_SCALE_FACTOR -> showDelayScaleFactorDialog()
+                    CellId.NUMBER_OF_RETRIES -> showNumberOfRetriesDialog()
+                    else -> throw IllegalStateException()
+                }
             }
 
             is HeaderCellIntent.OnIconClick -> {
@@ -205,38 +210,69 @@ class SettingsViewModel(
     }
 
     private fun showServerUrlDialog() {
-        val options = listOf(
-            ApiUrlFactory.PROD_URL,
-            ApiUrlFactory.DEBUG_URL
+        showOptionDialog(
+            options = listOf(
+                ApiUrlFactory.PROD_URL to DialogAction(ACTION_PROD_URL_SELECTED),
+                ApiUrlFactory.DEBUG_URL to DialogAction(ACTION_DEBUG_URL_SELECTED)
+            )
         )
+    }
 
-        val actions = listOf(
-            DialogAction(ACTION_PROD_URL_SELECTED),
-            DialogAction(ACTION_DEBUG_URL_SELECTED)
+    private fun showDelayScaleFactorDialog() {
+        showOptionDialog(
+            options = listOf(
+                "1x" to DialogAction(ACTION_DELAY_SCALE_1X),
+                "2x" to DialogAction(ACTION_DELAY_SCALE_2X),
+                "3x" to DialogAction(ACTION_DELAY_SCALE_3X)
+            )
         )
+    }
 
+    private fun showNumberOfRetriesDialog() {
+        showOptionDialog(
+            options = listOf(
+                "3" to DialogAction(ACTION_NUMBER_OF_RETRIES_3),
+                "4" to DialogAction(ACTION_NUMBER_OF_RETRIES_4),
+                "5" to DialogAction(ACTION_NUMBER_OF_RETRIES_5),
+                "6" to DialogAction(ACTION_NUMBER_OF_RETRIES_6)
+            )
+        )
+    }
+
+    private fun showOptionDialog(options: List<Pair<String, DialogAction>>) {
         state.value = state.value.copy(
             optionDialogState = OptionDialogState(
-                options = options,
-                actions = actions
+                options = options.map { optionPair -> optionPair.first },
+                actions = options.map { optionPair -> optionPair.second }
             )
         )
     }
 
     private fun handleDialogAction(action: DialogAction): Flow<SettingsState> {
         return when (action.actionId) {
+            // Server url option
             ACTION_PROD_URL_SELECTED -> onServerUrlSelected(ApiUrlFactory.PROD_URL)
             ACTION_DEBUG_URL_SELECTED -> onServerUrlSelected(ApiUrlFactory.DEBUG_URL)
+
+            // Delay Scale Factor
+            ACTION_DELAY_SCALE_1X -> onDelayScaleFactorSelected(1)
+            ACTION_DELAY_SCALE_2X -> onDelayScaleFactorSelected(2)
+            ACTION_DELAY_SCALE_3X -> onDelayScaleFactorSelected(3)
+
+            // Number of Retries
+            ACTION_NUMBER_OF_RETRIES_3 -> onNumberOfRetriesSelected(3)
+            ACTION_NUMBER_OF_RETRIES_4 -> onNumberOfRetriesSelected(4)
+            ACTION_NUMBER_OF_RETRIES_5 -> onNumberOfRetriesSelected(5)
+            ACTION_NUMBER_OF_RETRIES_6 -> onNumberOfRetriesSelected(6)
+
             else -> dismissOptionDialog()
         }
     }
 
     private fun onServerUrlSelected(url: String): Flow<SettingsState> {
-        val currentState = state.value
-
         return flow {
             emit(
-                currentState.copy(
+                state.value.copy(
                     optionDialogState = null,
                     terminalState = TerminalState.Loading
                 )
@@ -249,6 +285,16 @@ class SettingsViewModel(
 
             emitAll(loadData())
         }
+    }
+
+    private fun onDelayScaleFactorSelected(delayScaleFactor: Int): Flow<SettingsState> {
+        settings.delayScaleFactor = delayScaleFactor
+        return loadData()
+    }
+
+    private fun onNumberOfRetriesSelected(numberOfRetries: Int): Flow<SettingsState> {
+        settings.numberOfRetries = numberOfRetries
+        return loadData()
     }
 
     private fun dismissOptionDialog(): Flow<SettingsState> {
@@ -278,5 +324,14 @@ class SettingsViewModel(
     companion object {
         private const val ACTION_PROD_URL_SELECTED = 100
         private const val ACTION_DEBUG_URL_SELECTED = 101
+
+        private const val ACTION_DELAY_SCALE_1X = 200
+        private const val ACTION_DELAY_SCALE_2X = 201
+        private const val ACTION_DELAY_SCALE_3X = 202
+
+        private const val ACTION_NUMBER_OF_RETRIES_3 = 303
+        private const val ACTION_NUMBER_OF_RETRIES_4 = 304
+        private const val ACTION_NUMBER_OF_RETRIES_5 = 305
+        private const val ACTION_NUMBER_OF_RETRIES_6 = 306
     }
 }

@@ -6,7 +6,9 @@ import android.preference.PreferenceManager
 import com.github.aivanovski.testswithme.android.data.api.ApiUrlFactory
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.ACCOUNT
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.AUTH_TOKEN
+import com.github.aivanovski.testswithme.android.data.settings.SettingKey.DELAY_SCALE_FACTOR
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.IS_SSL_VERIFICATION_DISABLED
+import com.github.aivanovski.testswithme.android.data.settings.SettingKey.NUMBER_OF_RETRIES
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.SERVER_URL
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey.START_JOB_UID
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipher
@@ -58,6 +60,18 @@ class SettingsImpl(
             putString(SERVER_URL, value)
         }
 
+    override var delayScaleFactor: Int
+        get() = getInt(DELAY_SCALE_FACTOR, 1)
+        set(value) {
+            putInt(DELAY_SCALE_FACTOR, value)
+        }
+
+    override var numberOfRetries: Int
+        get() = getInt(NUMBER_OF_RETRIES, 3)
+        set(value) {
+            putInt(NUMBER_OF_RETRIES, value)
+        }
+
     override fun subscribe(listener: OnSettingsChangeListener) {
         if (listener !in listeners) {
             listeners.add(listener)
@@ -68,17 +82,16 @@ class SettingsImpl(
         listeners.remove(listener)
     }
 
-    private fun getBoolean(key: SettingKey): Boolean {
-        return preferences.getBoolean(key.key, false)
-    }
+    private fun getBoolean(key: SettingKey): Boolean = preferences.getBoolean(key.key, false)
 
-    private fun getString(key: SettingKey): String? {
-        return preferences.getString(key.key, null)
-    }
+    private fun getString(key: SettingKey): String? = preferences.getString(key.key, null)
 
-    private fun getInt(key: SettingKey): Int {
-        return preferences.getInt(key.key, 0)
-    }
+    private fun getInt(key: SettingKey): Int = preferences.getInt(key.key, 0)
+
+    private fun getInt(
+        key: SettingKey,
+        defaultValue: Int
+    ): Int = preferences.getInt(key.key, defaultValue)
 
     private fun putBoolean(
         key: SettingKey,

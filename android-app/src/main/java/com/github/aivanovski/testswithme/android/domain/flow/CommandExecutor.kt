@@ -141,7 +141,7 @@ class CommandExecutor(
             val commands = compositeCommand.getCommands()
             var commandIndex = 0
             while (commandIndex < commands.size) {
-                delay(FlowRunner.DELAY_BETWEEN_STEPS)
+                delay(interactor.getDelayBetweenSteps())
 
                 flow = interactor.getCachedFlowByUid(compositeCommand.flowUid)
                     .mapLeft { exception -> ExternalException(exception) }
