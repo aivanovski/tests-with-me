@@ -8,10 +8,6 @@ import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 
 class GetUiTree<T> : ExecutableStepCommand<UiNode<T>> {
 
-    override fun describe(): String {
-        return "Get UI tree"
-    }
-
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
     ): Either<FlowError, UiNode<T>> =

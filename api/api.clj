@@ -1,6 +1,7 @@
 (ns api.api
   (:require [babashka.http-client :as http]
             [cheshire.core :as json]
+            [clojure.string :as str]
             [clojure.java.io :as io])
   (:import java.util.Base64))
 
@@ -203,6 +204,17 @@
               :appVersionName (:version-name params "1.7.0")
               :appVersionCode (:version-code params "10700")
               :reportBase64Content (encode-base64 "[Step 1] Finished")})}))
+
+(defn post-flow
+  [content path]
+  (let [base64Content (encode-base64 content)]
+    (request
+      {:type :POST
+       :endpoint "/flow"
+       :headers (merge HEADER_CONTENT_TYPE (auth-header))
+       :body (to-json
+               {:path path
+                :base64Content base64Content})})))
 
 (defn reset-flow-run-request
   [project-uid version-name]

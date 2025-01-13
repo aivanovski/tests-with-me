@@ -1,7 +1,6 @@
 package com.github.aivanovski.testswithme.web.extensions
 
-import arrow.core.Either
-import com.github.aivanovski.testswithme.extensions.unwrapError
+import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.web.entity.ErrorResponse
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundException
@@ -29,6 +28,7 @@ fun Exception.toHttpStatus(): HttpStatusCode? {
 
 fun Exception.toErrorResponse(): ErrorResponse {
     val exception = this
+    val cause = exception.getRootCause()
 
     return ErrorResponse(
         status = exception.toHttpStatus() ?: HttpStatusCode.BadRequest,
@@ -37,14 +37,6 @@ fun Exception.toErrorResponse(): ErrorResponse {
         } else {
             AppException(cause = exception)
         },
-        message = if (exception is AppException) {
-            exception.message
-        } else {
-            null
-        }
+        message = cause.message
     )
-}
-
-fun <Value> Either<Exception, Value>.toErrorResponse(): Either.Left<ErrorResponse> {
-    return Either.Left(this.unwrapError().toErrorResponse())
 }

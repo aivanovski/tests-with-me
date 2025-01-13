@@ -7,7 +7,7 @@ fun UiElementSelector.toReadableFormat(): String {
     return when (type) {
         SelectionType.ID -> "[id = $id]"
         SelectionType.TEXT -> "[text = $text]"
-        SelectionType.CONTAINS_TEXT -> "[has text = $text, ignoreCase = $isIgnoreTextCase]"
+        SelectionType.CONTAINS_TEXT -> "[has text = $containsText, ignoreCase = $isIgnoreTextCase]"
         SelectionType.CONTENT_DESCRIPTION -> "[content description = $contentDescription]"
         SelectionType.FOCUSED -> "[is in focus = $isFocused]"
         SelectionType.FOCUSABLE -> "[is focusable = $isFocusable]"

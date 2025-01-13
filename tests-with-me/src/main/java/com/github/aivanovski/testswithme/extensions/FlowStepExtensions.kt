@@ -1,6 +1,8 @@
 package com.github.aivanovski.testswithme.extensions
 
+import com.github.aivanovski.testswithme.entity.ConditionType
 import com.github.aivanovski.testswithme.entity.FlowStep
+import com.github.aivanovski.testswithme.entity.FlowStepPrecondition
 import com.github.aivanovski.testswithme.entity.KeyCode
 import java.lang.StringBuilder
 
@@ -12,8 +14,8 @@ fun FlowStep.isStepFlaky(): Boolean {
         this is FlowStep.TapOn
 }
 
-fun FlowStep.describe(): String {
-    return when (this) {
+fun FlowStep.describe(): String =
+    when (this) {
         is FlowStep.Launch -> describe()
         is FlowStep.SendBroadcast -> describe()
         is FlowStep.TapOn -> describe()
@@ -24,14 +26,23 @@ fun FlowStep.describe(): String {
         is FlowStep.WaitUntil -> describe()
         is FlowStep.RunFlow -> describe()
     }
-}
 
-private fun FlowStep.Launch.describe(): String {
-    return "Launch app: package name = %s".format(packageName)
-}
+private fun FlowStepPrecondition.describe(): String =
+    StringBuilder()
+        .apply {
+            val condition = when (type) {
+                ConditionType.VISIBLE -> "is visible"
+                ConditionType.NOT_VISIBLE -> "is not visible"
+            }
 
-private fun FlowStep.SendBroadcast.describe(): String {
-    return StringBuilder()
+            append("WHEN %s %s".format(element.toReadableFormat(), condition))
+        }
+        .toString()
+
+private fun FlowStep.Launch.describe(): String = "Launch app: package name = %s".format(packageName)
+
+private fun FlowStep.SendBroadcast.describe(): String =
+    StringBuilder()
         .apply {
             append("Broadcast: $packageName/$action")
             if (data.isNotEmpty()) {
@@ -46,57 +57,78 @@ private fun FlowStep.SendBroadcast.describe(): String {
 
                 append("]")
             }
+
+            if (condition != null) {
+                append(" %s".format(condition.describe()))
+            }
         }
         .toString()
-}
 
-private fun FlowStep.TapOn.describe(): String {
-    return "%s on element: %s".format(
-        if (isLong) "Long Tap" else "Tap",
-        element.toReadableFormat()
-    )
-}
+private fun FlowStep.TapOn.describe(): String =
+    StringBuilder()
+        .apply {
+            val tapName = if (isLong) "Long Tap" else "Tap"
 
-private fun FlowStep.AssertVisible.describe(): String {
-    val assertion = "is visible"
-    return when {
-        else -> "Assert %s: %s".format(assertion, elements.toReadableFormat())
-    }
-}
+            append("%s on element: %s".format(tapName, element.toReadableFormat()))
 
-private fun FlowStep.AssertNotVisible.describe(): String {
-    val assertion = "is not visible"
-    return when {
-        else -> "Assert %s: %s".format(assertion, elements.toReadableFormat())
-    }
-}
+            if (condition != null) {
+                append(" %s".format(condition.describe()))
+            }
+        }
+        .toString()
 
-private fun FlowStep.InputText.describe(): String {
-    return if (element != null) {
-        "Input text: [%s] into %s".format(text, element.toReadableFormat())
-    } else {
-        "Input text: [%s]".format(text)
-    }
-}
+private fun FlowStep.AssertVisible.describe(): String =
+    "Assert %s: %s".format("is visible", elements.toReadableFormat())
 
-private fun FlowStep.PressKey.describe(): String {
-    val name = when (key) {
-        KeyCode.Back -> "Back"
-        KeyCode.Home -> "Home"
-    }
+private fun FlowStep.AssertNotVisible.describe(): String =
+    "Assert %s: %s".format("is not visible", elements.toReadableFormat())
 
-    return "Press key: %s".format(name)
-}
+private fun FlowStep.InputText.describe(): String =
+    StringBuilder()
+        .apply {
+            if (element != null) {
+                append("Input text: [%s] into %s".format(text, element.toReadableFormat()))
+            } else {
+                append("Input text: [%s]".format(text))
+            }
 
-private fun FlowStep.WaitUntil.describe(): String {
-    return String.format(
+            if (condition != null) {
+                append(" %s".format(condition.describe()))
+            }
+        }
+        .toString()
+
+private fun FlowStep.PressKey.describe(): String =
+    StringBuilder()
+        .apply {
+            val keyName = when (key) {
+                KeyCode.Back -> "Back"
+                KeyCode.Home -> "Home"
+            }
+
+            append("Press key: %s".format(keyName))
+
+            if (condition != null) {
+                append(" %s".format(condition.describe()))
+            }
+        }
+        .toString()
+
+private fun FlowStep.WaitUntil.describe(): String =
+    String.format(
         "Wait for element: %s, timeout = %s, step = %s",
         element.toReadableFormat(),
         timeout.toReadableFormat(),
         step.toReadableFormat()
     )
-}
 
-private fun FlowStep.RunFlow.describe(): String {
-    return "Run flow '%s'".format(path)
-}
+private fun FlowStep.RunFlow.describe(): String =
+    StringBuilder()
+        .apply {
+            append("Run flow '%s'".format(path))
+
+            if (condition != null) {
+                append(" %s".format(condition.describe()))
+            }
+        }
+        .toString()

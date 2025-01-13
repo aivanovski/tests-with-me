@@ -49,7 +49,6 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootUiEvent
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
-import com.github.aivanovski.testswithme.utils.StringUtils
 
 @Composable
 fun RootScreen(rootComponent: RootScreenComponent) {
@@ -237,7 +236,9 @@ private fun MenuContent(
 @Composable
 private fun MenuItem.getTitle(): String {
     return when (this) {
-        MenuItem.DONE -> StringUtils.EMPTY
+        // TODO: strings
+        MenuItem.DONE -> "Done"
+        MenuItem.RESTART -> "Restart"
     }
 }
 

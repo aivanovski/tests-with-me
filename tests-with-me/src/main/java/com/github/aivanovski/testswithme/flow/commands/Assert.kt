@@ -5,7 +5,6 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.entity.UiElementSelector
 import com.github.aivanovski.testswithme.extensions.findNode
 import com.github.aivanovski.testswithme.extensions.matches
-import com.github.aivanovski.testswithme.extensions.toReadableFormat
 import com.github.aivanovski.testswithme.extensions.toSerializableTree
 import com.github.aivanovski.testswithme.flow.commands.assertion.Assertion
 import com.github.aivanovski.testswithme.flow.error.FlowError
@@ -17,21 +16,6 @@ class Assert(
     private val elements: List<UiElementSelector>,
     private val assertion: Assertion
 ) : ExecutableStepCommand<Unit> {
-
-    override fun describe(): String {
-        return when {
-            parent != null -> {
-                String.format(
-                    "Assert %s: inside [%s] -> %s",
-                    assertion.describe(),
-                    parent.toReadableFormat(),
-                    elements.toReadableFormat()
-                )
-            }
-
-            else -> "Assert %s: %s".format(assertion.describe(), elements.toReadableFormat())
-        }
-    }
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>

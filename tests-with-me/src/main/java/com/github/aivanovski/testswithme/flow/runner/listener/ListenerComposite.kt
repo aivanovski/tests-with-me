@@ -2,8 +2,8 @@ package com.github.aivanovski.testswithme.flow.runner.listener
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Flow
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
 
 class ListenerComposite : FlowLifecycleListener {
 
@@ -32,23 +32,23 @@ class ListenerComposite : FlowLifecycleListener {
 
     override fun onStepStarted(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         attemptIndex: Int
     ) {
         listeners.forEach { listener ->
-            listener.onStepStarted(flow, command, stepIndex, attemptIndex)
+            listener.onStepStarted(flow, step, stepIndex, attemptIndex)
         }
     }
 
     override fun onStepFinished(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         result: Either<FlowExecutionException, Any>
     ) {
         listeners.forEach { listener ->
-            listener.onStepFinished(flow, command, stepIndex, result)
+            listener.onStepFinished(flow, step, stepIndex, result)
         }
     }
 }

@@ -18,6 +18,7 @@ data class UiElementSelector private constructor(
 ) {
 
     enum class SelectionType {
+        @Deprecated("is not supported")
         ID,
         TEXT,
         CONTENT_DESCRIPTION,
@@ -31,6 +32,7 @@ data class UiElementSelector private constructor(
 
     companion object {
 
+        @Deprecated("is not supported")
         fun id(id: String) =
             UiElementSelector(
                 id = id,

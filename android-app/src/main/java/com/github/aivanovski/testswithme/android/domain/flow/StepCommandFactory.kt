@@ -5,12 +5,14 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
+import com.github.aivanovski.testswithme.entity.ConditionType
 import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.flow.commands.Assert
 import com.github.aivanovski.testswithme.flow.commands.Broadcast
 import com.github.aivanovski.testswithme.flow.commands.ExecutableStepCommand
 import com.github.aivanovski.testswithme.flow.commands.InputText
 import com.github.aivanovski.testswithme.flow.commands.Launch
+import com.github.aivanovski.testswithme.flow.commands.Precondition
 import com.github.aivanovski.testswithme.flow.commands.PressKey
 import com.github.aivanovski.testswithme.flow.commands.RunFlow
 import com.github.aivanovski.testswithme.flow.commands.StepCommand
@@ -18,6 +20,9 @@ import com.github.aivanovski.testswithme.flow.commands.Tap
 import com.github.aivanovski.testswithme.flow.commands.WaitUntil
 import com.github.aivanovski.testswithme.flow.commands.assertion.NotVisibleAssertion
 import com.github.aivanovski.testswithme.flow.commands.assertion.VisibleAssertion
+import com.github.aivanovski.testswithme.flow.commands.condition.Condition
+import com.github.aivanovski.testswithme.flow.commands.condition.NotVisibleCondition
+import com.github.aivanovski.testswithme.flow.commands.condition.VisibleCondition
 
 class StepCommandFactory(
     private val interactor: FlowRunnerInteractor
@@ -29,17 +34,20 @@ class StepCommandFactory(
     ): Either<AppException, StepCommand> =
         either {
             when (step) {
-                is FlowStep.SendBroadcast ->
-                    Broadcast(
-                        packageName = step.packageName,
-                        action = step.action,
-                        data = step.data
-                    )
+                is FlowStep.SendBroadcast -> {
+                    val condition = step.condition
+                    if (condition != null) {
+                        Precondition(
+                            condition = condition.type.toCommandCondition(),
+                            elements = listOf(condition.element),
+                            command = Broadcast(step)
+                        )
+                    } else {
+                        Broadcast(step)
+                    }
+                }
 
-                is FlowStep.Launch ->
-                    Launch(
-                        packageName = step.packageName
-                    )
+                is FlowStep.Launch -> Launch(packageName = step.packageName)
 
                 is FlowStep.AssertVisible ->
                     Assert(
@@ -55,34 +63,61 @@ class StepCommandFactory(
                         assertion = NotVisibleAssertion()
                     )
 
-                is FlowStep.TapOn ->
-                    Tap(
-                        element = step.element,
-                        isLongTap = step.isLong
-                    )
+                is FlowStep.TapOn -> {
+                    val condition = step.condition
+                    if (condition != null) {
+                        Precondition(
+                            condition = condition.type.toCommandCondition(),
+                            elements = listOf(condition.element),
+                            command = Tap(step)
+                        )
+                    } else {
+                        Tap(step)
+                    }
+                }
 
-                is FlowStep.InputText ->
-                    InputText(
-                        text = step.text,
-                        element = step.element
-                    )
+                is FlowStep.InputText -> {
+                    val condition = step.condition
+                    if (condition != null) {
+                        Precondition(
+                            condition = condition.type.toCommandCondition(),
+                            elements = listOf(condition.element),
+                            command = InputText(step)
+                        )
+                    } else {
+                        InputText(step)
+                    }
+                }
 
-                is FlowStep.PressKey ->
-                    PressKey(
-                        key = step.key
-                    )
+                is FlowStep.PressKey -> {
+                    val condition = step.condition
+                    if (condition != null) {
+                        Precondition(
+                            condition = condition.type.toCommandCondition(),
+                            elements = listOf(condition.element),
+                            command = PressKey(step.key)
+                        )
+                    } else {
+                        PressKey(step.key)
+                    }
+                }
 
-                is FlowStep.WaitUntil ->
-                    WaitUntil(
-                        element = step.element,
-                        step = step.step,
-                        timeout = step.timeout
-                    )
+                is FlowStep.WaitUntil -> WaitUntil(step)
 
-                is FlowStep.RunFlow -> createRunFlowCommand(
-                    parent = flow,
-                    step = step
-                ).bind()
+                is FlowStep.RunFlow -> {
+                    val condition = step.condition
+                    val command = createRunFlowCommand(flow, step).bind()
+
+                    if (condition != null) {
+                        Precondition(
+                            condition = condition.type.toCommandCondition(),
+                            elements = listOf(condition.element),
+                            command = command
+                        )
+                    } else {
+                        command
+                    }
+                }
             }
         }
 
@@ -116,6 +151,12 @@ class StepCommandFactory(
                 name = flow.entry.name,
                 commands = commands
             )
+        }
+
+    private fun ConditionType.toCommandCondition(): Condition =
+        when (this) {
+            ConditionType.VISIBLE -> VisibleCondition()
+            ConditionType.NOT_VISIBLE -> NotVisibleCondition()
         }
 
     private suspend fun findFlow(

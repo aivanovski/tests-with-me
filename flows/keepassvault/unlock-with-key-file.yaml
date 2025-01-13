@@ -1,18 +1,20 @@
 - name: Unlock database with key file
 
-- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
-  data:
-    - key: isResetAppData
-      value: true
+- sendBroadcast:
+    name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+    data:
+      - key: isResetAppData
+        value: true
 
-- sendBroadcast: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
-  data:
-    - key: fakeFileName
-      value: key-unlock.kdbx
+- sendBroadcast:
+    name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+    data:
+      - key: fakeFileName
+        value: basic-key-file.kdbx
 
 - launch: com.ivanovsky.passnotes.automation
 
-- assertVisible: key-unlock.kdbx
+- assertVisible: basic-key-file.kdbx
 
 - tapOn: ADD KEY
 
@@ -39,14 +41,21 @@
 - tapOn:
     contentDescription: Done
 
-- assertVisible: key-unlock.kdbx
-- assertVisible: KEY
+- assertVisible: [basic-key-file.kdbx, KEY]
 
 - tapOn:
     contentDescription: Unlock button
+
 - waitUntil:
-    text: DISABLE
+    notVisible:
+      contentDescription: Loading indicator
     step: 1
     timeout: 10
-- tapOn: DISABLE
-- assertVisible: Database
+
+- tapOn:
+    text: DISABLE
+    when:
+      visible:
+        hasText: Would you like to enable system notification for opened database
+
+- assertVisible: Basic entry

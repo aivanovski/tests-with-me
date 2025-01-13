@@ -2,29 +2,20 @@ package com.github.aivanovski.testswithme.flow.commands
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.UiElementSelector
 import com.github.aivanovski.testswithme.entity.UiNode
 import com.github.aivanovski.testswithme.extensions.findNode
 import com.github.aivanovski.testswithme.extensions.findParentNode
 import com.github.aivanovski.testswithme.extensions.matches
-import com.github.aivanovski.testswithme.extensions.toReadableFormat
 import com.github.aivanovski.testswithme.extensions.toSerializableTree
 import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.flow.error.FlowError.FailedToFindUiNodeError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 
 class InputText(
-    private val text: String,
-    private val element: UiElementSelector? = null
+    private val data: FlowStep.InputText
 ) : ExecutableStepCommand<Unit> {
-
-    override fun describe(): String {
-        return if (element != null) {
-            "Input text: [%s] into %s".format(text, element.toReadableFormat())
-        } else {
-            "Input text: [%s]".format(text)
-        }
-    }
 
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
@@ -42,13 +33,15 @@ class InputText(
                 context.driver.tapOn(targetNode).bind()
             }
 
-            context.driver.inputText(text, targetNode).bind()
+            context.driver.inputText(data.text, targetNode).bind()
         }
 
     private fun <NodeType> findTargetNode(
         uiRoot: UiNode<NodeType>
     ): Either<FlowError, UiNode<NodeType>> =
         either {
+            val element = data.element
+
             if (element != null) {
                 val node = uiRoot.findNode { node -> node.matches(element) }
                     ?: raise(FailedToFindUiNodeError(element, uiRoot.toSerializableTree()))

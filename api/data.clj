@@ -5,15 +5,9 @@
 
 (defn post-flow-file
   [file path]
-  (let [content (api/encode-base64 (slurp file))]
+  (let [content (slurp file)]
     (println (str "Uploading flow: " file))
-    (api/request
-      {:type :POST
-       :endpoint "/flow"
-       :headers (merge api/HEADER_CONTENT_TYPE (api/auth-header))
-       :body (api/to-json
-               {:path path
-                :base64Content content})})))
+    (api/post-flow content path)))
 
 (defn setup-user
   []
@@ -77,7 +71,7 @@
 (defn setup-flows
   []
   (post-flow-file
-    "flows/keepassvault/reset-and-setup-passwords-database.yaml"
+    "flows/keepassvault/reset-and-setup-basic.kdbx-database.yaml"
     "KeePassVault/Root/Common")
 
   (post-flow-file
