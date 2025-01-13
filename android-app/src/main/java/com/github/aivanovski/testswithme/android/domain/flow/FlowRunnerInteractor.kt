@@ -543,6 +543,7 @@ class FlowRunnerInteractor(
         }
 
         val error = result.unwrapError().error
+        Timber.d("error=$error")
         val isFlaky = (
             entry.command.isStepFlaky() ||
                 (error != null && error.isFlakyException())

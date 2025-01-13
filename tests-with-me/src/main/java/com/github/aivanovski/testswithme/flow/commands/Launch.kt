@@ -8,10 +8,6 @@ class Launch(
     private val packageName: String
 ) : ExecutableStepCommand<Unit> {
 
-    override fun describe(): String {
-        return "Launch app: package name = %s".format(packageName)
-    }
-
     override suspend fun <NodeType> execute(
         context: ExecutionContext<NodeType>
     ): Either<FlowError, Unit> {

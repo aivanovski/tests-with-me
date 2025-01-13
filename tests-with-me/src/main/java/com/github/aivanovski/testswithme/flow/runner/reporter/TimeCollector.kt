@@ -2,13 +2,12 @@ package com.github.aivanovski.testswithme.flow.runner.reporter
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Flow
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.ExperimentalTime
 
 class TimeCollector : FlowLifecycleListener {
 
@@ -30,7 +29,7 @@ class TimeCollector : FlowLifecycleListener {
 
     override fun onStepStarted(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         attemptIndex: Int
     ) {
@@ -38,7 +37,7 @@ class TimeCollector : FlowLifecycleListener {
 
     override fun onStepFinished(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         result: Either<FlowExecutionException, Any>
     ) {
@@ -49,7 +48,6 @@ class TimeCollector : FlowLifecycleListener {
         end.set(-1L)
     }
 
-    @OptIn(ExperimentalTime::class)
     fun getDuration(): Duration? {
         val start = start.get()
         val end = end.get()

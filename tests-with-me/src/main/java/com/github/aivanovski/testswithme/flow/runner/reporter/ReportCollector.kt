@@ -2,8 +2,8 @@ package com.github.aivanovski.testswithme.flow.runner.reporter
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Flow
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
 import com.github.aivanovski.testswithme.flow.runner.reporter.ReportWriter.DefaultNameTransformer
 
@@ -34,20 +34,20 @@ class ReportCollector : FlowLifecycleListener {
 
     override fun onStepStarted(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         attemptIndex: Int
     ) {
-        logger.onStepStarted(flow, command, stepIndex, attemptIndex)
+        logger.onStepStarted(flow, step, stepIndex, attemptIndex)
     }
 
     override fun onStepFinished(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         result: Either<FlowExecutionException, Any>
     ) {
-        logger.onStepFinished(flow, command, stepIndex, result)
+        logger.onStepFinished(flow, step, stepIndex, result)
     }
 
     private fun createOutputWriter(): OutputWriter {

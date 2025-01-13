@@ -6,11 +6,5 @@ class RunFlow(
     private val commands: List<ExecutableStepCommand<Any>>
 ) : CompositeStepCommand {
 
-    override fun describe(): String {
-        return "Run flow '%s'".format(name)
-    }
-
-    override fun getCommands(): List<ExecutableStepCommand<Any>> {
-        return commands
-    }
+    override fun getCommands(): List<ExecutableStepCommand<Any>> = commands
 }

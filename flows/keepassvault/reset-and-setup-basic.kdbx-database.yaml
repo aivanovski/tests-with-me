@@ -1,0 +1,13 @@
+- name: Reset and setup basic.kdbx database
+
+- sendBroadcast:
+    name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+    data:
+      - key: isResetAppData
+        value: true
+
+- sendBroadcast:
+    name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+    data:
+      - key: fakeFileName
+        value: basic.kdbx

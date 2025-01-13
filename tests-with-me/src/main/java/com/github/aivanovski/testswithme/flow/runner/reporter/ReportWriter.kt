@@ -2,11 +2,13 @@ package com.github.aivanovski.testswithme.flow.runner.reporter
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Flow
+import com.github.aivanovski.testswithme.entity.FlowStep
+import com.github.aivanovski.testswithme.entity.PreconditionedResult
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.extensions.describe
 import com.github.aivanovski.testswithme.extensions.ellipsize
 import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrapError
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
 import com.github.aivanovski.testswithme.utils.StringUtils
 
@@ -46,7 +48,7 @@ class ReportWriter(
 
     override fun onStepStarted(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         attemptIndex: Int
     ) {
@@ -55,7 +57,7 @@ class ReportWriter(
                 "[%s] Step %s: %s".format(
                     flowTransformer.transform(flow),
                     stepIndex + 1,
-                    command.describe()
+                    step.describe()
                 )
             )
         } else {
@@ -63,7 +65,7 @@ class ReportWriter(
                 "[%s] Retry %s: %s".format(
                     flowTransformer.transform(flow),
                     stepIndex + 1,
-                    command.describe()
+                    step.describe()
                 )
             )
         }
@@ -71,15 +73,21 @@ class ReportWriter(
 
     override fun onStepFinished(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         result: Either<FlowExecutionException, Any>
     ) {
         if (result.isRight()) {
+            val precondition = (result.getOrNull() as? PreconditionedResult)
+            val isSkippedByPrecondition = (precondition != null && !precondition.isSatisfied)
+
+            val status = if (isSkippedByPrecondition) "SKIPPED" else "SUCCESS"
+
             output.debug(
-                "[%s] Step %s: SUCCESS".format(
+                "[%s] Step %s: %s".format(
                     flowTransformer.transform(flow),
-                    stepIndex + 1
+                    stepIndex + 1,
+                    status
                 )
             )
         } else {

@@ -2,8 +2,8 @@ package com.github.aivanovski.testswithme.flow.runner.listener
 
 import arrow.core.Either
 import com.github.aivanovski.testswithme.entity.Flow
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
 
 interface FlowLifecycleListener {
 
@@ -16,14 +16,14 @@ interface FlowLifecycleListener {
 
     fun onStepStarted(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         attemptIndex: Int
     )
 
     fun onStepFinished(
         flow: Flow,
-        command: StepCommand,
+        step: FlowStep,
         stepIndex: Int,
         result: Either<FlowExecutionException, Any>
     )

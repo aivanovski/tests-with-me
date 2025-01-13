@@ -9,14 +9,18 @@ import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
+import com.github.aivanovski.testswithme.entity.PreconditionedResult
 import com.github.aivanovski.testswithme.entity.exception.ExternalException
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
 import com.github.aivanovski.testswithme.entity.exception.StepVerificationException
+import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.flow.commands.CompositeStepCommand
 import com.github.aivanovski.testswithme.flow.commands.ExecutableStepCommand
+import com.github.aivanovski.testswithme.flow.commands.Precondition
 import com.github.aivanovski.testswithme.flow.commands.RunFlow
 import com.github.aivanovski.testswithme.flow.commands.StepCommand
+import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import com.github.aivanovski.testswithme.flow.runner.listener.FlowLifecycleListener
 import kotlinx.coroutines.delay
@@ -42,6 +46,10 @@ class CommandExecutor(
             result
         }
 
+    private fun <T> Either<FlowError, T>.transformError(): Either<FlowExecutionException, T> {
+        return this.mapLeft { error -> FlowExecutionException.fromFlowError(error) }
+    }
+
     suspend fun execute(
         isFirstStep: Boolean,
         job: JobEntry,
@@ -56,28 +64,55 @@ class CommandExecutor(
                 lifecycleListener.onFlowStarted(flow)
             }
 
-            lifecycleListener.onStepStarted(flow, command, stepIndex, attemptIndex)
+            lifecycleListener.onStepStarted(flow, stepEntry.command, stepIndex, attemptIndex)
 
-            val result = when {
-                command is ExecutableStepCommand<*> -> {
-                    command.execute(context)
-                        .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
+            val result = when (command) {
+                is ExecutableStepCommand<*> -> {
+                    command.execute(context).transformError()
                 }
 
-                command is CompositeStepCommand -> {
+                is CompositeStepCommand -> {
                     executeCompositeCommand(
-                        job,
-                        command
+                        job = job,
+                        compositeCommand = command
                     )
                 }
 
-                // TODO: migrate StepCommand to sealed class
-                else -> throw IllegalArgumentException()
+                is Precondition -> {
+                    val underlyingCommand = command.command
+                    if (underlyingCommand is CompositeStepCommand) {
+                        val preconditionResult = command.execute(context).transformError()
+                        val isSatisfied =
+                            (
+                                preconditionResult.isRight() &&
+                                    preconditionResult.unwrap().isSatisfied
+                                )
+
+                        if (isSatisfied) {
+                            executeCompositeCommand(
+                                job = job,
+                                compositeCommand = underlyingCommand
+                            )
+                                .map { compositeResult ->
+                                    PreconditionedResult(
+                                        isSatisfied = true,
+                                        result = compositeResult
+                                    )
+                                }
+                        } else {
+                            preconditionResult
+                        }
+                    } else {
+                        command.execute(context).transformError()
+                    }
+                }
+
+                else -> throw IllegalStateException()
             }
 
             val nextAction = interactor.onStepFinished(job.uid, stepEntry, result).bind()
 
-            lifecycleListener.onStepFinished(flow, command, stepIndex, result)
+            lifecycleListener.onStepFinished(flow, stepEntry.command, stepIndex, result)
 
             when (nextAction) {
                 is OnStepFinishedAction.Next -> {
@@ -148,8 +183,8 @@ class CommandExecutor(
                     .bind()
                 val command = commands[commandIndex]
 
-                val stepUid = flow.steps[commandIndex].uid
                 val stepEntry = flow.steps[commandIndex]
+                val stepUid = stepEntry.uid
 
                 val executionData = interactor.getExecutionData(
                     jobUid = job.uid,
@@ -161,7 +196,7 @@ class CommandExecutor(
 
                 lifecycleListener.onStepStarted(
                     flow.entry,
-                    command,
+                    stepEntry.command,
                     commandIndex,
                     executionData.attemptCount
                 )
@@ -175,7 +210,7 @@ class CommandExecutor(
 
                 lifecycleListener.onStepFinished(
                     flow.entry,
-                    command,
+                    stepEntry.command,
                     commandIndex,
                     commandResult
                 )
