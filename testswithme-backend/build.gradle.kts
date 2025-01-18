@@ -44,7 +44,7 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
-        archiveFileName.set("tests-with-me-backend.jar")
+        archiveFileName.set("testswithme-backend.jar")
         mergeServiceFiles()
         manifest {
             attributes(mapOf("Main-Class" to "com.github.aivanovski.testswithme.web.WebAppMainKt"))
