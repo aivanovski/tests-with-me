@@ -53,14 +53,14 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
-      - name: Build debug jar
+      - name: Build debug apk
         run: ./gradlew testswithme-android:assembleDebug
 
       - name: Store APK file
         uses: actions/upload-artifact@v3
         with:
           name: testswithme-debug.apk
-          path: ./testswithme-android/build/outputs/apk/debug/android-app-debug.apk
+          path: ./testswithme-android/build/outputs/apk/debug/testswithme-android-debug.apk
 
   build-cli-jar:
     name: Build cli jar
@@ -84,7 +84,7 @@ jobs:
       - name: Store jar file
         uses: actions/upload-artifact@v3
         with:
-          name: testswithme-backend.jar
+          name: testswithme-cli.jar
           path: ./testswithme-cli/build/libs/testswithme-cli.jar
 
   build-server-jar:
@@ -110,4 +110,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: testswithme-backend.jar
-          path: ./testswithme-backend/build/libs/tests-with-me-backend.jar
+          path: ./testswithme-backend/build/libs/testswithme-backend.jar
