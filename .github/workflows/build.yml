@@ -53,14 +53,39 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
-      - name: Build debug jar
-        run: ./gradlew android-app:assembleDebug
+      - name: Build debug apk
+        run: ./gradlew testswithme-android:assembleDebug
 
       - name: Store APK file
         uses: actions/upload-artifact@v3
         with:
-          name: tests-with-me-debug.apk
-          path: ./android-app/build/outputs/apk/debug/android-app-debug.apk
+          name: testswithme-debug.apk
+          path: ./testswithme-android/build/outputs/apk/debug/testswithme-android-debug.apk
+
+  build-cli-jar:
+    name: Build cli jar
+    needs: [ check-code-style, run-tests ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup version variable
+        run: |
+          echo "VERSION=$(grep 'appVersion' ./gradle/libs.versions.toml | cut -d= -f2 | cut -d'"' -f2)" >> $GITHUB_ENV
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Build jar file
+        run: ./gradlew testswithme-cli:shadowJar
+
+      - name: Store jar file
+        uses: actions/upload-artifact@v3
+        with:
+          name: testswithme-cli.jar
+          path: ./testswithme-cli/build/libs/testswithme-cli.jar
 
   build-server-jar:
     name: Build server jar
@@ -79,10 +104,10 @@ jobs:
           java-version: 17
 
       - name: Build jar file
-        run: ./gradlew web-backend:shadowJar
+        run: ./gradlew testswithme-backend:shadowJar
 
       - name: Store jar file
         uses: actions/upload-artifact@v3
         with:
-          name: tests-with-me-backend.jar
-          path: ./web-backend/build/libs/tests-with-me-backend.jar
+          name: testswithme-backend.jar
+          path: ./testswithme-backend/build/libs/testswithme-backend.jar
