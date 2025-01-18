@@ -1,5 +1,10 @@
 package com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters
 
+import com.github.aivanovski.testswithme.android.entity.ExecutionResult
+import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
+import com.github.aivanovski.testswithme.android.entity.JobStatus
+import com.github.aivanovski.testswithme.android.entity.db.JobEntry
+import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ExecutionResultDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.FlowDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobDto
@@ -7,11 +12,6 @@ import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobStatusD
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.Sha256HashDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.StepDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.StepResultDto
-import com.github.aivanovski.testswithme.android.entity.ExecutionResult
-import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
-import com.github.aivanovski.testswithme.android.entity.JobStatus
-import com.github.aivanovski.testswithme.android.entity.db.JobEntry
-import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.HashType

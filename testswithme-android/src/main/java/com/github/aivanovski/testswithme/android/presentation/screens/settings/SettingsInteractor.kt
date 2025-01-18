@@ -2,8 +2,8 @@ package com.github.aivanovski.testswithme.android.presentation.screens.settings
 
 import com.github.aivanovski.testswithme.android.data.api.HttpRequestExecutor
 import com.github.aivanovski.testswithme.android.data.settings.Settings
-import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayServer
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
+import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayServer
 import com.github.aivanovski.testswithme.android.domain.usecases.ClearDataUseCase
 import com.github.aivanovski.testswithme.android.entity.DriverServiceState
 

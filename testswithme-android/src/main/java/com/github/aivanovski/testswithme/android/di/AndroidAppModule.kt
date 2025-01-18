@@ -28,13 +28,13 @@ import com.github.aivanovski.testswithme.android.data.settings.SettingsImpl
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProvider
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProviderImpl
 import com.github.aivanovski.testswithme.android.domain.VersionParser
+import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
+import com.github.aivanovski.testswithme.android.domain.flow.ReferenceResolver
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayReceiverInteractor
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayServer
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.JobController
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.StartTestController
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.StatusController
-import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
-import com.github.aivanovski.testswithme.android.domain.flow.ReferenceResolver
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.ClearDataUseCase

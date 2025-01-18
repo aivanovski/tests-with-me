@@ -3,13 +3,13 @@ package com.github.aivanovski.testswithme.android.domain.gatewayServer.controlle
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.repository.JobRepository
-import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters.toDto
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
-import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.DriverStatusDto
-import com.github.aivanovski.testswithme.android.gatewayServerApi.response.GetStatusResponse
+import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters.toDto
 import com.github.aivanovski.testswithme.android.entity.DriverServiceState
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
+import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.DriverStatusDto
+import com.github.aivanovski.testswithme.android.gatewayServerApi.response.GetStatusResponse
 
 class StatusController(
     private val jobRepository: JobRepository

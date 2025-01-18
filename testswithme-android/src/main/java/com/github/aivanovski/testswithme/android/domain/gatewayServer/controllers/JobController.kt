@@ -6,8 +6,6 @@ import com.github.aivanovski.testswithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.android.data.repository.JobRepository
 import com.github.aivanovski.testswithme.android.data.repository.StepRunRepository
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters.toDto
-import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.Params.ID
-import com.github.aivanovski.testswithme.android.gatewayServerApi.response.GetJobResponse
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
@@ -15,6 +13,8 @@ import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityException
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.entity.exception.InvalidParameterException
+import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.Params.ID
+import com.github.aivanovski.testswithme.android.gatewayServerApi.response.GetJobResponse
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
 
 class JobController(

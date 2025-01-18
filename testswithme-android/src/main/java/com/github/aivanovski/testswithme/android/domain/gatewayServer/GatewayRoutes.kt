@@ -6,12 +6,12 @@ import com.github.aivanovski.testswithme.android.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.JobController
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.StartTestController
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.StatusController
+import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.JOB
 import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.Params.ID
 import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.START_TEST
 import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.STATUS
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ErrorMessage
-import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError

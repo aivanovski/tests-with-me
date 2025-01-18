@@ -2,17 +2,17 @@ package com.github.aivanovski.testswithme.android.domain.gatewayServer.controlle
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayServer
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters.convert
-import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
-import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ErrorMessage
-import com.github.aivanovski.testswithme.android.gatewayServerApi.request.StartTestRequest
-import com.github.aivanovski.testswithme.android.gatewayServerApi.response.StartTestResponse
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.entity.exception.InvalidBase64StringException
 import com.github.aivanovski.testswithme.android.entity.exception.ParsingException
+import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ErrorMessage
+import com.github.aivanovski.testswithme.android.gatewayServerApi.request.StartTestRequest
+import com.github.aivanovski.testswithme.android.gatewayServerApi.response.StartTestResponse
 import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
