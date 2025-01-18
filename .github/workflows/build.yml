@@ -54,13 +54,13 @@ jobs:
           java-version: 17
 
       - name: Build debug jar
-        run: ./gradlew android-app:assembleDebug
+        run: ./gradlew testswithme-android:assembleDebug
 
       - name: Store APK file
         uses: actions/upload-artifact@v3
         with:
           name: tests-with-me-debug.apk
-          path: ./android-app/build/outputs/apk/debug/android-app-debug.apk
+          path: ./testswithme-android/build/outputs/apk/debug/android-app-debug.apk
 
   build-server-jar:
     name: Build server jar
@@ -79,10 +79,10 @@ jobs:
           java-version: 17
 
       - name: Build jar file
-        run: ./gradlew web-backend:shadowJar
+        run: ./gradlew testswithme-backend:shadowJar
 
       - name: Store jar file
         uses: actions/upload-artifact@v3
         with:
           name: tests-with-me-backend.jar
-          path: ./web-backend/build/libs/tests-with-me-backend.jar
+          path: ./testswithme-backend/build/libs/tests-with-me-backend.jar
