@@ -1,6 +1,6 @@
 package com.github.aivanovski.testswithme.web.api.response
 
-import com.github.aivanovski.testswithme.web.api.GroupItemDto
+import com.github.aivanovski.testswithme.web.api.dto.GroupItemDto
 import kotlinx.serialization.Serializable
 
 @Serializable

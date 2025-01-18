@@ -1,6 +1,6 @@
 package com.github.aivanovski.testswithme.web.api.response
 
-import com.github.aivanovski.testswithme.web.api.FlowRunItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowRunItemDto
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.web.presentation.controller
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.utils.StringUtils
-import com.github.aivanovski.testswithme.web.api.GroupItemDto
+import com.github.aivanovski.testswithme.web.api.dto.GroupItemDto
 import com.github.aivanovski.testswithme.web.api.request.PostGroupRequest
 import com.github.aivanovski.testswithme.web.api.request.UpdateGroupRequest
 import com.github.aivanovski.testswithme.web.api.response.DeleteGroupResponse

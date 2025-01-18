@@ -1,4 +1,4 @@
-package com.github.aivanovski.testswithme.web.api
+package com.github.aivanovski.testswithme.web.api.dto
 
 import kotlinx.serialization.Serializable
 

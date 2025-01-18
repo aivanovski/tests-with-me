@@ -3,8 +3,8 @@ package com.github.aivanovski.testswithme.web.presentation.controller
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.utils.Base64Utils
-import com.github.aivanovski.testswithme.web.api.FlowRunItemDto
-import com.github.aivanovski.testswithme.web.api.FlowRunsItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowRunItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowRunsItemDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
 import com.github.aivanovski.testswithme.web.api.request.ResetFlowRunsRequest
 import com.github.aivanovski.testswithme.web.api.response.FlowRunResponse

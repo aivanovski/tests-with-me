@@ -40,7 +40,7 @@ class AuthRepository(
             ).bind()
 
             settings.authToken = response.token
-            settings.account = Account(username, password)
+            settings.account = Account(response.user.id, username, password)
             isLoggedIn.value = true
         }
 
@@ -58,8 +58,16 @@ class AuthRepository(
                 )
             ).bind()
 
+            // TODO: additional login request could be avoided if sing-up will return user id
+            val loginResponse = api.login(
+                request = LoginRequest(
+                    username = username,
+                    password = password
+                )
+            ).bind()
+
             settings.authToken = response.token
-            settings.account = Account(username, password)
+            settings.account = Account(loginResponse.user.id, username, password)
             isLoggedIn.value = true
         }
 

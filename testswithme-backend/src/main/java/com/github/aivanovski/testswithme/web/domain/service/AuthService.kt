@@ -25,7 +25,7 @@ class AuthService(
 
     private val storage: MutableMap<Credentials, String> = ConcurrentHashMap<Credentials, String>()
 
-    fun isCredentialsValid(credentials: Credentials): Boolean {
+    fun areCredentialsValid(credentials: Credentials): Boolean {
         val user = userRepository.getUserByName(credentials.username).getOrNull()
             ?: return false
 
