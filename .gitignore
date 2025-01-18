@@ -66,3 +66,4 @@ metals.sbt
 yarn.lock
 .vscode/
 kls_database.db
+out/
