@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.web.extensions
 import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.web.entity.ErrorResponse
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityException
 import com.github.aivanovski.testswithme.web.entity.exception.ExpiredTokenException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidCredentialsException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
@@ -20,7 +20,7 @@ fun Exception.toHttpStatus(): HttpStatusCode? {
         is InvalidCredentialsException -> HttpStatusCode.Unauthorized
         is InvalidParameterException -> HttpStatusCode.BadRequest
         is InvalidRequestFieldException -> HttpStatusCode.BadRequest
-        is EntityNotFoundException -> HttpStatusCode.NotFound
+        is FailedToFindEntityException -> HttpStatusCode.NotFound
         is ParsingException -> HttpStatusCode.BadRequest
         else -> null
     }

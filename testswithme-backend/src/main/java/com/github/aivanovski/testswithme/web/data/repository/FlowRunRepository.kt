@@ -13,7 +13,7 @@ import com.github.aivanovski.testswithme.web.entity.FsPath
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
 
 class FlowRunRepository(
@@ -35,7 +35,7 @@ class FlowRunRepository(
     fun getByUid(uid: Uid): Either<AppException, FlowRun> =
         either {
             findByUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(FlowRun::class, uid))
+                ?: raise(FailedToFindEntityByUidException(FlowRun::class, uid))
         }
 
     fun getByUserUid(userUid: Uid): Either<AppException, List<FlowRun>> =
@@ -64,10 +64,10 @@ class FlowRunRepository(
     ): Either<AppException, FsPath> =
         either {
             val flow = flowDao.findByUid(flowUid)
-                ?: raise(EntityNotFoundByUidException(Flow::class, flowUid))
+                ?: raise(FailedToFindEntityByUidException(Flow::class, flowUid))
 
             val project = projectDao.findByUid(flow.projectUid)
-                ?: raise(EntityNotFoundByUidException(Project::class, flow.projectUid))
+                ?: raise(FailedToFindEntityByUidException(Project::class, flow.projectUid))
 
             val path = FsPath("${project.name}/$flowRunUid.text")
 

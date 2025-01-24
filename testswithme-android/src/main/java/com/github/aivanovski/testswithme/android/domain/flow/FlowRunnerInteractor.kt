@@ -12,6 +12,7 @@ import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.dataconverters.convertToFlowEntry
 import com.github.aivanovski.testswithme.android.domain.dataconverters.convertToStepEntries
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
+import com.github.aivanovski.testswithme.android.domain.usecases.GetDeviceInfoUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.entity.ExecutionResult
@@ -41,6 +42,7 @@ import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.utils.StringUtils
+import com.github.aivanovski.testswithme.web.api.dto.DeviceRequestItemDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -365,7 +367,14 @@ class FlowRunnerInteractor(
                     result = stepResult?.result ?: StringUtils.EMPTY,
                     appVersionName = appData.appVersion.name,
                     appVersionCode = appData.appVersion.code.toString(),
-                    reportBase64Content = encodedReport
+                    reportBase64Content = encodedReport,
+                    device = DeviceRequestItemDto(
+                        sdkVersion = null,
+                        name = null,
+                        model = null,
+                        manufacturer = null,
+                        hardware = null
+                    )
                 )
 
                 val uploadResult = uploadFlowRunWithRetry(flowRun).bind()

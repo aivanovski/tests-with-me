@@ -12,5 +12,6 @@ fun Application.configureRoutes() {
         groupRoutes()
         flowRoutes()
         flowRunRoutes()
+        deviceRoutes()
     }
 }

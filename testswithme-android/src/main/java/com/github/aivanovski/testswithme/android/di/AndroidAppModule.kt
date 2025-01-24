@@ -39,6 +39,7 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.ClearDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
+import com.github.aivanovski.testswithme.android.domain.usecases.GetDeviceInfoUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
@@ -143,6 +144,7 @@ object AndroidAppModule {
         singleOf(::GetExternalApplicationDataUseCase)
         singleOf(::ValidateEmailUseCase)
         singleOf(::ClearDataUseCase)
+        singleOf(::GetDeviceInfoUseCase)
 
         // Interactors
         singleOf(::RootInteractor)

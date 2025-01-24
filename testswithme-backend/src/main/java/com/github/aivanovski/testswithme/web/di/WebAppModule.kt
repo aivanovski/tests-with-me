@@ -3,6 +3,7 @@ package com.github.aivanovski.testswithme.web.di
 import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.data.arguments.ArgumentParser
 import com.github.aivanovski.testswithme.web.data.database.AppDatabase
+import com.github.aivanovski.testswithme.web.data.database.dao.DeviceDao
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowDao
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowRunDao
 import com.github.aivanovski.testswithme.web.data.database.dao.GroupDao
@@ -11,6 +12,7 @@ import com.github.aivanovski.testswithme.web.data.database.dao.UserDao
 import com.github.aivanovski.testswithme.web.data.file.FileStorage
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProviderImpl
+import com.github.aivanovski.testswithme.web.data.repository.DeviceRepository
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
@@ -21,6 +23,7 @@ import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
+import com.github.aivanovski.testswithme.web.presentation.controller.DeviceController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController
 import com.github.aivanovski.testswithme.web.presentation.controller.GroupController
@@ -48,6 +51,7 @@ object WebAppModule {
         single { ProjectDao(get()) }
         single { GroupDao(get()) }
         single { FlowRunDao(get()) }
+        singleOf(::DeviceDao)
 
         // Repositories
         single { UserRepository(get()) }
@@ -55,6 +59,7 @@ object WebAppModule {
         single<ProjectRepository> { ProjectRepository(get()) }
         single { FlowRunRepository(get(), get(), get(), get()) }
         single { GroupRepository(get(), get()) }
+        singleOf(::DeviceRepository)
 
         // UseCases
         single { ValidateEmailUseCase() }
@@ -72,5 +77,6 @@ object WebAppModule {
         single { FlowRunController(get(), get(), get(), get()) }
         single { UserController(get()) }
         single { GroupController(get(), get(), get(), get()) }
+        singleOf(::DeviceController)
     }
 }

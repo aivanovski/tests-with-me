@@ -3,6 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.projectDa
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
+import com.github.aivanovski.testswithme.android.domain.usecases.GetDeviceInfoUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
@@ -52,6 +53,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class ProjectDashboardViewModel(
     private val interactor: ProjectDashboardInteractor,
@@ -71,6 +73,8 @@ class ProjectDashboardViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
         super.start()
+
+        Timber.d("device=${GetDeviceInfoUseCase().getDeviceInfo()}")
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))

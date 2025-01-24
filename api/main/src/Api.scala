@@ -33,6 +33,8 @@ object Api {
 
   def getUsers() = HttpClient.get("user", getAuthToken())
 
+  def getDevices() = HttpClient.get("device", getAuthToken())
+
   def getFlowRuns() = HttpClient.get("flow-run", getAuthToken())
 
   def postProject(data: Map[String, String]) = HttpClient.post(

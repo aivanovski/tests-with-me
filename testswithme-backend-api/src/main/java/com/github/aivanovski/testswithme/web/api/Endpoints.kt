@@ -9,4 +9,5 @@ object Endpoints {
     const val FLOW_RUN = "flow-run"
     const val RESET_FLOW_RUN = "reset-flow-run"
     const val USER = "user"
+    const val DEVICE = "device"
 }

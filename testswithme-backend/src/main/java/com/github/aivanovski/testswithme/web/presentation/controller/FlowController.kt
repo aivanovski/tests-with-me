@@ -26,7 +26,7 @@ import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.BadRequestException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExistsException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
@@ -102,7 +102,7 @@ class FlowController(
 
             val flows = allFlows.filter { flow -> flow.uid == uid }
             if (flows.isEmpty()) {
-                raise(EntityNotFoundByUidException(Flow::class, uid))
+                raise(FailedToFindEntityByUidException(Flow::class, uid))
             }
 
             val flow = flows.first()

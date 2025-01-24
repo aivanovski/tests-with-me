@@ -8,5 +8,5 @@ class FlowDao(
 ) : Dao<Flow>(
     db = db,
     entityType = Flow::class.java,
-    entityName = "Flow"
+    entityName = Flow::class.java.simpleName
 )

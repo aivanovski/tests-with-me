@@ -1,18 +1,16 @@
 package com.github.aivanovski.testswithme.web.entity.exception
 
 import com.github.aivanovski.testswithme.web.entity.Uid
-import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.presentation.Errors.ENTITY_NOT_FOUND
 import kotlin.reflect.KClass
 
-open class EntityNotFoundException(
+open class FailedToFindEntityException(
     entity: String,
     key: String,
     value: String
 ) : AppException(ENTITY_NOT_FOUND.format(entity, key, value))
 
-// TODO: rename to FailedToFindEntity..
-class EntityNotFoundByUidException : EntityNotFoundException {
+class FailedToFindEntityByUidException : FailedToFindEntityException {
 
     constructor(
         type: KClass<*>,
@@ -33,29 +31,11 @@ class EntityNotFoundByUidException : EntityNotFoundException {
     )
 }
 
-class EntityNotFoundByNameException(
+class FailedToFindEntityByNameException(
     type: KClass<*>,
     name: String
-) : EntityNotFoundException(
+) : FailedToFindEntityException(
     entity = type.java.simpleName,
     key = "name",
     value = name
-)
-
-// TODO: remove
-class UserNotFoundByNameException(
-    name: String
-) : EntityNotFoundException(
-    entity = User::class.java.simpleName,
-    key = "name",
-    value = name
-)
-
-// TODO: remove
-class UserNotFoundByUidException(
-    uid: Uid
-) : EntityNotFoundException(
-    entity = User::class.java.simpleName,
-    key = "uid",
-    value = uid.toString()
 )

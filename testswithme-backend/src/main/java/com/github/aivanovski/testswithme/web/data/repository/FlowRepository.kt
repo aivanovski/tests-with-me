@@ -13,7 +13,7 @@ import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAccessException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
 
@@ -48,7 +48,7 @@ class FlowRepository(
     fun getByUid(uid: Uid): Either<AppException, Flow> =
         either {
             findByUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(Flow::class, uid))
+                ?: raise(FailedToFindEntityByUidException(Flow::class, uid))
         }
 
     fun getFlowsByProjectUid(projectUid: Uid): Either<AppException, List<Flow>> =
@@ -78,7 +78,7 @@ class FlowRepository(
     ): Either<AppException, List<Flow>> =
         either {
             val project = projectDao.findByUid(projectUid)
-                ?: raise(EntityNotFoundByUidException(Project::class, projectUid))
+                ?: raise(FailedToFindEntityByUidException(Project::class, projectUid))
 
             if (project.userUid != userUid) {
                 raise(InvalidAccessException("Failed to access the project: ${project.name}"))
@@ -99,7 +99,7 @@ class FlowRepository(
     ): Either<AppException, FsPath> =
         either {
             val project = projectDao.findByUid(projectUid)
-                ?: raise(EntityNotFoundByUidException(Project::class, projectUid))
+                ?: raise(FailedToFindEntityByUidException(Project::class, projectUid))
 
             val path = FsPath("${project.name}/$flowUid.yaml")
 

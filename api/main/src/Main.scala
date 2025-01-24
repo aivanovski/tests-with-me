@@ -24,6 +24,7 @@ object Main {
       case "group" => Api.getGroups()
       case "flow-run" => Api.getFlowRuns()
       case s"post-flow-run $flowUid" => Api.postFlowRun(flowUid)
+      case "device" => Api.getDevices()
       case "setup-data" => {
         Data.setupData()
         return

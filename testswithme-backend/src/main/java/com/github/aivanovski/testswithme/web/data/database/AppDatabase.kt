@@ -4,6 +4,7 @@ import com.github.aivanovski.testswithme.web.data.database.converters.FsPathConv
 import com.github.aivanovski.testswithme.web.data.database.converters.TimestampConverter
 import com.github.aivanovski.testswithme.web.data.database.converters.UidConverter
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
+import com.github.aivanovski.testswithme.web.entity.Device
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.FlowRun
 import com.github.aivanovski.testswithme.web.entity.Group
@@ -28,6 +29,7 @@ class AppDatabase {
                     addAnnotatedClass(Group::class.java)
                     addAnnotatedClass(Flow::class.java)
                     addAnnotatedClass(FlowRun::class.java)
+                    addAnnotatedClass(Device::class.java)
 
                     // Converters
                     addAttributeConverter(FsPathConverter::class.java, true)

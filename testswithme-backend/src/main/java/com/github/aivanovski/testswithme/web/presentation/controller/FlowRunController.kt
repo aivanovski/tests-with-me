@@ -21,7 +21,7 @@ import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.BadRequestException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidRequestFieldException
@@ -72,7 +72,7 @@ class FlowRunController(
                 ?: raise(InvalidParameterException(ID))
 
             val flowRun = flowRunRepository.findByUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(FlowRun::class, uid))
+                ?: raise(FailedToFindEntityByUidException(FlowRun::class, uid))
 
             val reportContent = flowRunRepository.getReportContent(uid).bind()
 

@@ -9,7 +9,7 @@ class GroupDao(
 ) : Dao<Group>(
     db = db,
     entityType = Group::class.java,
-    entityName = "Group"
+    entityName = Group::class.java.simpleName
 ) {
 
     fun getByProjectUid(projectUid: Uid): List<Group> {

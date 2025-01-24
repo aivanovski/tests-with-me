@@ -10,38 +10,33 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 @Entity
-@Table(name = Group.DbFields.TABLE_NAME)
-data class Group(
+@Table(name = Device.DbFields.TABLE_NAME)
+data class Device(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0,
 
-    @Column(name = DbFields.UID)
     @Convert(converter = UidConverter::class)
+    @Column(name = DbFields.UID)
     val uid: Uid,
 
-    @Column(name = DbFields.PARENT_UID, nullable = true)
     @Convert(converter = UidConverter::class)
-    val parentUid: Uid?,
+    @Column(name = DbFields.USER_UID)
+    val userUid: Uid,
 
-    @Column(name = DbFields.PROJECT_UID)
-    @Convert(converter = UidConverter::class)
-    val projectUid: Uid,
+    @Column(name = DbFields.SDK_VERSION)
+    val sdkVersion: String,
 
     @Column(name = DbFields.NAME)
     val name: String,
-
-    @Column(name = DbFields.IS_DELETED)
-    val isDeleted: Boolean
 ) {
-    // TODO: remove DbFields
+
     object DbFields {
-        const val TABLE_NAME = "Groups"
+        const val TABLE_NAME = "Devices"
 
         const val UID = "uid"
-        const val PARENT_UID = "parent_uid"
-        const val PROJECT_UID = "project_uid"
+        const val USER_UID = "user_uid"
+        const val SDK_VERSION = "sdk_version"
         const val NAME = "name"
-        const val IS_DELETED = "is_deleted"
     }
 }

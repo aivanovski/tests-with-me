@@ -12,7 +12,7 @@ import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAccessException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
 import javax.swing.GroupLayout
 
@@ -35,7 +35,7 @@ class GroupRepository(
     fun getByUid(uid: Uid): Either<AppException, Group> =
         either {
             findByUid(uid).bind()
-                ?: raise(EntityNotFoundByUidException(GroupLayout.Group::class, uid))
+                ?: raise(FailedToFindEntityByUidException(GroupLayout.Group::class, uid))
         }
 
     fun getByUserUid(userUid: Uid): Either<AppException, List<Group>> =

@@ -5,8 +5,8 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.web.data.database.dao.UserDao
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
-import com.github.aivanovski.testswithme.web.entity.exception.UserNotFoundByNameException
-import com.github.aivanovski.testswithme.web.entity.exception.UserNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByNameException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 
 class UserRepository(
     private val dao: UserDao
@@ -19,7 +19,7 @@ class UserRepository(
     fun getUserByName(name: String): Either<AppException, User> =
         either {
             val user = dao.findByName(name)
-                ?: raise(UserNotFoundByNameException(name))
+                ?: raise(FailedToFindEntityByNameException(User::class, name))
 
             user
         }
@@ -29,6 +29,6 @@ class UserRepository(
             dao.add(user)
 
             dao.findByUid(user.uid)
-                ?: raise(UserNotFoundByUidException(user.uid))
+                ?: raise(FailedToFindEntityByUidException(User::class, user.uid))
         }
 }

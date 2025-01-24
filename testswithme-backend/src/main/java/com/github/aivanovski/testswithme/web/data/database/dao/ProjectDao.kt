@@ -9,7 +9,7 @@ class ProjectDao(
 ) : Dao<Project>(
     db = db,
     entityType = Project::class.java,
-    entityName = "Project"
+    entityName = Project::class.java.simpleName
 ) {
 
     fun getByUserUid(userUid: Uid): List<Project> {

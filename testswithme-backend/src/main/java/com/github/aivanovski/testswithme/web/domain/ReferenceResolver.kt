@@ -11,8 +11,8 @@ import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByNameException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByNameException
+import com.github.aivanovski.testswithme.web.entity.exception.FailedToFindEntityByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidUidString
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
@@ -111,7 +111,7 @@ class ReferenceResolver(
             groupRepository.getByUserUid(user.uid)
                 .bind()
                 .firstOrNull { group -> group.uid == uid }
-                ?: raise(EntityNotFoundByUidException(Group::class, groupUid))
+                ?: raise(FailedToFindEntityByUidException(Group::class, groupUid))
         }
 
     private fun getProject(
@@ -207,7 +207,7 @@ class ReferenceResolver(
 
             when {
                 projectsByName.isEmpty() -> {
-                    raise(EntityNotFoundByNameException(Project::class, name))
+                    raise(FailedToFindEntityByNameException(Project::class, name))
                 }
 
                 projectsByName.size > 1 -> {
@@ -229,7 +229,7 @@ class ReferenceResolver(
 
             when {
                 groupsByName.isEmpty() -> {
-                    raise(EntityNotFoundByNameException(Group::class, name))
+                    raise(FailedToFindEntityByNameException(Group::class, name))
                 }
 
                 groupsByName.size > 1 -> {
