@@ -2,13 +2,15 @@ package com.github.aivanovski.testswithme.android.presentation.screens.flow.mode
 
 sealed interface FlowIntent {
 
-    object Initialize : FlowIntent
+    data object Initialize : FlowIntent
 
-    object ReBuildState : FlowIntent
+    data object ReBuildState : FlowIntent
 
-    object OnDismissErrorDialog : FlowIntent
+    data object OnDismissErrorDialog : FlowIntent
 
-    object OnDismissFlowDialog : FlowIntent
+    data object OnDismissFlowDialog : FlowIntent
+
+    data object OnUploadButtonClick : FlowIntent
 
     data class OnFlowDialogActionClick(
         val actionId: Int
