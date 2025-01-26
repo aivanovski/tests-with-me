@@ -7,6 +7,11 @@ import kotlinx.serialization.Serializable
 sealed class FlowScreenMode {
 
     @Serializable
+    data class LocalFlow(
+        val flowUid: String
+    ) : FlowScreenMode()
+
+    @Serializable
     data class Flow(
         val flowUid: String,
         val requiredVersion: AppVersion? = null

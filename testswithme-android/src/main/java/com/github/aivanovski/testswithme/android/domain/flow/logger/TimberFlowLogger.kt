@@ -1,6 +1,6 @@
 package com.github.aivanovski.testswithme.android.domain.flow.logger
 
-import com.github.aivanovski.testswithme.flow.runner.reporter.OutputWriter.Level
+import com.github.aivanovski.testswithme.flow.runner.report.OutputWriter.Level
 import com.github.aivanovski.testswithme.utils.Logger
 import timber.log.Timber
 

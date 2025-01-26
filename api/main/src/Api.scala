@@ -1,5 +1,8 @@
+import io.circe.*
+import io.circe.parser.*
+import io.circe.syntax.*
 import okhttp3.Response
-import utils.HttpClient
+import utils.{HttpClient, JsonUtils}
 import utils.JsonUtils.{parseAsMap, toJson}
 
 import java.util.Base64
@@ -74,12 +77,20 @@ object Api {
     authToken = getAuthToken()
   )
 
+  def deleteGroup(uid: String) = HttpClient.delete(s"group/$uid", getAuthToken())
+
+  def deleteFlow(uid: String) = HttpClient.delete(s"flow/$uid", getAuthToken())
+
   def getAuthToken(): Option[String] = {
     val response = login()
-    if (response.code() == 200) {
-      Some(parseAsMap(response.body().string()).getOrElse("token", ""))
-    } else {
-      None
+
+    response.code() match {
+      case 200 => JsonUtils.parseLoginResponse(response.body().string())
+        .map(result => result.token)
+        .toOption
+      case _ => None
     }
   }
 }
+
+

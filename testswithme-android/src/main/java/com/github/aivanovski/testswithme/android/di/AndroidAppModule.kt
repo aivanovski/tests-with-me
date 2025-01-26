@@ -79,17 +79,16 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.RootV
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.SettingsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.SettingsCellFactory
-import com.github.aivanovski.testswithme.android.presentation.screens.testReport.TestReportInteractor
-import com.github.aivanovski.testswithme.android.presentation.screens.testReport.TestReportViewModel
-import com.github.aivanovski.testswithme.android.presentation.screens.testReport.cells.TestReportCellFactory
-import com.github.aivanovski.testswithme.android.presentation.screens.testReport.model.TestReportScreenArgs
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunInteractor
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.TestRunViewModel
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.cells.TestRunCellFactory
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.model.TestRunScreenArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.TestContentInteractor
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.TestContentViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.cells.TestContentCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.TestRunsInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.TestRunsViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.cells.TestRunsCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.textViewer.TextViewerViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.textViewer.cells.TextViewerCellFactory
+import com.github.aivanovski.testswithme.android.presentation.screens.textViewer.model.TextViewerArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.UploadTestViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
@@ -101,7 +100,7 @@ import org.koin.dsl.module
 object AndroidAppModule {
 
     val module = module {
-        single<Settings> { SettingsImpl(get(), get()) }
+        single<Settings> { SettingsImpl(get(), get(), get()) }
         single<DataCipherProvider> { DataCipherProviderImpl(get()) }
         single<ResourceProvider> { ResourceProviderImpl(get()) }
         single<FileCache> { FileCacheImpl(get()) }
@@ -151,7 +150,6 @@ object AndroidAppModule {
         singleOf(::FlowInteractor)
         singleOf(::ProjectsInteractor)
         singleOf(::TestRunsInteractor)
-        singleOf(::TestRunInteractor)
         singleOf(::UploadTestInteractor)
         singleOf(::ProjectDashboardInteractor)
         singleOf(::ProjectEditorInteractor)
@@ -159,7 +157,7 @@ object AndroidAppModule {
         singleOf(::GatewayReceiverInteractor)
         singleOf(::SettingsInteractor)
         singleOf(::ResetRunsInteractor)
-        singleOf(::TestReportInteractor)
+        singleOf(::TestContentInteractor)
 
         // Flow runner
         singleOf(::FlowRunnerInteractor)
@@ -175,11 +173,11 @@ object AndroidAppModule {
         singleOf(::GroupsCellModelFactory)
         singleOf(::ProjectsCellFactory)
         singleOf(::TestRunsCellFactory)
-        singleOf(::TestRunCellFactory)
         singleOf(::ProjectDashboardCellFactory)
         singleOf(::SettingsCellFactory)
         singleOf(::BottomSheetMenuCellFactory)
-        singleOf(::TestReportCellFactory)
+        singleOf(::TextViewerCellFactory)
+        singleOf(::TestContentCellFactory)
 
         // ViewModels
         factory { (menu: BottomSheetMenu) -> BottomSheetMenuViewModel(get(), menu) }
@@ -238,16 +236,6 @@ object AndroidAppModule {
                 router
             )
         }
-        factory { (vm: RootViewModel, router: Router, args: TestRunScreenArgs) ->
-            TestRunViewModel(
-                get(),
-                get(),
-                get(),
-                vm,
-                router,
-                args
-            )
-        }
         factory { (vm: RootViewModel, router: Router, args: UploadTestScreenArgs) ->
             UploadTestViewModel(
                 get(),
@@ -304,8 +292,17 @@ object AndroidAppModule {
                 args
             )
         }
-        factory { (vm: RootViewModel, router: Router, args: TestReportScreenArgs) ->
-            TestReportViewModel(
+        factory { (vm: RootViewModel, router: Router, args: TextViewerArgs) ->
+            TextViewerViewModel(
+                get(),
+                get(),
+                vm,
+                router,
+                args
+            )
+        }
+        factory { (vm: RootViewModel, router: Router, args: TestContentArgs) ->
+            TestContentViewModel(
                 get(),
                 get(),
                 get(),

@@ -7,7 +7,7 @@ import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -183,7 +183,7 @@ class UploadTestViewModel(
             if (uploadResult.isLeft()) {
                 val terminalState = uploadResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(initialState.copy(terminalState = terminalState))
                 return@flow
@@ -203,7 +203,7 @@ class UploadTestViewModel(
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(UploadTestState(terminalState = terminalState))
                 return@flow

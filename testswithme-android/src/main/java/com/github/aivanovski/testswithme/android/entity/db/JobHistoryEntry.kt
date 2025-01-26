@@ -37,6 +37,9 @@ data class JobHistoryEntry(
     @ColumnInfo("status")
     val status: JobStatus,
 
+    @ColumnInfo("flow_run_uid")
+    val flowRunUid: String?,
+
     @ColumnInfo("on_finish_action")
     val onFinishAction: OnFinishAction
 )

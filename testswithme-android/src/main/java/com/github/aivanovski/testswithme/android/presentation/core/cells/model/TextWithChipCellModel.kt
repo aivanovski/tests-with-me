@@ -6,6 +6,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 data class TextWithChipCellModel(
     override val id: String,
     val text: String,
+    val textSize: TextSize,
     val chipText: String,
     val chipTextColor: Color,
     val chipColor: Color,

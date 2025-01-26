@@ -6,17 +6,20 @@ import com.github.aivanovski.testswithme.utils.StringUtils.SPACE
 import com.github.aivanovski.testswithme.web.api.ApiHeaders.X_REQUEST_SET_COOKIE
 import com.github.aivanovski.testswithme.web.api.request.LoginRequest
 import com.github.aivanovski.testswithme.web.api.response.LoginResponse
+import com.github.aivanovski.testswithme.web.data.repository.UserRepository
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.service.AuthService.Companion.TOKEN_VALIDITY_PERIOD
 import com.github.aivanovski.testswithme.web.entity.Credentials
 import com.github.aivanovski.testswithme.web.entity.Response
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidCredentialsException
+import com.github.aivanovski.testswithme.web.extensions.toDto
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 
 class LoginController(
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val userRepository: UserRepository
 ) {
 
     fun login(
@@ -27,11 +30,12 @@ class LoginController(
             val credentials = request.toCredentials()
             val isSetCookie = "true".equals(headers[X_REQUEST_SET_COOKIE], ignoreCase = true)
 
-            if (!authService.isCredentialsValid(credentials)) {
+            if (!authService.areCredentialsValid(credentials)) {
                 raise(InvalidCredentialsException())
             }
 
             val token = authService.getOrCreateToken(credentials)
+            val user = userRepository.getUserByName(name = credentials.username).bind()
 
             val responseHeaders = if (isSetCookie) {
                 listOf(HttpHeaders.SetCookie to buildCookieWithToken(token))
@@ -40,7 +44,10 @@ class LoginController(
             }
 
             Response(
-                response = LoginResponse(token),
+                response = LoginResponse(
+                    token = token,
+                    user = user.toDto()
+                ),
                 headers = responseHeaders
             )
         }

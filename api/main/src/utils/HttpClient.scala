@@ -25,6 +25,19 @@ object HttpClient {
     client.newCall(request.build()).execute()
   }
 
+  def delete(endpoint: String, authToken: Option[String]): Response = {
+    val request = Request.Builder()
+      .url(s"$SERVER_URL/$endpoint")
+      .delete()
+
+    if (authToken.orNull != null) {
+      request.header("Authorization", s"Bearer ${authToken.get}")
+    }
+
+
+    client.newCall(request.build()).execute()
+  }
+
   def get(endpoint: String, authToken: Option[String]): Response = {
     val request = Request.Builder()
       .url(s"$SERVER_URL/$endpoint")

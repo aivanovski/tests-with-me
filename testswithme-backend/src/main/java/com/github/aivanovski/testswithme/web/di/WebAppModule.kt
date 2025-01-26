@@ -36,41 +36,41 @@ object WebAppModule {
     val module = module {
         // core
         single<FileSystemProvider> { FileSystemProviderImpl() }
-        single { FileStorage() }
-        single { ReferenceResolver(get(), get()) }
-        single { AccessResolver(get(), get(), get()) }
+        singleOf(::FileStorage)
+        singleOf(::ReferenceResolver)
+        singleOf(::AccessResolver)
         singleOf(::ArgumentParser)
 
         // Database
-        single { AppDatabase() }
-        single { FlowDao(get()) }
-        single { UserDao(get()) }
-        single { ProjectDao(get()) }
-        single { GroupDao(get()) }
-        single { FlowRunDao(get()) }
+        singleOf(::AppDatabase)
+        singleOf(::FlowDao)
+        singleOf(::UserDao)
+        singleOf(::ProjectDao)
+        singleOf(::GroupDao)
+        singleOf(::FlowRunDao)
 
         // Repositories
-        single { UserRepository(get()) }
-        single<FlowRepository> { FlowRepository(get(), get(), get(), get()) }
-        single<ProjectRepository> { ProjectRepository(get()) }
-        single { FlowRunRepository(get(), get(), get(), get()) }
-        single { GroupRepository(get(), get()) }
+        singleOf(::UserRepository)
+        singleOf(::FlowRunRepository)
+        singleOf(::GroupRepository)
+        singleOf(::FlowRepository)
+        singleOf(::ProjectRepository)
 
         // UseCases
-        single { ValidateEmailUseCase() }
-        single { GetSslKeyStoreUseCase(get()) }
+        singleOf(::ValidateEmailUseCase)
+        singleOf(::GetSslKeyStoreUseCase)
 
         // Services
-        single { AuthService(get()) }
+        singleOf(::AuthService)
 
         // Controllers
-        single { CORSController() }
-        single { LoginController(get()) }
-        single { SignUpController(get(), get(), get()) }
-        single { FlowController(get(), get(), get()) }
-        single { ProjectController(get(), get()) }
-        single { FlowRunController(get(), get(), get(), get()) }
-        single { UserController(get()) }
-        single { GroupController(get(), get(), get(), get()) }
+        singleOf(::CORSController)
+        singleOf(::LoginController)
+        singleOf(::SignUpController)
+        singleOf(::FlowController)
+        singleOf(::ProjectController)
+        singleOf(::FlowRunController)
+        singleOf(::UserController)
+        singleOf(::GroupController)
     }
 }

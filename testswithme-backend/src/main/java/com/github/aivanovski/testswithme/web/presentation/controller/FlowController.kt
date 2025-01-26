@@ -7,9 +7,9 @@ import com.github.aivanovski.testswithme.extensions.sha256
 import com.github.aivanovski.testswithme.extensions.trimLines
 import com.github.aivanovski.testswithme.flow.yaml.YamlParser
 import com.github.aivanovski.testswithme.utils.Base64Utils
-import com.github.aivanovski.testswithme.web.api.FlowItemDto
-import com.github.aivanovski.testswithme.web.api.FlowsItemDto
-import com.github.aivanovski.testswithme.web.api.Sha256HashDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowsItemDto
+import com.github.aivanovski.testswithme.web.api.dto.Sha256HashDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.response.DeleteFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse

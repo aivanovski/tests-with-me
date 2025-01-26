@@ -25,6 +25,9 @@ interface LocalStepRunDao {
     @Query("SELECT * FROM local_step_run WHERE job_uid = :jobUid")
     fun getByJobUid(jobUid: String): List<LocalStepRun>
 
+    @Query("SELECT * FROM local_step_run WHERE flow_uid = :flowUid")
+    fun getByFlowUid(flowUid: String): List<LocalStepRun>
+
     @Insert
     fun insert(entry: LocalStepRun)
 

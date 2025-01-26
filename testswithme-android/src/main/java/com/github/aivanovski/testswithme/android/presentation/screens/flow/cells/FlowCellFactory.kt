@@ -1,12 +1,16 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.flow.cells
 
+import androidx.compose.ui.graphics.Color
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
+import com.github.aivanovski.testswithme.android.entity.ExecutionResult
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
+import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testswithme.android.entity.db.StepEntry
 import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
@@ -20,7 +24,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.I
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TwoLineTextWithChipCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
@@ -34,6 +41,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.groups.cel
 import com.github.aivanovski.testswithme.android.utils.aggregateByFlowUid
 import com.github.aivanovski.testswithme.android.utils.findParentGroups
 import com.github.aivanovski.testswithme.android.utils.formatRunTime
+import com.github.aivanovski.testswithme.flow.formatter.FlowStepFormatter
+import com.github.aivanovski.testswithme.flow.formatter.FlowStepFormatter.Format
 import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.utils.StringUtils.DASH
 import com.github.aivanovski.testswithme.utils.StringUtils.SLASH
@@ -43,6 +52,8 @@ class FlowCellFactory(
     private val resourceProvider: ResourceProvider,
     private val themeProvider: ThemeProvider
 ) {
+
+    private val stepFormatter = FlowStepFormatter()
 
     private fun List<BaseCellModel>.toViewModels(
         intentProvider: CellIntentProvider
@@ -73,14 +84,16 @@ class FlowCellFactory(
         models.addAll(createDriverStatusModels(isDriverRunning))
         models.add(newElementSpaceModel())
 
-        models.addAll(
-            createAppInfoModels(
-                project = data.project,
-                requiredAppVersion = null,
-                installedAppData = installedAppData
+        if (data.project != null) {
+            models.addAll(
+                createAppInfoModels(
+                    project = data.project,
+                    requiredAppVersion = null,
+                    installedAppData = installedAppData
+                )
             )
-        )
-        models.add(newElementSpaceModel())
+            models.add(newElementSpaceModel())
+        }
 
         val parents = findParentGroups(group, data.allGroups)
 
@@ -127,14 +140,16 @@ class FlowCellFactory(
         models.addAll(createDriverStatusModels(isDriverRunning))
         models.add(newElementSpaceModel())
 
-        models.addAll(
-            createAppInfoModels(
-                project = data.project,
-                requiredAppVersion = requiredAppVersion,
-                installedAppData = installedAppData
+        if (data.project != null) {
+            models.addAll(
+                createAppInfoModels(
+                    project = data.project,
+                    requiredAppVersion = requiredAppVersion,
+                    installedAppData = installedAppData
+                )
             )
-        )
-        models.add(newElementSpaceModel())
+            models.add(newElementSpaceModel())
+        }
 
         models.addAll(
             createGroupTitleModels(
@@ -160,6 +175,119 @@ class FlowCellFactory(
         return models.toViewModels(intentProvider)
     }
 
+    fun createLocalFlowCellViewModels(
+        data: FlowData,
+        isDriverRunning: Boolean,
+        intentProvider: CellIntentProvider
+    ): List<BaseCellViewModel> {
+        val models = mutableListOf<BaseCellModel>()
+        val flow = data.visibleFlows.firstOrNull() ?: return emptyList()
+
+        models.add(newElementSpaceModel())
+        models.addAll(createDriverStatusModels(isDriverRunning))
+        models.add(newElementSpaceModel())
+
+        models.addAll(
+            createTestTitleModels(
+                flow = flow,
+                isDriverRunning = isDriverRunning,
+                isAppInstalled = true
+            )
+        )
+        models.add(newElementSpaceModel())
+
+        models.addAll(
+            createStepModels(
+                steps = data.steps.getOrNull() ?: emptyList()
+            )
+        )
+        models.add(newElementSpaceModel())
+
+        if (data.visibleJobs.isNotEmpty()) {
+            models.addAll(
+                createRecentRunsModels(
+                    jobs = data.visibleJobs,
+                    user = data.user
+                )
+            )
+        } else {
+            models.add(
+                EmptyTextCellModel(
+                    id = CellId.EMPTY_MESSAGE,
+                    message = resourceProvider.getString(R.string.no_runs)
+                )
+            )
+        }
+
+        return models.toViewModels(intentProvider)
+    }
+
+    private fun createStepModels(steps: List<StepEntry>): List<BaseCellModel> {
+        val models = mutableListOf<BaseCellModel>()
+
+        val visibleSteps = steps.take(5)
+
+        if (steps.isNotEmpty()) {
+            models.add(
+                HeaderCellModel(
+                    id = CellId.STEPS_HEADER,
+                    title = resourceProvider.getString(R.string.steps),
+                    iconText = resourceProvider.getString(R.string.view),
+                    icon = AppIcons.ArrowForward
+                )
+            )
+
+            val stepsLeft = steps.size - visibleSteps.size
+            for ((stepIndex, step) in visibleSteps.withIndex()) {
+                val shape = when {
+                    visibleSteps.size == 1 -> CornersShape.ALL
+                    stepIndex == 0 && visibleSteps.size > 1 -> CornersShape.TOP
+                    stepIndex == visibleSteps.lastIndex && stepsLeft == 0 -> CornersShape.BOTTOM
+                    else -> CornersShape.NONE
+                }
+
+                val descriptionLines = stepFormatter.format(step.command, Format.SHORT)
+                    .split(StringUtils.NEW_LINE)
+
+                val title = descriptionLines.first()
+                val description = descriptionLines.takeLast(descriptionLines.size - 1)
+                    .filter { line -> line.isNotEmpty() }
+                    .joinToString(separator = StringUtils.NEW_LINE)
+
+                models.add(
+                    TwoLineTextWithChipCellModel(
+                        id = CellId.createStepCellId(step.uid),
+                        title = title,
+                        description = description,
+                        shape = shape,
+                        chipText = StringUtils.EMPTY,
+                        chipTextColor = Color.Unspecified,
+                        chipColor = Color.Unspecified
+                    )
+                )
+            }
+
+            if (stepsLeft > 0) {
+                models.add(
+                    TextButtonCellModel(
+                        id = CellId.MORE_STEPS_BUTTON,
+                        text = resourceProvider.getString(R.string.show_more_with_str, stepsLeft),
+                        shape = CornersShape.BOTTOM
+                    )
+                )
+            }
+        } else {
+            models.add(
+                EmptyTextCellModel(
+                    id = CellId.EMPTY_MESSAGE,
+                    message = resourceProvider.getString(R.string.no_steps)
+                )
+            )
+        }
+
+        return models
+    }
+
     fun createFlowCellViewModels(
         data: FlowData,
         requiredAppVersion: AppVersion?,
@@ -177,14 +305,16 @@ class FlowCellFactory(
         models.addAll(createDriverStatusModels(isDriverRunning))
         models.add(newElementSpaceModel())
 
-        models.addAll(
-            createAppInfoModels(
-                project = data.project,
-                requiredAppVersion = requiredAppVersion,
-                installedAppData = installedAppData
+        if (data.project != null) {
+            models.addAll(
+                createAppInfoModels(
+                    project = data.project,
+                    requiredAppVersion = requiredAppVersion,
+                    installedAppData = installedAppData
+                )
             )
-        )
-        models.add(newElementSpaceModel())
+            models.add(newElementSpaceModel())
+        }
 
         models.addAll(
             createTestTitleModels(
@@ -195,8 +325,20 @@ class FlowCellFactory(
         )
         models.add(newElementSpaceModel())
 
+        val steps = data.steps.getOrNull() ?: emptyList()
+
         if (data.visibleRuns.isNotEmpty()) {
             models.addAll(createStatsModels(data.visibleRuns))
+
+            if (steps.isNotEmpty()) {
+                models.add(newElementSpaceModel())
+            }
+        }
+
+        models.addAll(createStepModels(steps))
+        models.add(newElementSpaceModel())
+
+        if (data.visibleRuns.isNotEmpty()) {
             models.addAll(createRecentRunsModels(data.visibleRuns, data.allUsers))
         } else {
             models.add(
@@ -287,6 +429,7 @@ class FlowCellFactory(
             TextWithChipCellModel(
                 id = CellId.DRIVER_STATUS,
                 text = resourceProvider.getString(R.string.driver),
+                textSize = TextSize.BODY_LARGE,
                 chipText = if (isDriverRunning) {
                     resourceProvider.getString(R.string.running_upper)
                 } else {
@@ -466,6 +609,64 @@ class FlowCellFactory(
     }
 
     private fun createRecentRunsModels(
+        jobs: List<JobEntry>,
+        user: UserEntry
+    ): List<BaseCellModel> {
+        val models = mutableListOf<BaseCellModel>()
+
+        val sortedJobs = jobs
+            .filter { job -> job.finishedTimestamp != null }
+            .sortedByDescending { job -> job.finishedTimestamp }
+        val visibleJobs = sortedJobs.take(10)
+
+        val headerIcon = if (sortedJobs.size > visibleJobs.size) {
+            AppIcons.ArrowForward
+        } else {
+            null
+        }
+
+        models.add(
+            HeaderCellModel(
+                id = CellId.RECENT_RUNS_HEADER,
+                title = resourceProvider.getString(R.string.recent_runs),
+                iconText = null,
+                icon = headerIcon
+            )
+        )
+
+        for ((idx, job) in visibleJobs.withIndex()) {
+            if (idx > 0) {
+                models.add(SpaceCellModel(height = SmallMargin))
+            }
+
+            val isSuccessfullyFinished = (job.executionResult == ExecutionResult.SUCCESS)
+
+            val icon = when (job.executionResult) {
+                ExecutionResult.SUCCESS -> AppIcons.CheckCircle
+                ExecutionResult.FAILED -> AppIcons.ErrorCircle
+                ExecutionResult.NONE -> AppIcons.CheckCircle
+            }
+
+            val time = job.finishedTimestamp?.formatRunTime(resourceProvider)
+                ?: ""
+
+            models.add(
+                HistoryItemCellModel(
+                    id = CellId.createJobCellId(job.uid),
+                    icon = icon,
+                    iconTint = if (isSuccessfullyFinished) IconTint.GREEN else IconTint.RED,
+                    title = time,
+                    description = user.name
+                )
+            )
+        }
+
+        models.add(SpaceCellModel(height = ElementMargin))
+
+        return models
+    }
+
+    private fun createRecentRunsModels(
         runs: List<FlowRunEntry>,
         users: List<UserEntry>
     ): List<BaseCellModel> {
@@ -572,10 +773,18 @@ class FlowCellFactory(
         const val STATISTICS_PASSED_AND_FAILED = "stats-passed-failed"
         const val RECENT_RUNS_HEADER = "recent-runs-header"
         const val TESTS_HEADER = "tests-header"
+        const val STEPS_HEADER = "steps-header"
+        const val MORE_STEPS_BUTTON = "more-steps-button"
 
         private const val RUN_PREFIX = "run_"
+        private const val JOB_PREFIX = "job_"
+        private const val STEP_PREFIX = "step_"
 
         fun createRunCellId(runUid: String): String = RUN_PREFIX + runUid
+
+        fun createJobCellId(jobUid: String): String = JOB_PREFIX + jobUid
+
+        fun createStepCellId(stepUid: String): String = STEP_PREFIX + stepUid
 
         fun extractRunUid(cellId: String): String? {
             return if (cellId.contains(RUN_PREFIX)) {
@@ -584,5 +793,17 @@ class FlowCellFactory(
                 null
             }
         }
+
+        fun extractJobUid(cellId: String): String? {
+            return if (cellId.contains(JOB_PREFIX)) {
+                cellId.removePrefix(JOB_PREFIX)
+            } else {
+                null
+            }
+        }
+
+        fun hasRunUid(cellId: String): Boolean = cellId.startsWith(RUN_PREFIX)
+
+        fun hasJobUid(cellId: String): Boolean = cellId.startsWith(JOB_PREFIX)
     }
 }

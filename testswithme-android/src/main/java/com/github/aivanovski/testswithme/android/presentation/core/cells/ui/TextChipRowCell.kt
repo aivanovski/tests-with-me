@@ -103,14 +103,14 @@ fun newTextChipRowCellViewModel(shape: CornersShape = CornersShape.ALL) =
                 TextChipItem(
                     text = "1.8.0",
                     textColor = AppTheme.theme.colors.primaryText,
-                    textSize = TextSize.LARGE,
+                    textSize = TextSize.TITLE,
                     isClickable = false,
                     isSelected = true
                 ),
                 TextChipItem(
                     text = "1.7.0",
                     textColor = AppTheme.theme.colors.primaryText,
-                    textSize = TextSize.LARGE,
+                    textSize = TextSize.TITLE,
                     isClickable = true,
                     isSelected = false
                 )

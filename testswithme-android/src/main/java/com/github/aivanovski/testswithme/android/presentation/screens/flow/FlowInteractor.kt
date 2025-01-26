@@ -1,11 +1,18 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.flow
 
 import arrow.core.Either
+import arrow.core.None
+import arrow.core.Option
 import arrow.core.raise.either
+import arrow.core.right
+import arrow.core.some
+import com.github.aivanovski.testswithme.android.data.repository.AuthRepository
 import com.github.aivanovski.testswithme.android.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.android.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.android.data.repository.GroupRepository
+import com.github.aivanovski.testswithme.android.data.repository.JobRepository
 import com.github.aivanovski.testswithme.android.data.repository.ProjectRepository
+import com.github.aivanovski.testswithme.android.data.repository.StepRunRepository
 import com.github.aivanovski.testswithme.android.data.repository.UserRepository
 import com.github.aivanovski.testswithme.android.domain.buildGroupTree
 import com.github.aivanovski.testswithme.android.domain.findNodeByUid
@@ -14,14 +21,18 @@ import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.DriverServiceState
+import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testswithme.android.entity.db.StepEntry
+import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEntityByUidException
+import com.github.aivanovski.testswithme.android.entity.exception.UserNotFoundException
 import com.github.aivanovski.testswithme.android.extensions.filterByProjectUid
 import com.github.aivanovski.testswithme.android.extensions.filterGroupsByProjectUid
 import com.github.aivanovski.testswithme.android.extensions.filterRemoteOnly
@@ -33,6 +44,9 @@ import com.github.aivanovski.testswithme.android.utils.aggregateRunCountByFlowUi
 import com.github.aivanovski.testswithme.android.utils.combineEitherFlows
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class FlowInteractor(
@@ -42,6 +56,9 @@ class FlowInteractor(
     private val flowRunRepository: FlowRunRepository,
     private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
+    private val stepRunRepository: StepRunRepository,
+    private val jobRepository: JobRepository,
+    private val authRepository: AuthRepository,
     private val getAppDataUseCase: GetExternalApplicationDataUseCase
 ) {
 
@@ -49,19 +66,46 @@ class FlowInteractor(
         return FlowRunnerManager.getDriverState() == DriverServiceState.RUNNING
     }
 
+    private fun getStepsFlow(
+        mode: FlowScreenMode
+    ): Flow<Either<AppException, Option<List<StepEntry>>>> =
+        flow {
+            val flowUid = when (mode) {
+                is FlowScreenMode.LocalFlow -> mode.flowUid
+                is FlowScreenMode.Flow -> mode.flowUid
+                else -> {
+                    emit(None.right())
+                    return@flow
+                }
+            }
+
+            emitAll(
+                flowRepository.getFlowByUidFlow(flowUid)
+                    .map { result ->
+                        result.map { flow -> flow.steps.some() }
+                    }
+            )
+        }
+
     fun loadData(mode: FlowScreenMode): Flow<Either<AppException, FlowData>> =
         combineEitherFlows(
             projectRepository.getProjectsFlow(),
             groupRepository.getGroupsFlow(),
             flowRepository.getFlowsFlow(),
             flowRunRepository.getRunsFlow(),
-            userRepository.getUsersFlow()
-        ) { allProjects, allGroups, allFlows, allRuns, allUsers ->
+            userRepository.getUsersFlow(),
+            getStepsFlow(mode)
+        ) { allProjects, allGroups, allFlows, allRuns, allUsers, getStepsResult ->
             either {
+                val isLocalFlow = (mode is FlowScreenMode.LocalFlow)
                 val projectUid = resolveProjectUid(mode, allFlows, allGroups).bind()
-                val project = allProjects
-                    .firstOrNull { project -> project.uid == projectUid }
-                    ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, projectUid))
+
+                val project = if (!isLocalFlow) {
+                    allProjects.firstOrNull { project -> project.uid == projectUid }
+                        ?: raise(FailedToFindEntityByUidException(ProjectEntry::class, projectUid))
+                } else {
+                    null
+                }
 
                 val groups = allGroups.filterGroupsByProjectUid(projectUid = projectUid)
 
@@ -84,31 +128,33 @@ class FlowInteractor(
                 }
 
                 val visibleFlows = when (mode) {
+                    is FlowScreenMode.LocalFlow -> {
+                        listOf(getCachedFlow(mode.flowUid).bind().entry)
+                    }
+
                     is FlowScreenMode.Flow -> {
-                        val flow = flowRepository.getCachedFlowByUid(mode.flowUid).bind()
-                        listOf(flow.entry)
+                        listOf(getCachedFlow(mode.flowUid).bind().entry)
                     }
 
-                    is FlowScreenMode.Group -> {
-                        getGroupFlows(
-                            allGroups = groups,
-                            allFlows = flows,
-                            groupUid = mode.groupUid
-                        ).bind()
-                    }
+                    is FlowScreenMode.Group -> getGroupFlows(
+                        allGroups = groups,
+                        allFlows = flows,
+                        groupUid = mode.groupUid
+                    ).bind()
 
-                    is FlowScreenMode.RemainedFlows -> {
-                        getRemainedFlows(
-                            allFlows = flows,
-                            allRuns = runs,
-                            version = mode.version
-                        ).bind()
-                    }
+                    is FlowScreenMode.RemainedFlows -> getRemainedFlows(
+                        allFlows = flows,
+                        allRuns = runs,
+                        version = mode.version
+                    ).bind()
                 }
 
                 val visibleFlowUids = visibleFlows
                     .map { flow -> flow.uid }
                     .toSet()
+
+                val visibleJobs = jobRepository.getAllHistory()
+                    .filter { job -> job.flowUid in visibleFlowUids }
 
                 val visibleRuns = when (mode) {
                     is FlowScreenMode.Flow -> {
@@ -118,29 +164,43 @@ class FlowInteractor(
                                     run.appVersionName == mode.requiredVersion.name
                             }
                         } else {
-                            runs.filter { run ->
-                                run.flowUid in visibleFlowUids
-                            }
+                            runs.filter { run -> run.flowUid in visibleFlowUids }
                         }
                     }
 
-                    is FlowScreenMode.Group -> {
+                    else -> {
                         runs.filter { run -> run.flowUid in visibleFlowUids }
                     }
-
-                    else -> emptyList()
                 }
+
+                val currentUserUid = getCurrentUserUid().bind()
+                val currentUser = allUsers.firstOrNull { user -> user.uid == currentUserUid }
+                    ?: raise(FailedToFindEntityByUidException(UserEntry::class, currentUserUid))
 
                 FlowData(
                     project = project,
                     allGroups = groups,
-                    allRuns = runs,
                     group = group,
                     visibleFlows = visibleFlows,
                     visibleRuns = visibleRuns,
-                    allUsers = allUsers
+                    visibleJobs = visibleJobs,
+                    allUsers = allUsers,
+                    user = currentUser,
+                    steps = getStepsResult
                 )
             }
+        }
+
+    private fun getCurrentUserUid(): Either<AppException, String> =
+        either {
+            authRepository.getAccount()
+                ?.uid
+                ?: raise(UserNotFoundException())
+        }
+
+    private fun getCachedFlow(flowUid: String): Either<AppException, FlowWithSteps> =
+        either {
+            flowRepository.getCachedFlowByUid(flowUid).bind()
         }
 
     private fun getGroupFlows(
@@ -186,6 +246,8 @@ class FlowInteractor(
     ): Either<AppException, String> =
         either {
             when (mode) {
+                is FlowScreenMode.LocalFlow -> FlowRunnerInteractor.LOCAL_PROJECT_UID
+
                 is FlowScreenMode.Flow -> {
                     allFlows.firstOrNull { flow -> flow.uid == mode.flowUid }
                         ?.projectUid

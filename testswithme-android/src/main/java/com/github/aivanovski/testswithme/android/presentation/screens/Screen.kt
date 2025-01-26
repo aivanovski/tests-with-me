@@ -7,8 +7,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.login.mode
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsScreenArgs
-import com.github.aivanovski.testswithme.android.presentation.screens.testReport.model.TestReportScreenArgs
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.model.TestRunScreenArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.textViewer.model.TextViewerArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
 import kotlinx.serialization.Serializable
 
@@ -52,11 +52,6 @@ sealed interface Screen {
     ) : Screen
 
     @Serializable
-    data class TestRun(
-        val args: TestRunScreenArgs
-    ) : Screen
-
-    @Serializable
     data class UploadTest(
         val args: UploadTestScreenArgs
     ) : Screen
@@ -70,7 +65,12 @@ sealed interface Screen {
     ) : Screen
 
     @Serializable
-    data class TestReport(
-        val args: TestReportScreenArgs
+    data class TextViewer(
+        val args: TextViewerArgs
+    ) : Screen
+
+    @Serializable
+    data class TestContent(
+        val args: TestContentArgs
     ) : Screen
 }

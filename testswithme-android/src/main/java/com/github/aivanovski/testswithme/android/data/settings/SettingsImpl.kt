@@ -14,7 +14,7 @@ import com.github.aivanovski.testswithme.android.data.settings.SettingKey.START_
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipher
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProvider
 import com.github.aivanovski.testswithme.android.entity.Account
-import com.github.aivanovski.testswithme.extensions.splitToPair
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,8 @@ import kotlinx.coroutines.launch
 
 class SettingsImpl(
     context: Context,
-    private val dataCipherProvider: DataCipherProvider
+    private val dataCipherProvider: DataCipherProvider,
+    private val jsonSerializer: JsonSerializer
 ) : Settings {
 
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -153,16 +154,10 @@ class SettingsImpl(
     }
 
     private fun Account.formatToString(): String {
-        return "$name:$password"
+        return jsonSerializer.serialize(this)
     }
 
     private fun String.readAccount(): Account? {
-        val (name, password) = this.splitToPair(separator = ":")
-            ?: return null
-
-        return Account(
-            name = name,
-            password = password
-        )
+        return jsonSerializer.deserialize<Account>(this).getOrNull()
     }
 }

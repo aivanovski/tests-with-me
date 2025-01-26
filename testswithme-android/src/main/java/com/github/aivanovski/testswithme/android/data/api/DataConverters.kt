@@ -8,12 +8,12 @@ import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.HashType
-import com.github.aivanovski.testswithme.web.api.FlowRunItemDto
-import com.github.aivanovski.testswithme.web.api.FlowRunsItemDto
-import com.github.aivanovski.testswithme.web.api.FlowsItemDto
-import com.github.aivanovski.testswithme.web.api.GroupItemDto
-import com.github.aivanovski.testswithme.web.api.Sha256HashDto
-import com.github.aivanovski.testswithme.web.api.UsersItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowRunItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowRunsItemDto
+import com.github.aivanovski.testswithme.web.api.dto.FlowsItemDto
+import com.github.aivanovski.testswithme.web.api.dto.GroupItemDto
+import com.github.aivanovski.testswithme.web.api.dto.Sha256HashDto
+import com.github.aivanovski.testswithme.web.api.dto.UserItemDto
 import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
 
 fun List<FlowsItemDto>.toFlows(): List<FlowEntry> {
@@ -30,7 +30,7 @@ fun List<FlowsItemDto>.toFlows(): List<FlowEntry> {
     }
 }
 
-fun List<UsersItemDto>.toUsers(): List<UserEntry> {
+fun List<UserItemDto>.toUsers(): List<UserEntry> {
     return map { item ->
         UserEntry(
             uid = item.id,

@@ -23,8 +23,8 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newH
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newShapedSpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTableCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTextChipRowCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTitleCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
@@ -169,8 +169,8 @@ private fun newDataState() =
         viewModels = listOf(
             newSpaceCell(height = ElementMargin),
             newShapedSpaceCellViewModel(SmallMargin, CornersShape.TOP),
-            newTitleCellViewModel(
-                title = "Completion",
+            newTextCell(
+                text = "Completion",
                 shape = CornersShape.NONE
             ),
             newShapedSpaceCellViewModel(SmallMargin, CornersShape.NONE),

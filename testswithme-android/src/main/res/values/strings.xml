@@ -91,6 +91,17 @@
     <string name="enable_driver_upper">ENABLE DRIVER</string>
     <string name="passed">Passed</string>
     <string name="failed">Failed</string>
+    <string name="steps">Steps</string>
+    <string name="no_steps">No steps</string>
+    <string name="show_more_with_str">Show %s more</string>
+
+    <!-- Test Content screen -->
+    <string name="view_error">View Error</string>
+    <string name="view_report">View Report</string>
+    <string name="test_status">Test status</string>
+    <string name="error_message">Error Message</string>
+    <string name="error_message_with_colon">Error message:</string>
+    <string name="test_report">Test Report</string>
 
     <!-- Project Dashboard screen -->
     <string name="completion">Completion</string>
@@ -133,8 +144,5 @@
     <!-- Reset Runs -->
     <string name="application_version">Application version</string>
     <string name="reset">Reset</string>
-
-    <!-- Test Report -->
-    <string name="report">Report</string>
 
 </resources>

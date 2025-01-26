@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "28c5a8a2dbed463ee7cec8405f9052ef",
+    "identityHash": "1ba4d42242782b256775c2ebb6b4c21a",
     "entities": [
       {
         "tableName": "step_entry",
@@ -124,7 +124,7 @@
       },
       {
         "tableName": "job_entry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `uid` TEXT NOT NULL, `flow_uid` TEXT NOT NULL, `current_step_uid` TEXT NOT NULL, `added_timestamp` INTEGER NOT NULL, `finished_timestamp` INTEGER, `execution_time` INTEGER, `execution_result` TEXT NOT NULL, `status` TEXT NOT NULL, `on_finish_action` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `uid` TEXT NOT NULL, `flow_uid` TEXT NOT NULL, `current_step_uid` TEXT NOT NULL, `added_timestamp` INTEGER NOT NULL, `finished_timestamp` INTEGER, `execution_time` INTEGER, `execution_result` TEXT NOT NULL, `status` TEXT NOT NULL, `flow_run_uid` TEXT, `on_finish_action` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -179,6 +179,12 @@
             "columnName": "status",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "flowRunUid",
+            "columnName": "flow_run_uid",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "onFinishAction",
@@ -260,7 +266,7 @@
       },
       {
         "tableName": "job_history_entry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `uid` TEXT NOT NULL, `flow_uid` TEXT NOT NULL, `current_step_uid` TEXT NOT NULL, `added_timestamp` INTEGER NOT NULL, `finished_timestamp` INTEGER, `execution_time` INTEGER, `execution_result` TEXT NOT NULL, `status` TEXT NOT NULL, `on_finish_action` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `uid` TEXT NOT NULL, `flow_uid` TEXT NOT NULL, `current_step_uid` TEXT NOT NULL, `added_timestamp` INTEGER NOT NULL, `finished_timestamp` INTEGER, `execution_time` INTEGER, `execution_result` TEXT NOT NULL, `status` TEXT NOT NULL, `flow_run_uid` TEXT, `on_finish_action` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -315,6 +321,12 @@
             "columnName": "status",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "flowRunUid",
+            "columnName": "flow_run_uid",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "onFinishAction",
@@ -542,7 +554,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '28c5a8a2dbed463ee7cec8405f9052ef')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ba4d42242782b256775c2ebb6b4c21a')"
     ]
   }
 }

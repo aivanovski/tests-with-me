@@ -28,6 +28,13 @@ class JobRepository(
             .map { it.toEntry() }
     }
 
+    fun getJobHistoryByUid(uid: String): Either<AppException, JobEntry> =
+        either {
+            jobHistoryDao.getByUid(uid)
+                ?.toEntry()
+                ?: raise(newFailedToFindEntityError(uid))
+        }
+
     fun getJobByUid(uid: String): Either<AppException, JobEntry> =
         either {
             val entry = jobDao.getByUid(uid) ?: raise(newFailedToFindEntityError(uid))

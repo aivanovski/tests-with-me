@@ -17,7 +17,6 @@ import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.HashType
 import com.github.aivanovski.testswithme.entity.StepResult
 import com.github.aivanovski.testswithme.extensions.dumpToString
-import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.utils.StringUtils
 
@@ -52,8 +51,8 @@ fun FlowWithSteps.toDto(
 
         val stepResult = stepRun?.result?.let { resultText ->
             jsonSerializer.deserialize<StepResult>(resultText)
+                .getOrNull()
         }
-            ?.unwrap()
 
         StepDto(
             index = step.index,

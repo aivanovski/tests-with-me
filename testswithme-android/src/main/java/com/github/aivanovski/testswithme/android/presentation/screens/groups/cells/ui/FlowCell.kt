@@ -96,7 +96,7 @@ fun FlowCell(viewModel: FlowCellViewModel) {
                     if (model.chipText.isNotEmpty()) {
                         TextChip(
                             text = model.chipText,
-                            textSize = TextSize.MEDIUM
+                            textSize = TextSize.BODY_MEDIUM
                         )
                     }
 

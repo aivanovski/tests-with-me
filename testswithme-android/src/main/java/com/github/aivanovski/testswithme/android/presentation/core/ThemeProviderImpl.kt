@@ -7,6 +7,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.Theme
 
+@Deprecated("should be removed")
 class ThemeProviderImpl(
     private val themedContext: Context
 ) : ThemeProvider {

@@ -8,7 +8,7 @@ import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -195,7 +195,7 @@ class GroupsViewModel(
                 if (loadDataResult.isLeft()) {
                     val terminalState = loadDataResult
                         .formatError(resourceProvider)
-                        .toScreenState()
+                        .toTerminalState()
                     return@map GroupsState(terminalState = terminalState)
                 }
 
@@ -296,7 +296,7 @@ class GroupsViewModel(
             if (removeResult.isLeft()) {
                 val terminalState = removeResult
                     .formatError(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(state.value.copy(terminalState = terminalState))
                 return@flow
@@ -321,7 +321,7 @@ class GroupsViewModel(
             if (removeResult.isLeft()) {
                 val terminalState = removeResult
                     .formatError(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(state.value.copy(terminalState = terminalState))
                 return@flow

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
@@ -70,3 +72,9 @@ object PreviewIntentProvider : CellIntentProvider {
     override fun clear() {
     }
 }
+
+@Composable
+fun shortText(): String = stringResource(R.string.short_dummy_text)
+
+@Composable
+fun longText(): String = stringResource(R.string.long_dummy_text)

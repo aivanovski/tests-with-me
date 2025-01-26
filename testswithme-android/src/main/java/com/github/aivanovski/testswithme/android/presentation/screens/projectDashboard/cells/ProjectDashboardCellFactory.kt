@@ -119,7 +119,7 @@ class ProjectDashboardCellFactory(
             TextChipItem(
                 text = version.name,
                 textColor = themeProvider.theme.colors.primaryText,
-                textSize = TextSize.LARGE,
+                textSize = TextSize.TITLE,
                 isClickable = !isSelected,
                 isSelected = isSelected
             )
