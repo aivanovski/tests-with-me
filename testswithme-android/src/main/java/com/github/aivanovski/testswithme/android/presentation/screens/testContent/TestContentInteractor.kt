@@ -18,7 +18,6 @@ import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentData
 import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentScreenMode
 import com.github.aivanovski.testswithme.extensions.unwrapError
-import com.github.aivanovski.testswithme.extensions.unwrapOrReport
 import com.github.aivanovski.testswithme.flow.runner.report.ReportParser
 import com.github.aivanovski.testswithme.flow.runner.report.model.ReportItem
 import timber.log.Timber

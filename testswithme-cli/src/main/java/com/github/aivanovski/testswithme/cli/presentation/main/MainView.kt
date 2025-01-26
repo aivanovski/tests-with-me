@@ -6,11 +6,11 @@ import com.github.aivanovski.testswithme.cli.presentation.main.model.TextColor
 import com.github.aivanovski.testswithme.extensions.splitIntoLines
 import com.github.aivanovski.testswithme.utils.StringUtils.EMPTY
 import com.github.aivanovski.testswithme.utils.StringUtils.SPACE
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import com.github.ajalt.mordant.rendering.TextColors.brightGreen
 import com.github.ajalt.mordant.rendering.TextColors.brightRed
 import com.github.ajalt.mordant.terminal.Terminal
 import java.lang.StringBuilder
-import kotlin.system.exitProcess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,13 +28,10 @@ class MainView(
     private val scope = CoroutineScope(Dispatchers.Default)
     private var collectJob: Job? = null
 
-    @Volatile
-    private var lastRenderedState: MainViewState? = null
+    private var lastRenderedState: MainViewState? by mutableStateFlow(null)
+    private var viewModel: MainViewModel? by mutableStateFlow(null)
 
-    @Volatile
-    private var viewModel: MainViewModel? = null
-
-    fun render(viewModel: MainViewModel) {
+    fun bind(viewModel: MainViewModel) {
         this.viewModel = viewModel
 
         collectJob = scope.launch {
@@ -44,14 +41,12 @@ class MainView(
         }
     }
 
-    fun stop() {
+    fun unbind() {
         ensureLatestStateWasDrawn()
 
         collectJob?.cancel()
         collectJob = null
         viewModel = null
-
-        exitProcess(0)
     }
 
     private fun ensureLatestStateWasDrawn() {

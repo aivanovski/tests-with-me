@@ -8,7 +8,6 @@ import com.github.aivanovski.testswithme.android.gatewayServerApi.response.Start
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.cli.domain.usecases.ConnectToDeviceUseCase
-import com.github.aivanovski.testswithme.cli.domain.usecases.FormatHelpTextUseCase
 import com.github.aivanovski.testswithme.cli.entity.ConnectionAndState
 import com.github.aivanovski.testswithme.cli.entity.exception.AppException
 import com.github.aivanovski.testswithme.cli.entity.exception.DeviceConnectionException
@@ -22,12 +21,9 @@ import java.nio.file.Path
 import kotlin.io.path.pathString
 
 class MainInteractor(
-    private val formatHelpUseCase: FormatHelpTextUseCase,
     private val connectUseCase: ConnectToDeviceUseCase,
     private val fsProvider: FileSystemProvider
 ) {
-
-    fun getHelpText(): String = formatHelpUseCase.formatHelpText()
 
     suspend fun connectToDevice(): Either<DeviceConnectionException, ConnectionAndState> =
         connectUseCase.connectToDevice()
