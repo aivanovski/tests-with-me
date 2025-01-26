@@ -36,6 +36,7 @@ object Data {
       () => Api.postGroup(path = "KeePassVault/Root/Screens", name = "New Database"),
 
       // Flows
+      /*
       () => Api.postFlow(
         path = "KeePassVault/Root/Common",
         content = readFile(s"$FLOW_DIRECTORY_PATH/reset-and-setup-basic.kdbx-database.yaml")
@@ -52,6 +53,7 @@ object Data {
         path = "KeePassVault/Root/Screens/Unlock",
         content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file-and-password.yaml")
       ),
+      */
     )
 
     for (response <- requests) printResponse(response.apply())
