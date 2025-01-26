@@ -20,12 +20,13 @@ class InvalidLineFormatException(
 )
 
 class InvalidParserStateException(
-    line: TextLine? = null
+    line: TextLine? = null,
+    message: String? = null
 ) : ReportParsingException(
-    message = if (line != null) {
-        "Invalid parser state at line ${line.number}: ${line.text}"
-    } else {
-        "Invalid parser state"
+    message = when {
+        line != null -> "Invalid parser state at line ${line.number}: ${line.text}"
+        message != null -> message
+        else -> "Invalid parser state"
     }
 )
 

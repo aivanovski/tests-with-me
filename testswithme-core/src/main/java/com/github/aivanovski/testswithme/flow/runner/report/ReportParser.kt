@@ -94,7 +94,13 @@ class ReportParser {
                         error = step.error
                     )
                 } else {
-                    val innerFlow = flowNameToFlowMap[step.innerFlowName]
+                    val name = if (step.innerFlowName.contains("/")) {
+                        step.innerFlowName.substringAfterLast("/").trim()
+                    } else {
+                        step.innerFlowName
+                    }
+
+                    val innerFlow = flowNameToFlowMap[name]
                         ?: raise(InvalidParserStateException())
 
                     val innerSteps = innerFlow.steps.values
