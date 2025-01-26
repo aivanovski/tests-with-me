@@ -1,12 +1,14 @@
 package com.github.aivanovski.testswithme.cli.di
 
 import com.github.aivanovski.testswithme.cli.data.argument.ArgumentParser
+import com.github.aivanovski.testswithme.cli.data.argument.Arguments
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProviderImpl
 import com.github.aivanovski.testswithme.cli.data.network.GatewayClient
 import com.github.aivanovski.testswithme.cli.domain.usecases.ConnectToDeviceUseCase
 import com.github.aivanovski.testswithme.cli.domain.usecases.FormatHelpTextUseCase
 import com.github.aivanovski.testswithme.cli.domain.usecases.GetVersionUseCase
+import com.github.aivanovski.testswithme.cli.presentation.StartInteractor
 import com.github.aivanovski.testswithme.cli.presentation.core.CliStrings
 import com.github.aivanovski.testswithme.cli.presentation.core.CliStringsImpl
 import com.github.aivanovski.testswithme.cli.presentation.main.MainInteractor
@@ -30,8 +32,12 @@ object CliAppModule {
         singleOf(::FormatHelpTextUseCase)
         singleOf(::ConnectToDeviceUseCase)
 
-        // Presentation
+        // Interactors
+        singleOf(::StartInteractor)
         singleOf(::MainInteractor)
-        singleOf(::MainViewModel)
+
+        factory { (args: Arguments) ->
+            MainViewModel(get(), get(), args)
+        }
     }
 }

@@ -17,8 +17,10 @@ import com.github.aivanovski.testswithme.android.entity.db.LocalStepRun
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentData
 import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentScreenMode
+import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.flow.runner.report.ReportParser
 import com.github.aivanovski.testswithme.flow.runner.report.model.ReportItem
+import timber.log.Timber
 
 class TestContentInteractor(
     private val flowRepository: FlowRepository,
@@ -134,7 +136,14 @@ class TestContentInteractor(
     private fun parseReport(report: String?): Either<AppException, ReportItem.FlowItem?> =
         either {
             if (!report.isNullOrBlank()) {
-                reportParser.parse(report).getOrNull()
+                val parseResult = reportParser.parse(report)
+                if (parseResult.isLeft()) {
+                    val error = parseResult.unwrapError()
+                    Timber.w("Failed to parse report: $error")
+                    Timber.w(error)
+                }
+
+                parseResult.getOrNull()
             } else {
                 null
             }

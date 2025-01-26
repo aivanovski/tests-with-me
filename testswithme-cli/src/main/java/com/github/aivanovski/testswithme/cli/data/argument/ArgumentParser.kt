@@ -11,7 +11,7 @@ class ArgumentParser(
     private val fsProvider: FileSystemProvider
 ) {
 
-    fun parse(args: Array<String>): Either<ParsingException, Arguments> =
+    fun parse(args: List<String>): Either<ParsingException, Arguments> =
         either {
             val queue = LinkedList<String>()
                 .apply {
@@ -19,7 +19,7 @@ class ArgumentParser(
                 }
 
             var filePath: String = StringUtils.EMPTY
-            var isPrintHelp = false
+            var isPrintHelp = (args.isEmpty())
 
             while (queue.isNotEmpty()) {
                 val optionName = queue.poll()

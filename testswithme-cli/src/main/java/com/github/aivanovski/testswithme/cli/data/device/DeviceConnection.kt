@@ -5,6 +5,7 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.cli.data.network.GatewayClient
 import com.github.aivanovski.testswithme.cli.entity.exception.DeviceConnectionException
 import com.github.aivanovski.testswithme.utils.StringUtils.SPACE
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import dadb.Dadb
 
 class DeviceConnection(
@@ -13,8 +14,7 @@ class DeviceConnection(
     private val portForwardingConnection: AutoCloseable
 ) : AutoCloseable {
 
-    @Volatile
-    private var isClosed = false
+    private var isClosed: Boolean by mutableStateFlow(false)
 
     override fun close() {
         if (isClosed) {

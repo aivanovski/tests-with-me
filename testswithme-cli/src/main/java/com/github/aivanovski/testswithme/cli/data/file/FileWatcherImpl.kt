@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.cli.data.file
 
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY
@@ -15,12 +16,10 @@ class FileWatcherImpl(
     private val onContentChanged: (file: Path) -> Unit
 ) : FileWatcher {
 
-    @Volatile
-    private var isActive = false
+    var isActive: Boolean by mutableStateFlow(false)
+        private set
 
-    @Volatile
-    private var watcher: WatchService? = null
-
+    private var watcher: WatchService? by mutableStateFlow(null)
     private val scope = CoroutineScope(Dispatchers.Default)
 
     override fun watch(file: Path) {

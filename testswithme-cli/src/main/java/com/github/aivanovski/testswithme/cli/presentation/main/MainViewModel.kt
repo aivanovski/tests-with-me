@@ -8,7 +8,6 @@ import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ExecutionR
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobStatusDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.response.StartTestResponse
-import com.github.aivanovski.testswithme.cli.data.argument.ArgumentParser
 import com.github.aivanovski.testswithme.cli.data.argument.Arguments
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.file.FileWatcherImpl
@@ -31,6 +30,7 @@ import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.Base64Utils
 import com.github.aivanovski.testswithme.utils.StringUtils
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import java.lang.StringBuilder
 import java.nio.file.Path
 import java.time.Instant
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory
 class MainViewModel(
     private val interactor: MainInteractor,
     private val strings: CliStrings,
-    private val argumentParser: ArgumentParser
+    private val arguments: Arguments
 ) {
 
     val viewState = MutableStateFlow(MainViewState())
@@ -61,44 +61,23 @@ class MainViewModel(
     )
 
     private val scope = CoroutineScope(Dispatchers.Default)
-    private var arguments = Arguments.EMPTY
     private val queue = MessageQueue()
-    private var loopJob: Job? = null
-    private var heartbeatSupplierJob: Job? = null
+    private var loopJob: Job? by mutableStateFlow(null)
+    private var heartbeatSupplierJob: Job? by mutableStateFlow(null)
+    private var connection: DeviceConnection? by mutableStateFlow(null)
+    private var errorMessage: String? by mutableStateFlow(null)
+    private var currentDeviceState: DeviceState by mutableStateFlow(DeviceState.Connecting)
+    private var currentTestState: TestState by mutableStateFlow(TestState.Awaiting)
+    private var currentFileState: FileState by mutableStateFlow(FileState.NoState)
+    private var fileDelayJob: Job? by mutableStateFlow(null)
+    private var loopResult: Either<AppException, Unit>? by mutableStateFlow(null)
+    private var isLoopActive by mutableStateFlow(true)
+    private var lastSentData: TestData? by mutableStateFlow(null)
+    private var heartBeatRetry: Int by mutableStateFlow(0)
 
-    @Volatile
-    private var connection: DeviceConnection? = null
-
-    @Volatile
-    private var errorMessage: String? = null
-
-    @Volatile
-    private var currentDeviceState: DeviceState = DeviceState.Connecting
-
-    @Volatile
-    private var currentTestState: TestState = TestState.Awaiting
-
-    @Volatile
-    private var currentFileState: FileState = FileState.NoState
-
-    @Volatile
-    private var fileDelayJob: Job? = null
-
-    @Volatile
-    private var loopResult: Either<AppException, Unit>? = null
-
-    @Volatile
-    private var isLoopActive = true
-
-    @Volatile
-    private var lastSentData: TestData? = null
-
-    @Volatile
-    private var heartBeatRetry = 0
-
-    fun start(args: Array<String>) {
+    fun start() {
         val result = runBlocking {
-            startApp(args)
+            startApp()
         }
 
         fileWatcher.cancel()
@@ -110,27 +89,9 @@ class MainViewModel(
         logger.debug("Application finished it's work: result=%s".format(result))
     }
 
-    private suspend fun startApp(args: Array<String>): Either<AppException, Unit> =
+    private suspend fun startApp(): Either<AppException, Unit> =
         either {
-            if (args.isEmpty()) {
-                viewState.value = MainViewState(
-                    helpText = interactor.getHelpText()
-                )
-                return@either
-            }
-
-            val arguments = argumentParser.parse(args).bind()
-                .apply {
-                    arguments = this
-                }
-
-            if (arguments.isPrintHelp) {
-                viewState.value = MainViewState(
-                    helpText = interactor.getHelpText()
-                )
-                return@either
-            }
-
+            rebuildViewState()
             connection = prepareLoop().bind()
             startLoop().bind()
         }
@@ -332,7 +293,6 @@ class MainViewModel(
                         Base64Utils.decode(encodedMessage)
                             .mapLeft { exception -> AppException(cause = exception) }
                             .bind()
-                            ?: StringUtils.EMPTY
                     } else {
                         StringUtils.EMPTY
                     }
@@ -439,7 +399,7 @@ class MainViewModel(
                 !isGatewayConnected() -> strings.gatewayIsNotConnectedMessage
                 !isDriverReady() -> strings.driverIsNotRunningMessage
                 fileState is FileState.InvalidFile -> fileState.message
-                else -> errorMessage ?: StringUtils.EMPTY
+                else -> errorMessage
             }
 
             if (wasReadyToStartTest != isReadyToStartTest) {
