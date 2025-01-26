@@ -20,8 +20,8 @@ inline fun rememberOnClickedCallback(crossinline block: () -> Unit): () -> Unit 
     return remember { { block.invoke() } }
 }
 
-fun CornersShape.toComposeShape(): RoundedCornerShape {
-    return when (this) {
+fun CornersShape.toComposeShape(): RoundedCornerShape =
+    when (this) {
         CornersShape.TOP -> RoundedCornerShape(
             topStart = CardCornerSize,
             topEnd = CardCornerSize
@@ -38,12 +38,12 @@ fun CornersShape.toComposeShape(): RoundedCornerShape {
 
         CornersShape.NONE -> RoundedCornerShape(size = 0.dp)
     }
-}
 
 @Composable
-fun TextSize.toTextStyle(): TextStyle {
-    return when (this) {
-        TextSize.MEDIUM -> AppTheme.theme.typography.bodyMedium
-        TextSize.LARGE -> AppTheme.theme.typography.titleMedium
+fun TextSize.toTextStyle(): TextStyle =
+    when (this) {
+        TextSize.TITLE -> AppTheme.theme.typography.titleMedium
+        TextSize.BODY_LARGE -> AppTheme.theme.typography.bodyLarge
+        TextSize.BODY_MEDIUM -> AppTheme.theme.typography.bodyMedium
+        TextSize.BODY_SMALL -> AppTheme.theme.typography.bodySmall
     }
-}

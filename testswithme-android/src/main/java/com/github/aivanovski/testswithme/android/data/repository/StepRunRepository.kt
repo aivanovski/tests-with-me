@@ -24,6 +24,11 @@ class StepRunRepository(
             runDao.getByJobUid(jobUid)
         }
 
+    fun getByFlowUid(flowUid: String): Either<AppException, List<LocalStepRun>> =
+        either {
+            runDao.getByFlowUid(flowUid)
+        }
+
     fun getOrCreate(
         jobUid: String,
         flowUid: String,

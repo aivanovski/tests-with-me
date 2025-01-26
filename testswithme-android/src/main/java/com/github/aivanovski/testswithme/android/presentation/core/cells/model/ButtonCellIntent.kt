@@ -4,6 +4,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 
 sealed interface ButtonCellIntent : BaseCellIntent {
     data class OnClick(
-        val id: String
+        val cellId: String
     ) : ButtonCellIntent
 }

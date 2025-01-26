@@ -21,10 +21,10 @@ import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.driver.Driver
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import com.github.aivanovski.testswithme.flow.runner.listener.ListenerComposite
-import com.github.aivanovski.testswithme.flow.runner.reporter.ReportCollector
-import com.github.aivanovski.testswithme.flow.runner.reporter.ReportWriter
-import com.github.aivanovski.testswithme.flow.runner.reporter.ReportWriter.ShortNameTransformer
-import com.github.aivanovski.testswithme.flow.runner.reporter.TimeCollector
+import com.github.aivanovski.testswithme.flow.runner.report.ReportCollector
+import com.github.aivanovski.testswithme.flow.runner.report.ReportWriter
+import com.github.aivanovski.testswithme.flow.runner.report.ReportWriter.ShortNameTransformer
+import com.github.aivanovski.testswithme.flow.runner.report.TimeCollector
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference

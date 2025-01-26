@@ -5,7 +5,7 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsData
 import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsIntent
@@ -80,7 +80,7 @@ class ResetRunsViewModel(
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(ResetRunsState(terminalState = terminalState))
                 return@flow
@@ -111,7 +111,7 @@ class ResetRunsViewModel(
             if (resetRunsResult.isLeft()) {
                 val terminalState = resetRunsResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(state.copy(terminalState = terminalState))
                 return@flow

@@ -3,18 +3,23 @@ package com.github.aivanovski.testswithme.android.presentation.screens.flow
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
+import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId.extractJobUid
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId.extractRunUid
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.model.HistoryItemCellIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowData
@@ -29,7 +34,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
-import com.github.aivanovski.testswithme.android.presentation.screens.testReport.model.TestReportScreenArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentArgs
+import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentScreenMode
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.android.utils.infiniteRepeatFlow
 import com.github.aivanovski.testswithme.android.utils.toUids
@@ -113,7 +119,9 @@ class FlowViewModel(
         when (intent) {
             is HistoryItemCellIntent.OnItemClick -> onHistoryItemClicked(intent)
             is FlowCellIntent.OnClick -> onFlowClicked(intent)
-            is ButtonCellIntent.OnClick -> onButtonCellClicked(intent.id)
+            is ButtonCellIntent.OnClick -> onButtonCellClicked(intent.cellId)
+            is TextButtonCellIntent.OnClick -> onTextButtonCellClicked(intent.cellId)
+            is HeaderCellIntent.OnIconClick -> onHeaderCellClicked(intent.cellId)
         }
     }
 
@@ -157,19 +165,31 @@ class FlowViewModel(
 
             CellId.RUN_TEST_BUTTON -> {
                 when (args.mode) {
-                    is FlowScreenMode.Flow -> {
+                    is FlowScreenMode.Flow ->
                         sendIntent(FlowIntent.RunFlow(args.mode.flowUid))
-                    }
 
-                    is FlowScreenMode.Group -> {
+                    is FlowScreenMode.Group ->
                         sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
-                    }
 
-                    is FlowScreenMode.RemainedFlows -> {
+                    is FlowScreenMode.RemainedFlows ->
                         sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
-                    }
+
+                    is FlowScreenMode.LocalFlow ->
+                        sendIntent(FlowIntent.RunFlow(args.mode.flowUid))
                 }
             }
+        }
+    }
+
+    private fun onTextButtonCellClicked(cellId: String) {
+        when (cellId) {
+            CellId.MORE_STEPS_BUTTON -> navigateToTestContentScreen()
+        }
+    }
+
+    private fun onHeaderCellClicked(cellId: String) {
+        when (cellId) {
+            CellId.STEPS_HEADER -> navigateToTestContentScreen()
         }
     }
 
@@ -178,9 +198,13 @@ class FlowViewModel(
     }
 
     private fun onHistoryItemClicked(intent: HistoryItemCellIntent.OnItemClick) {
-        val runUid = CellId.extractRunUid(intent.cellId) ?: return
+        val jobUid = extractJobUid(intent.cellId)
+        val runUid = extractRunUid(intent.cellId)
 
-        navigateToTestReportScreen(runUid)
+        when {
+            runUid != null -> navigateToFlowRunReport(flowRunUid = runUid)
+            jobUid != null -> navigateToLocalJobReport(jobUid = jobUid)
+        }
     }
 
     private fun startFlowGroup(
@@ -276,14 +300,15 @@ class FlowViewModel(
                 if (loadDataResult.isLeft()) {
                     val terminalState = loadDataResult
                         .formatError(resourceProvider)
-                        .toScreenState()
+                        .toTerminalState()
                     return@map FlowState(terminalState = terminalState)
                 }
 
                 data = loadDataResult.unwrap()
                 val data = loadDataResult.unwrap()
 
-                appData = interactor.getApplicationData(data.project.packageName).getOrNull()
+                appData = interactor.getApplicationData(data.project?.packageName ?: "")
+                    .getOrNull()
                 isDriverRunning = interactor.isDriverServiceRunning()
 
                 rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
@@ -296,10 +321,13 @@ class FlowViewModel(
     }
 
     private fun rebuildState(): Flow<FlowState> {
-        val project = getProjectOrNull() ?: return emptyFlow()
         val data = this.data ?: return emptyFlow()
 
-        appData = interactor.getApplicationData(project.packageName).getOrNull()
+        appData = if (data.project != null) {
+            interactor.getApplicationData(data.project.packageName).getOrNull()
+        } else {
+            null
+        }
         isDriverRunning = interactor.isDriverServiceRunning()
 
         return flowOf(buildScreenState(data))
@@ -307,6 +335,16 @@ class FlowViewModel(
 
     private fun buildScreenState(data: FlowData): FlowState {
         return when (args.mode) {
+            is FlowScreenMode.LocalFlow -> {
+                FlowState(
+                    viewModels = cellFactory.createLocalFlowCellViewModels(
+                        data = data,
+                        isDriverRunning = isDriverRunning,
+                        intentProvider = intentProvider
+                    )
+                )
+            }
+
             is FlowScreenMode.Flow -> {
                 FlowState(
                     viewModels = cellFactory.createFlowCellViewModels(
@@ -401,7 +439,7 @@ class FlowViewModel(
                 if (cancelResult.isLeft()) {
                     val terminalState = cancelResult
                         .formatError(resourceProvider)
-                        .toScreenState()
+                        .toTerminalState()
 
                     emit(
                         state.value.copy(
@@ -430,6 +468,7 @@ class FlowViewModel(
             )
 
         val title = when (args.mode) {
+            is FlowScreenMode.LocalFlow -> data.visibleFlows.first().name
             is FlowScreenMode.Flow -> data.visibleFlows.first().name
             is FlowScreenMode.Group -> data.group?.name ?: StringUtils.EMPTY
             is FlowScreenMode.RemainedFlows -> resourceProvider.getString(R.string.remained_tests)
@@ -477,11 +516,43 @@ class FlowViewModel(
         )
     }
 
-    private fun navigateToTestReportScreen(runUid: String) {
+    private fun navigateToFlowRunReport(flowRunUid: String) {
+        val flow = getCurrentFlow() ?: return
+
         router.navigateTo(
-            Screen.TestReport(
-                TestReportScreenArgs(
-                    flowRunUid = runUid
+            Screen.TestContent(
+                TestContentArgs(
+                    screenTitle = flow.name,
+                    flowUid = flow.uid,
+                    mode = TestContentScreenMode.RemoteRun(flowRunUid = flowRunUid)
+                )
+            )
+        )
+    }
+
+    private fun navigateToLocalJobReport(jobUid: String) {
+        val flow = getCurrentFlow() ?: return
+
+        router.navigateTo(
+            Screen.TestContent(
+                TestContentArgs(
+                    screenTitle = flow.name,
+                    flowUid = flow.uid,
+                    mode = TestContentScreenMode.LocalRun(jobUid = jobUid)
+                )
+            )
+        )
+    }
+
+    private fun navigateToTestContentScreen() {
+        val flow = getCurrentFlow() ?: return
+
+        router.navigateTo(
+            Screen.TestContent(
+                TestContentArgs(
+                    screenTitle = flow.name,
+                    flowUid = flow.uid,
+                    mode = TestContentScreenMode.FlowContent
                 )
             )
         )
@@ -491,6 +562,16 @@ class FlowViewModel(
 
     private fun isDriverStatusChanged(): Boolean {
         return interactor.isDriverServiceRunning() != isDriverRunning
+    }
+
+    private fun getCurrentFlow(): FlowEntry? {
+        val data = this.data ?: return null
+
+        return when (args.mode) {
+            is FlowScreenMode.LocalFlow -> data.visibleFlows.firstOrNull()
+            is FlowScreenMode.Flow -> data.visibleFlows.firstOrNull()
+            else -> null
+        }
     }
 
     private fun getProjectOrNull(): ProjectEntry? {

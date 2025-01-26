@@ -33,3 +33,5 @@ class FailedToFindEntityByUidException(
     fieldName = "uid",
     fieldValue = uid
 )
+
+class UserNotFoundException : DaoException(message = "Failed find current user")

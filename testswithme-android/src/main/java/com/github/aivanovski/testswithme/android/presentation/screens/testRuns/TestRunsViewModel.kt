@@ -8,7 +8,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
@@ -20,7 +20,6 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
-import com.github.aivanovski.testswithme.android.presentation.screens.testRun.model.TestRunScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.cells.TestRunsCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.model.TestRunsData
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.model.TestRunsIntent
@@ -114,25 +113,21 @@ class TestRunsViewModel(
             ?: return
 
         val sourceType = flow.entry.sourceType
-        if (sourceType == SourceType.REMOTE && interactor.isLoggedIn()) {
-            router.navigateTo(
-                Screen.Flow(
-                    FlowScreenArgs(
-                        mode = FlowScreenMode.Flow(flow.entry.uid),
-                        screenTitle = flow.entry.name
-                    )
-                )
-            )
+
+        val mode = if (sourceType == SourceType.REMOTE && interactor.isLoggedIn()) {
+            FlowScreenMode.Flow(flow.entry.uid)
         } else {
-            router.navigateTo(
-                Screen.TestRun(
-                    TestRunScreenArgs(
-                        jobUid = jobUid,
-                        screenTitle = flow.entry.name
-                    )
+            FlowScreenMode.LocalFlow(flow.entry.uid)
+        }
+
+        router.navigateTo(
+            Screen.Flow(
+                FlowScreenArgs(
+                    mode = mode,
+                    screenTitle = flow.entry.name
                 )
             )
-        }
+        )
     }
 
     private fun loadData(): Flow<TestRunsState> {
@@ -141,7 +136,7 @@ class TestRunsViewModel(
                 if (loadDataResult.isLeft()) {
                     val terminalState = loadDataResult
                         .formatError(resourceProvider)
-                        .toScreenState()
+                        .toTerminalState()
 
                     return@map TestRunsState(terminalState = terminalState)
                 }

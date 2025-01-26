@@ -134,7 +134,7 @@ class FlowRunController(
             flowRunRepository.add(flowRun).bind()
 
             PostFlowRunResponse(
-                id = flow.uid.toString(),
+                id = flowRun.uid.toString(),
                 isAccepted = true
             )
         }

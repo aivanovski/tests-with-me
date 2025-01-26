@@ -105,7 +105,7 @@ fun GroupCell(viewModel: GroupCellViewModel) {
 
                         TextChip(
                             text = chip,
-                            textSize = TextSize.MEDIUM
+                            textSize = TextSize.BODY_MEDIUM
                         )
                     }
                 }

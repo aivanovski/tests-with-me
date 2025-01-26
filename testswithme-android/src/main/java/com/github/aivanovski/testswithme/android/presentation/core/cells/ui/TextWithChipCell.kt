@@ -2,23 +2,22 @@ package com.github.aivanovski.testswithme.android.presentation.core.cells.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.compose.ElementSpace
 import com.github.aivanovski.testswithme.android.presentation.core.compose.TextChip
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
@@ -26,6 +25,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.TwoLineSmallItemHeight
 import com.github.aivanovski.testswithme.android.presentation.core.compose.toComposeShape
+import com.github.aivanovski.testswithme.android.presentation.core.compose.toTextStyle
 
 @Composable
 fun TextWithChipCell(viewModel: TextWithChipCellViewModel) {
@@ -51,18 +51,20 @@ fun TextWithChipCell(viewModel: TextWithChipCellViewModel) {
                 .defaultMinSize(minHeight = TwoLineSmallItemHeight)
         ) {
             Text(
-                text = stringResource(R.string.driver),
+                text = model.text,
                 color = AppTheme.theme.colors.primaryText,
-                style = AppTheme.theme.typography.bodyLarge,
+                style = model.textSize.toTextStyle(),
                 modifier = Modifier
                     .weight(weight = 1f)
             )
 
-            TextChip(
-                text = model.chipText,
-                textColor = model.chipTextColor,
-                cardColor = model.chipColor
-            )
+            if (model.chipText.isNotEmpty()) {
+                TextChip(
+                    text = model.chipText,
+                    textColor = model.chipTextColor,
+                    cardColor = model.chipColor
+                )
+            }
         }
     }
 }
@@ -78,39 +80,53 @@ fun TextWithChipCellPreview() {
             modifier = Modifier
                 .padding(vertical = ElementMargin)
         ) {
-            TextWithChipCell(newTextWithChipGreen())
-
-            Spacer(Modifier.size(ElementMargin))
-
-            TextWithChipCell(newTextWithChipRed())
+            TextWithChipCell(newTextWithGreenChip())
+            ElementSpace()
+            TextWithChipCell(newTextWithRedChip())
+            ElementSpace()
+            TextWithChipCell(newTextWithChipCell())
         }
     }
 }
 
 @Composable
-fun newTextWithChipGreen(): TextWithChipCellViewModel {
-    return TextWithChipCellViewModel(
+fun newTextWithChipCell(): TextWithChipCellViewModel =
+    TextWithChipCellViewModel(
         model = TextWithChipCellModel(
             id = "id",
             text = "Test Driver",
+            textSize = TextSize.BODY_MEDIUM,
+            chipText = "",
+            chipColor = Color.Unspecified,
+            chipTextColor = Color.Unspecified,
+            shape = CornersShape.ALL
+        )
+    )
+
+@Composable
+fun newTextWithGreenChip(): TextWithChipCellViewModel =
+    TextWithChipCellViewModel(
+        model = TextWithChipCellModel(
+            id = "id",
+            text = "Test Driver",
+            textSize = TextSize.TITLE,
             chipText = "RUNNING",
             chipColor = AppTheme.theme.colors.greenCard,
             chipTextColor = AppTheme.theme.colors.testGreen,
             shape = CornersShape.ALL
         )
     )
-}
 
 @Composable
-fun newTextWithChipRed(): TextWithChipCellViewModel {
-    return TextWithChipCellViewModel(
+fun newTextWithRedChip(): TextWithChipCellViewModel =
+    TextWithChipCellViewModel(
         model = TextWithChipCellModel(
             id = "id",
             text = "Test Driver",
+            textSize = TextSize.TITLE,
             chipText = "STOPPED",
             chipColor = AppTheme.theme.colors.redCard,
             chipTextColor = AppTheme.theme.colors.testRed,
             shape = CornersShape.ALL
         )
     )
-}

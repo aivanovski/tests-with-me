@@ -81,7 +81,7 @@ fun IconChip(
 @Composable
 fun TextChip(
     text: String,
-    textSize: TextSize = TextSize.MEDIUM,
+    textSize: TextSize = TextSize.BODY_MEDIUM,
     textColor: Color = AppTheme.theme.colors.primaryText,
     cardColor: Color = AppTheme.theme.colors.cardOnPrimaryBackground,
     onClick: (() -> Unit)? = null
@@ -164,7 +164,7 @@ fun ChipPreview() {
             TextChip(
                 text = "STOPPED",
                 textColor = AppTheme.theme.colors.testRed,
-                textSize = TextSize.LARGE,
+                textSize = TextSize.TITLE,
                 cardColor = AppTheme.theme.colors.redCard
             )
         }

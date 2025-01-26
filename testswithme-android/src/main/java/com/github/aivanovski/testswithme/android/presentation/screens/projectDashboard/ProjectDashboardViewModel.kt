@@ -13,7 +13,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.I
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toScreenState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -142,7 +142,7 @@ class ProjectDashboardViewModel(
             if (loadDataResult.isLeft()) {
                 val terminalState = loadDataResult.unwrapError()
                     .formatErrorMessage(resourceProvider)
-                    .toScreenState()
+                    .toTerminalState()
 
                 emit(ProjectDashboardState(terminalState = terminalState))
                 return@flow

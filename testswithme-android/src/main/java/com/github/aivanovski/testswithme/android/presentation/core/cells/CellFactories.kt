@@ -17,11 +17,13 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.L
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.MenuCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ShapedSpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TwoLineTextWithChipCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.UnshapedTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ButtonCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.DividerCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.EmptyTextCell
@@ -35,11 +37,13 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.Labe
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.MenuCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ShapedSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextButtonCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextChipRowCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextWithChipCell
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleWithIconCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TwoLineTextWithChipCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.UnshapedTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ButtonCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.DividerCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.EmptyTextCellViewModel
@@ -53,16 +57,19 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.viewMod
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.MenuCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ShapedSpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextButtonCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleWithIconCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TwoLineWithChipCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.UnshapedTextCellViewModel
 
 @Composable
 fun CreateCoreCell(viewModel: CellViewModel) {
     when (viewModel) {
         is ButtonCellViewModel -> ButtonCell(viewModel)
+        is TextButtonCellViewModel -> TextButtonCell(viewModel)
         is HeaderCellViewModel -> HeaderCell(viewModel)
         is HeaderWithDescriptionCellViewModel -> HeaderWithDescriptionCell(viewModel)
         is IconThreeTextCellViewModel -> IconThreeTextCell(viewModel)
@@ -74,12 +81,13 @@ fun CreateCoreCell(viewModel: CellViewModel) {
         is TextWithChipCellViewModel -> TextWithChipCell(viewModel)
         is IconChipRowCellViewModel -> IconChipRowCell(viewModel)
         is TextChipRowCellViewModel -> TextChipRowCell(viewModel)
-        is TitleCellViewModel -> TitleCell(viewModel)
+        is TextCellViewModel -> TextCell(viewModel)
         is EmptyTextCellViewModel -> EmptyTextCell(viewModel)
         is DividerCellViewModel -> DividerCell(viewModel)
         is MenuCellViewModel -> MenuCell(viewModel)
         is TitleWithIconCellViewModel -> TitleWithIconCell(viewModel)
-        is TextCellViewModel -> TextCell(viewModel)
+        is UnshapedTextCellViewModel -> UnshapedTextCell(viewModel)
+        is TwoLineWithChipCellViewModel -> TwoLineTextWithChipCell(viewModel)
         else -> throw UnsupportedCellViewModelException(viewModel)
     }
 }
@@ -90,6 +98,7 @@ fun createCoreCellViewModel(
 ): BaseCellViewModel {
     return when (model) {
         is ButtonCellModel -> ButtonCellViewModel(model, intentProvider)
+        is TextButtonCellModel -> TextButtonCellViewModel(model, intentProvider)
         is HeaderCellModel -> HeaderCellViewModel(model, intentProvider)
         is HeaderWithDescriptionCellModel -> HeaderWithDescriptionCellViewModel(model)
         is IconThreeTextCellModel -> IconThreeTextCellViewModel(model, intentProvider)
@@ -101,12 +110,13 @@ fun createCoreCellViewModel(
         is TextWithChipCellModel -> TextWithChipCellViewModel(model)
         is IconChipRowCellModel -> IconChipRowCellViewModel(model)
         is TextChipRowCellModel -> TextChipRowCellViewModel(model, intentProvider)
-        is TitleCellModel -> TitleCellViewModel(model)
+        is TextCellModel -> TextCellViewModel(model)
         is EmptyTextCellModel -> EmptyTextCellViewModel(model)
         is DividerCellModel -> DividerCellViewModel(model)
         is MenuCellModel -> MenuCellViewModel(model, intentProvider)
         is TitleWithIconCellModel -> TitleWithIconCellViewModel(model, intentProvider)
-        is TextCellModel -> TextCellViewModel(model)
+        is UnshapedTextCellModel -> UnshapedTextCellViewModel(model)
+        is TwoLineTextWithChipCellModel -> TwoLineWithChipCellViewModel(model, intentProvider)
         else -> throw UnsupportedCellModelException(model)
     }
 }

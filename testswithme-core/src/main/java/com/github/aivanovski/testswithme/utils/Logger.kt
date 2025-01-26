@@ -1,7 +1,7 @@
 package com.github.aivanovski.testswithme.utils
 
-import com.github.aivanovski.testswithme.flow.runner.reporter.OutputWriter
-import com.github.aivanovski.testswithme.flow.runner.reporter.OutputWriter.Level
+import com.github.aivanovski.testswithme.flow.runner.report.OutputWriter
+import com.github.aivanovski.testswithme.flow.runner.report.OutputWriter.Level
 
 interface Logger : OutputWriter {
     fun debug(message: String) {

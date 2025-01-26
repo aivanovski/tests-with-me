@@ -49,3 +49,27 @@ fun <E, T1, T2, T3, T4, T5, R> combineEitherFlows(
 
         transform.invoke(e1.unwrap(), e2.unwrap(), e3.unwrap(), e4.unwrap(), e5.unwrap())
     }
+
+fun <E, T1, T2, T3, T4, T5, T6, R> combineEitherFlows(
+    flow1: Flow<Either<E, T1>>,
+    flow2: Flow<Either<E, T2>>,
+    flow3: Flow<Either<E, T3>>,
+    flow4: Flow<Either<E, T4>>,
+    flow5: Flow<Either<E, T5>>,
+    flow6: Flow<Either<E, T6>>,
+    transform: suspend (T1, T2, T3, T4, T5, T6) -> Either<E, R>
+): Flow<Either<E, R>> =
+    combine(flow1, flow2, flow3, flow4, flow5, flow6) { arr ->
+        for (e in arr) {
+            if (e.isLeft()) return@combine e.remapError()
+        }
+
+        transform.invoke(
+            arr[0].unwrap() as T1,
+            arr[1].unwrap() as T2,
+            arr[2].unwrap() as T3,
+            arr[3].unwrap() as T4,
+            arr[4].unwrap() as T5,
+            arr[5].unwrap() as T6
+        )
+    }

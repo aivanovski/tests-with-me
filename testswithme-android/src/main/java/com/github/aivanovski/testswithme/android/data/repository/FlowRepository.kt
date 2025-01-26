@@ -71,6 +71,18 @@ class FlowRepository(
                 .base64Content
         }
 
+    suspend fun getFlowByUidFlow(flowUid: String): Flow<Either<AppException, FlowWithSteps>> =
+        flow {
+            val localFlow = flowDao.getByUidWithSteps(flowUid)
+            if (localFlow != null) {
+                emit(localFlow.right())
+            }
+
+            if (localFlow == null || localFlow.entry.sourceType == SourceType.REMOTE) {
+                emit(getFlowByUid(flowUid))
+            }
+        }
+
     suspend fun getFlowByUid(flowUid: String): Either<AppException, FlowWithSteps> =
         either {
             val flow = flowDao.getByUidWithSteps(flowUid)

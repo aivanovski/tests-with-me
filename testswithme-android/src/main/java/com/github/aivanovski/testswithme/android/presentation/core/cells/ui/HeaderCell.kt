@@ -3,10 +3,8 @@ package com.github.aivanovski.testswithme.android.presentation.core.cells.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -20,6 +18,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.H
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.HeaderCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
+import com.github.aivanovski.testswithme.android.presentation.core.compose.ElementSpace
 import com.github.aivanovski.testswithme.android.presentation.core.compose.PreviewIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
@@ -96,7 +95,7 @@ fun HeaderCellPreview() {
     ThemedPreview(theme = LightTheme) {
         Column {
             HeaderCell(newHeaderCell())
-            Spacer(modifier = Modifier.height(ElementMargin))
+            ElementSpace()
             HeaderCell(newHeaderWithIconCellViewModel())
         }
     }

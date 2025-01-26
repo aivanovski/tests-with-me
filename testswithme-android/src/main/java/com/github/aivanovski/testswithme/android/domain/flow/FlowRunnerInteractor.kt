@@ -347,13 +347,10 @@ class FlowRunnerInteractor(
 
                 Timber.d("stepToUpload: stepUid=${stepToUpload.stepUid}")
 
-                val stepResult = if (!stepToUpload.result.isNullOrEmpty()) {
-                    jsonSerializer.deserialize<StepResult>(stepToUpload.result)
-                        .mapLeft { exception -> AppException(cause = exception) }
-                        .bind()
-                } else {
-                    null
+                val stepResult = stepToUpload.result?.let { resultJson ->
+                    StepResult.deserialize(jsonSerializer, resultJson).getOrNull()
                 }
+
                 val isSuccess = (stepResult != null && stepResult.isSuccess)
 
                 val encodedReport = Base64Utils.encode(reportContent)
@@ -377,6 +374,11 @@ class FlowRunnerInteractor(
                         stepRunRepository.update(
                             stepToUpload.copy(
                                 syncStatus = SyncStatus.SYNCED
+                            )
+                        )
+                        jobRepository.update(
+                            job.copy(
+                                flowRunUid = uploadResult.uid
                             )
                         )
                         jobRepository.moveToHistory(jobUid).bind()
@@ -523,6 +525,7 @@ class FlowRunnerInteractor(
                         finishedTimestamp = null,
                         executionResult = ExecutionResult.NONE,
                         status = JobStatus.PENDING,
+                        flowRunUid = null,
                         onFinishAction = onFinishAction
                     )
                 )

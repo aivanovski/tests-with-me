@@ -14,6 +14,7 @@ fun JobEntry.toHistoryEntry(id: Long? = null): JobHistoryEntry {
         executionTime = executionTime,
         executionResult = executionResult,
         status = status,
+        flowRunUid = flowRunUid,
         onFinishAction = onFinishAction
     )
 }
@@ -29,6 +30,7 @@ fun JobHistoryEntry.toEntry(): JobEntry {
         executionTime = executionTime,
         executionResult = executionResult,
         status = status,
+        flowRunUid = flowRunUid,
         onFinishAction = onFinishAction
     )
 }
