@@ -36,6 +36,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.testContent.model.TestContentScreenMode
+import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.android.utils.infiniteRepeatFlow
 import com.github.aivanovski.testswithme.android.utils.toUids
@@ -142,6 +143,7 @@ class FlowViewModel(
             FlowIntent.ReBuildState -> rebuildState()
             FlowIntent.OnDismissErrorDialog -> onDismissErrorDialog(state)
             FlowIntent.OnDismissFlowDialog -> onDismissFlowDialog(state)
+            FlowIntent.OnUploadButtonClick -> onAddButtonClick()
             is FlowIntent.OnFlowDialogActionClick -> onFlowDialogActionClick(intent, state)
             is FlowIntent.OnFlowClick -> onFlowClicked(intent, state)
             is FlowIntent.RunFlow -> startFlow(intent, state)
@@ -341,7 +343,8 @@ class FlowViewModel(
                         data = data,
                         isDriverRunning = isDriverRunning,
                         intentProvider = intentProvider
-                    )
+                    ),
+                    isUploadButtonVisible = true
                 )
             }
 
@@ -392,6 +395,20 @@ class FlowViewModel(
         return flowOf(
             state.copy(flowDialogState = null)
         )
+    }
+
+    private fun onAddButtonClick(): Flow<FlowState> {
+        val flow = getCurrentFlow() ?: return emptyFlow()
+
+        router.navigateTo(
+            Screen.UploadTest(
+                UploadTestScreenArgs(
+                    flowUid = flow.uid
+                )
+            )
+        )
+
+        return emptyFlow()
     }
 
     private fun onFlowClicked(

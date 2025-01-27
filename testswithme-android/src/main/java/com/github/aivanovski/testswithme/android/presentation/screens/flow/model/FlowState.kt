@@ -12,5 +12,6 @@ data class FlowState(
     override val terminalState: TerminalState? = null,
     override val viewModels: List<CellViewModel> = emptyList(),
     val errorDialogMessage: ErrorMessage? = null,
-    val flowDialogState: MessageDialogState? = null
+    val flowDialogState: MessageDialogState? = null,
+    val isUploadButtonVisible: Boolean = false
 ) : CellsScreenState
