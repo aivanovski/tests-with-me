@@ -1,16 +1,17 @@
-import io.circe.*
-import io.circe.parser.*
-import io.circe.syntax.*
 import okhttp3.Response
 import utils.{HttpClient, JsonUtils}
-import utils.JsonUtils.{parseAsMap, toJson}
+import utils.JsonUtils.toJson
 
 import java.util.Base64
 
-object Api {
+enum ServerUrl(val value: String):
+  case Prod extends ServerUrl("https://testswithme.org")
+  case Local extends ServerUrl("https://127.0.0.1:8443")
+
+class ApiClient(private val baseServerUrl: String) {
 
   def login(): Response = HttpClient.post(
-    endpoint = "login",
+    url = s"$baseServerUrl/login",
     body = toJson(Map(
       "username" -> "admin",
       "password" -> "abc123"
@@ -18,7 +19,7 @@ object Api {
   )
 
   def signUp(username: String = "admin") = HttpClient.post(
-    endpoint = "sign-up",
+    url = s"$baseServerUrl/sign-up",
     body = toJson(Map(
       "username" -> username,
       "password" -> "abc123",
@@ -26,32 +27,32 @@ object Api {
     ))
   )
 
-  def getFlows() = HttpClient.get("flow", getAuthToken())
+  def getFlows() = HttpClient.get(s"$baseServerUrl/flow", getAuthToken())
 
-  def getFlow(uid: String) = HttpClient.get(s"flow/$uid", getAuthToken())
+  def getFlow(uid: String) = HttpClient.get(s"$baseServerUrl/flow/$uid", getAuthToken())
 
-  def getGroups() = HttpClient.get("group", getAuthToken())
+  def getGroups() = HttpClient.get(s"$baseServerUrl/group", getAuthToken())
 
-  def getProjects() = HttpClient.get("project", getAuthToken())
+  def getProjects() = HttpClient.get(s"$baseServerUrl/project", getAuthToken())
 
-  def getUsers() = HttpClient.get("user", getAuthToken())
+  def getUsers() = HttpClient.get(s"$baseServerUrl/user", getAuthToken())
 
-  def getFlowRuns() = HttpClient.get("flow-run", getAuthToken())
+  def getFlowRuns() = HttpClient.get(s"$baseServerUrl/flow-run", getAuthToken())
 
   def postProject(data: Map[String, String]) = HttpClient.post(
-    endpoint = "project",
+    url = s"$baseServerUrl/project",
     body = toJson(data),
     authToken = getAuthToken()
   )
 
   def postGroup(path: String, name: String) = HttpClient.post(
-    endpoint = "group",
+    url = s"$baseServerUrl/group",
     body = toJson(Map("path" -> path, "name" -> name)),
     authToken = getAuthToken()
   )
 
   def postFlow(path: String, content: String) = HttpClient.post(
-    endpoint = "flow",
+    url = s"$baseServerUrl/flow",
     body = toJson(
       Map(
         "path" -> path,
@@ -62,7 +63,7 @@ object Api {
   )
 
   def postFlowRun(flowUid: String) = HttpClient.post(
-    endpoint = "flow-run",
+    url = s"$baseServerUrl/flow-run",
     body = toJson(
       Map(
         "flowId" -> flowUid,
@@ -77,9 +78,9 @@ object Api {
     authToken = getAuthToken()
   )
 
-  def deleteGroup(uid: String) = HttpClient.delete(s"group/$uid", getAuthToken())
+  def deleteGroup(uid: String) = HttpClient.delete(s"$baseServerUrl/group/$uid", getAuthToken())
 
-  def deleteFlow(uid: String) = HttpClient.delete(s"flow/$uid", getAuthToken())
+  def deleteFlow(uid: String) = HttpClient.delete(s"$baseServerUrl/flow/$uid", getAuthToken())
 
   def getAuthToken(): Option[String] = {
     val response = login()
@@ -93,4 +94,8 @@ object Api {
   }
 }
 
+object ApiClient {
 
+  def build(url: ServerUrl): ApiClient =
+    ApiClient(baseServerUrl = url.value)
+}

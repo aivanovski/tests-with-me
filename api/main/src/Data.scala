@@ -1,13 +1,14 @@
+import utils.printResponse
 import scala.io.Source
 
 object Data {
 
-  def setupData(): Unit = {
+  def setupData(api: ApiClient): Unit = {
     val requests = List(
-      () => Api.signUp(),
+      () => api.signUp(),
 
       // Projects
-      () => Api.postProject(
+      () => api.postProject(
         Map(
           "name" -> "KeePassVault",
           "packageName" -> "com.ivanovsky.passnotes.automation",
@@ -17,7 +18,7 @@ object Data {
           "siteUrl" -> "https://github.com/aivanovski/keepassvault",
         )
       ),
-      () => Api.postProject(
+      () => api.postProject(
         Map(
           "name" -> "F-Droid",
           "packageName" -> "org.fdroid.fdroid",
@@ -29,31 +30,29 @@ object Data {
       ),
 
       // Groups
-      () => Api.postGroup(path = "KeePassVault/Root", name = "Screens"),
-      () => Api.postGroup(path = "KeePassVault/Root", name = "Common"),
-      () => Api.postGroup(path = "KeePassVault/Root/Screens", name = "About"),
-      () => Api.postGroup(path = "KeePassVault/Root/Screens", name = "Unlock"),
-      () => Api.postGroup(path = "KeePassVault/Root/Screens", name = "New Database"),
+      () => api.postGroup(path = "KeePassVault/Root", name = "Screens"),
+      () => api.postGroup(path = "KeePassVault/Root", name = "Common"),
+      () => api.postGroup(path = "KeePassVault/Root/Screens", name = "About"),
+      () => api.postGroup(path = "KeePassVault/Root/Screens", name = "Unlock"),
+      () => api.postGroup(path = "KeePassVault/Root/Screens", name = "New Database"),
 
       // Flows
-      /*
-      () => Api.postFlow(
-        path = "KeePassVault/Root/Common",
-        content = readFile(s"$FLOW_DIRECTORY_PATH/reset-and-setup-basic.kdbx-database.yaml")
-      ),
-      () => Api.postFlow(
-        path = "KeePassVault/Root/Screens/Unlock",
-        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-password.yaml")
-      ),
-      () => Api.postFlow(
-        path = "KeePassVault/Root/Screens/Unlock",
-        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file.yaml")
-      ),
-      () => Api.postFlow(
-        path = "KeePassVault/Root/Screens/Unlock",
-        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file-and-password.yaml")
-      ),
-      */
+//      () => api.postFlow(
+//        path = "KeePassVault/Root/Common",
+//        content = readFile(s"$FLOW_DIRECTORY_PATH/reset-and-setup-basic.kdbx-database.yaml")
+//      ),
+//      () => api.postFlow(
+//        path = "KeePassVault/Root/Screens/Unlock",
+//        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-password.yaml")
+//      ),
+//      () => api.postFlow(
+//        path = "KeePassVault/Root/Screens/Unlock",
+//        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file.yaml")
+//      ),
+//      () => api.postFlow(
+//        path = "KeePassVault/Root/Screens/Unlock",
+//        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file-and-password.yaml")
+//      ),
     )
 
     for (response <- requests) printResponse(response.apply())
