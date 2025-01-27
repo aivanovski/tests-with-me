@@ -1,8 +1,5 @@
 
-import okhttp3.Response
-import utils.JsonUtils.{parseAsMap, reformatJson, toJson}
-import utils.{HttpClient, JsonUtils}
-import scala.annotation.retains
+import utils.printResponse
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -11,28 +8,43 @@ object Main {
       return
     }
 
-    val command = args.toList.mkString(" ")
-    println(s"command: $command")
+    val url = if (args.contains("-p") || args.contains("--prod")) ServerUrl.Prod else ServerUrl.Local
+    val api = ApiClient.build(url)
+
+    val command = args.toList
+      .filter(line => !line.startsWith("-"))
+      .mkString(" ")
+
+    println(s"Command: $command")
+    println(s"Using url: ${url.value}")
 
     val response = command match {
-      case "login" => Api.login()
-      case "sign-up" => Api.signUp()
-      case s"sign-up $username" => Api.signUp(username = username)
-      case "flow" => Api.getFlows()
-      case s"flow $uid" => Api.getFlow(uid = uid)
-      case s"delete-flow $uid" => Api.deleteFlow(uid = uid)
-      case "user" => Api.getUsers()
-      case "project" => Api.getProjects()
-      case "group" => Api.getGroups()
-      case s"delete-group $uid" => Api.deleteGroup(uid = uid)
-      case "flow-run" => Api.getFlowRuns()
-      case s"post-flow-run $flowUid" => Api.postFlowRun(flowUid)
+      case "login" => api.login()
+      case "sign-up" => api.signUp()
+      case s"sign-up $username" => api.signUp(username = username)
+      case "flow" => api.getFlows()
+      case s"flow $uid" => api.getFlow(uid = uid)
+      case s"delete-flow $uid" => api.deleteFlow(uid = uid)
+      case "user" => api.getUsers()
+      case "project" => api.getProjects()
+      case "group" => api.getGroups()
+      case s"delete-group $uid" => api.deleteGroup(uid = uid)
+      case "flow-run" => api.getFlowRuns()
+      case s"post-flow-run $flowUid $timesStr" => {
+        val times = timesStr.toIntOption.get
+        for (i <- Range.inclusive(1, times)) {
+          println(s"Request number: $i")
+          printResponse(api.postFlowRun(flowUid))
+        }
+        return
+      }
+      case s"post-flow-run $flowUid" => api.postFlowRun(flowUid)
       case "help" => {
         printHelp()
         return
       }
       case "setup-data" => {
-        Data.setupData()
+        Data.setupData(api)
         return
       }
       case _ => throw IllegalArgumentException(s"Invalid option: $command")
@@ -46,6 +58,9 @@ def printHelp(): Unit = {
   val helpText =
     """
       |Options:
+      |--prod, -p                                            Use prod url to run the requests
+      |
+      |Commands:
       |
       |login                                                 Sends login request with default credentials
       |sing-up                                               Creates user with default credentials
@@ -59,6 +74,7 @@ def printHelp(): Unit = {
       |delete-flow [UID]                                     Deletes flow by UID
       |flow-run                                              Get all flow runs
       |post-flow-run [FLOW_UID]                              Posts fake run for flow with FLOW_UID
+      |post-flow-run [FLOW_UID] [TIMES]                      Posts fake run specified number of times
       |setup-data                                            Creates default test data on server
       |help                                                  Print help
       |""".stripMargin
@@ -67,22 +83,4 @@ def printHelp(): Unit = {
       |post-flow-run *FLOW_UID* *VER_NAME* *VER_CODE*        Sends flow execution report
    */
   println(helpText)
-}
-
-def printResponse(response: Response): Unit = {
-  val statusCode = response.code()
-  val body = response.body().string()
-  println(s"Response[code=$statusCode]:")
-
-  val lines = reformatJson(body)
-    .getOrElse("")
-    .split("\n")
-    .filter(line => line.nonEmpty)
-    .toList
-
-  if (lines.isEmpty) {
-    println(s"response=$response")
-  }
-
-  for (line <- lines) println(line)
 }

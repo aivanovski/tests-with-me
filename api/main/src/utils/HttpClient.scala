@@ -5,16 +5,15 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 
 object HttpClient {
-  private val SERVER_URL = "https://127.0.0.1:8443"
 
   private val client: OkHttpClient = OkHttpClient.Builder()
     .sslSocketFactory(createSslContext().getSocketFactory, createTrustManager())
     .hostnameVerifier((_, _) => true)
     .build()
 
-  def post(endpoint: String, body: String, authToken: Option[String] = None): Response = {
+  def post(url: String, body: String, authToken: Option[String] = None): Response = {
     val request = Request.Builder()
-      .url(s"$SERVER_URL/$endpoint")
+      .url(url)
       .header("Content-Type", "application/json")
       .post(RequestBody.create(body.getBytes()))
 
@@ -25,9 +24,9 @@ object HttpClient {
     client.newCall(request.build()).execute()
   }
 
-  def delete(endpoint: String, authToken: Option[String]): Response = {
+  def delete(url: String, authToken: Option[String]): Response = {
     val request = Request.Builder()
-      .url(s"$SERVER_URL/$endpoint")
+      .url(url)
       .delete()
 
     if (authToken.orNull != null) {
@@ -38,9 +37,9 @@ object HttpClient {
     client.newCall(request.build()).execute()
   }
 
-  def get(endpoint: String, authToken: Option[String]): Response = {
+  def get(url: String, authToken: Option[String]): Response = {
     val request = Request.Builder()
-      .url(s"$SERVER_URL/$endpoint")
+      .url(url)
       .header("Authorization", s"Bearer ${authToken.get}")
       .get()
 
