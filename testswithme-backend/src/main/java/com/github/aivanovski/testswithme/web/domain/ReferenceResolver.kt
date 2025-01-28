@@ -2,7 +2,6 @@ package com.github.aivanovski.testswithme.web.domain
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.github.aivanovski.testswithme.flow.reference.ReferenceResolverUtils
 import com.github.aivanovski.testswithme.flow.reference.ReferenceResolverUtils.resolveGroupsAndName
 import com.github.aivanovski.testswithme.web.api.EntityReference
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
