@@ -45,9 +45,9 @@ class FlowStepFormatter {
             is FlowStep.SendBroadcast -> this.formatSendBroadcast(format)
             is FlowStep.TapOn -> this.formatTapOn()
             is FlowStep.AssertVisible -> this.formatAssertVisible()
-            is FlowStep.AssertNotVisible -> this.toString()
+            is FlowStep.AssertNotVisible -> this.toString() // TODO: implement
             is FlowStep.InputText -> this.formatInputText(format)
-            is FlowStep.PressKey -> this.toString()
+            is FlowStep.PressKey -> this.toString() // TODO: implement
             is FlowStep.WaitUntil -> this.formatWaitUntil(format)
             is FlowStep.RunFlow -> this.formatDescription(format)
         }

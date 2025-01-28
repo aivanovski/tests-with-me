@@ -2,7 +2,9 @@ package com.github.aivanovski.testswithme.web.presentation.controller
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.entity.Hash
+import com.github.aivanovski.testswithme.entity.YamlFlow
 import com.github.aivanovski.testswithme.extensions.sha256
 import com.github.aivanovski.testswithme.extensions.trimLines
 import com.github.aivanovski.testswithme.flow.yaml.YamlParser
@@ -63,6 +65,11 @@ class FlowController(
                 user = user,
                 project = project,
                 group = group
+            ).bind()
+
+            validateInnerReferences(
+                flow = parsedFlow,
+                project = project
             ).bind()
 
             val flowUid = project.uid.append(Uid.generate())
@@ -179,6 +186,21 @@ class FlowController(
             val hasTheSameName = flowsInGroup.any { flow -> flow.name == name }
             if (hasTheSameName) {
                 raise(EntityAlreadyExistsException(name))
+            }
+        }
+
+    private fun validateInnerReferences(
+        flow: YamlFlow,
+        project: Project
+    ): Either<AppException, Unit> =
+        either {
+            val innerFlowSteps = flow.steps.mapNotNull { step -> step as? FlowStep.RunFlow }
+
+            for (step in innerFlowSteps) {
+                referenceResolver.resolveFlowByPathOrName(
+                    pathOrName = step.path,
+                    projectUid = project.uid
+                ).bind()
             }
         }
 

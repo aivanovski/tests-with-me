@@ -9,7 +9,6 @@ import com.github.aivanovski.testswithme.entity.ConditionType
 import com.github.aivanovski.testswithme.entity.FlowStep
 import com.github.aivanovski.testswithme.flow.commands.Assert
 import com.github.aivanovski.testswithme.flow.commands.Broadcast
-import com.github.aivanovski.testswithme.flow.commands.ExecutableStepCommand
 import com.github.aivanovski.testswithme.flow.commands.InputText
 import com.github.aivanovski.testswithme.flow.commands.Launch
 import com.github.aivanovski.testswithme.flow.commands.Precondition
@@ -133,15 +132,12 @@ class StepCommandFactory(
                 uidOrPathOrName = nameOrUid
             ).bind()
 
-            val commands = mutableListOf<ExecutableStepCommand<Any>>()
+            val commands = mutableListOf<StepCommand>()
             for (innerStep in flow.steps) {
                 val innerCommand = createCommand(
                     flow = parent,
                     step = innerStep.command
                 ).bind()
-                if (innerCommand !is ExecutableStepCommand<*>) {
-                    raise(AppException("Unsupported command: ${innerStep.command}"))
-                }
 
                 commands.add(innerCommand)
             }

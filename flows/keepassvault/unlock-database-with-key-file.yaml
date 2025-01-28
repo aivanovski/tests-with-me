@@ -1,11 +1,6 @@
 - name: Unlock database with key file
 
-- sendBroadcast:
-    name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
-    data:
-      - key: isResetAppData
-        value: true
-
+- runFlow: Reset data
 - sendBroadcast:
     name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
     data:

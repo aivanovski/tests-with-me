@@ -1,0 +1,12 @@
+- name: Reset data
+- project: KeePassVault
+
+- sendBroadcast:
+    name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
+    data:
+      - key: isResetAppData
+        value: true
+
+- launch: com.ivanovsky.passnotes.automation
+
+- assertVisible: No databases

@@ -1,4 +1,5 @@
-- name: Reset and setup basic.kdbx database
+- name: Reset data and setup basic.kdbx database
+- project: KeePassVault
 
 - sendBroadcast:
     name: com.ivanovsky.passnotes.automation/com.ivanovsky.passnotes.domain.test.TestDataBroadcastReceiver
