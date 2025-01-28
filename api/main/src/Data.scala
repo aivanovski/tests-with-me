@@ -32,27 +32,43 @@ object Data {
       // Groups
       () => api.postGroup(path = "KeePassVault/Root", name = "Screens"),
       () => api.postGroup(path = "KeePassVault/Root", name = "Common"),
-      () => api.postGroup(path = "KeePassVault/Root/Screens", name = "About"),
+      () => api.postGroup(path = "KeePassVault/Root/Screens", name = "Group"),
       () => api.postGroup(path = "KeePassVault/Root/Screens", name = "Unlock"),
       () => api.postGroup(path = "KeePassVault/Root/Screens", name = "New Database"),
 
       // Flows
-//      () => api.postFlow(
-//        path = "KeePassVault/Root/Common",
-//        content = readFile(s"$FLOW_DIRECTORY_PATH/reset-and-setup-basic.kdbx-database.yaml")
-//      ),
-//      () => api.postFlow(
-//        path = "KeePassVault/Root/Screens/Unlock",
-//        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-password.yaml")
-//      ),
-//      () => api.postFlow(
-//        path = "KeePassVault/Root/Screens/Unlock",
-//        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file.yaml")
-//      ),
-//      () => api.postFlow(
-//        path = "KeePassVault/Root/Screens/Unlock",
-//        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-with-key-file-and-password.yaml")
-//      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Common",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/reset-data-and-setup-basic.kdbx-database.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Common",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/reset-data.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Screens/New Database",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/create-new-database-file-with-templates.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Screens/New Database",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/create-new-database-file.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Screens/Group",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/create-new-group.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Screens/Unlock",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-database-with-key-file-and-password.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Screens/Unlock",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-database-with-key-file.yaml")
+      ),
+      () => api.postFlow(
+        path = "KeePassVault/Root/Screens/Unlock",
+        content = readFile(s"$FLOW_DIRECTORY_PATH/unlock-database-with-password.yaml")
+      ),
     )
 
     for (response <- requests) printResponse(response.apply())
