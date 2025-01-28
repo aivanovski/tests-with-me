@@ -18,5 +18,5 @@ interface PreconditionedStepCommand<out Result : Any> : StepCommand {
 }
 
 interface CompositeStepCommand : StepCommand {
-    fun getCommands(): List<ExecutableStepCommand<Any>>
+    fun getCommands(): List<StepCommand>
 }

@@ -46,10 +46,6 @@ class CommandExecutor(
             result
         }
 
-    private fun <T> Either<FlowError, T>.transformError(): Either<FlowExecutionException, T> {
-        return this.mapLeft { error -> FlowExecutionException.fromFlowError(error) }
-    }
-
     suspend fun execute(
         isFirstStep: Boolean,
         job: JobEntry,
@@ -66,49 +62,7 @@ class CommandExecutor(
 
             lifecycleListener.onStepStarted(flow, stepEntry.command, stepIndex, attemptIndex)
 
-            val result = when (command) {
-                is ExecutableStepCommand<*> -> {
-                    command.execute(context).transformError()
-                }
-
-                is CompositeStepCommand -> {
-                    executeCompositeCommand(
-                        job = job,
-                        compositeCommand = command
-                    )
-                }
-
-                is Precondition -> {
-                    val underlyingCommand = command.command
-                    if (underlyingCommand is CompositeStepCommand) {
-                        val preconditionResult = command.execute(context).transformError()
-                        val isSatisfied =
-                            (
-                                preconditionResult.isRight() &&
-                                    preconditionResult.unwrap().isSatisfied
-                                )
-
-                        if (isSatisfied) {
-                            executeCompositeCommand(
-                                job = job,
-                                compositeCommand = underlyingCommand
-                            )
-                                .map { compositeResult ->
-                                    PreconditionedResult(
-                                        isSatisfied = true,
-                                        result = compositeResult
-                                    )
-                                }
-                        } else {
-                            preconditionResult
-                        }
-                    } else {
-                        command.execute(context).transformError()
-                    }
-                }
-
-                else -> throw IllegalStateException()
-            }
+            val result = executeCommand(job, command)
 
             val nextAction = interactor.onStepFinished(job.uid, stepEntry, result).bind()
 
@@ -201,8 +155,7 @@ class CommandExecutor(
                     executionData.attemptCount
                 )
 
-                val commandResult = command.execute(context)
-                    .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
+                val commandResult = executeCommand(job, command)
 
                 val nextAction = interactor.onStepFinished(job.uid, stepEntry, commandResult)
                     .mapLeft { exception -> StepVerificationException(exception) }
@@ -243,4 +196,55 @@ class CommandExecutor(
 
             return lastResult ?: raise(FlowExecutionException(message = "No steps were executed"))
         }
+
+    private suspend fun executeCommand(
+        job: JobEntry,
+        command: StepCommand
+    ): Either<FlowExecutionException, Any> =
+        either {
+            when (command) {
+                is ExecutableStepCommand<*> -> {
+                    command.execute(context).transformError()
+                }
+
+                is CompositeStepCommand -> {
+                    executeCompositeCommand(
+                        job = job,
+                        compositeCommand = command
+                    )
+                }
+
+                is Precondition -> {
+                    val underlyingCommand = command.command
+                    if (underlyingCommand is CompositeStepCommand) {
+                        val preconditionResult = command.execute(context).transformError()
+                        val isSatisfied = preconditionResult.isRight() &&
+                            preconditionResult.unwrap().isSatisfied
+
+                        if (isSatisfied) {
+                            executeCompositeCommand(
+                                job = job,
+                                compositeCommand = underlyingCommand
+                            )
+                                .map { compositeResult ->
+                                    PreconditionedResult(
+                                        isSatisfied = true,
+                                        result = compositeResult
+                                    )
+                                }
+                        } else {
+                            preconditionResult
+                        }
+                    } else {
+                        command.execute(context).transformError()
+                    }
+                }
+
+                else -> throw IllegalStateException()
+            }
+        }
+
+    private fun <T> Either<FlowError, T>.transformError(): Either<FlowExecutionException, T> {
+        return this.mapLeft { error -> FlowExecutionException.fromFlowError(error) }
+    }
 }
