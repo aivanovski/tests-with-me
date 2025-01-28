@@ -2,9 +2,13 @@ package com.github.aivanovski.testswithme.web.domain
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.github.aivanovski.testswithme.flow.reference.ReferenceResolverUtils
+import com.github.aivanovski.testswithme.flow.reference.ReferenceResolverUtils.resolveGroupsAndName
 import com.github.aivanovski.testswithme.web.api.EntityReference
+import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
+import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.GroupPath
 import com.github.aivanovski.testswithme.web.entity.Project
@@ -20,9 +24,42 @@ import com.github.aivanovski.testswithme.web.extensions.aggregateGroupsByParent
 import java.util.LinkedList
 
 class ReferenceResolver(
+    private val flowRepository: FlowRepository,
     private val projectRepository: ProjectRepository,
     private val groupRepository: GroupRepository
 ) {
+
+    fun resolveFlowByPathOrName(
+        pathOrName: String,
+        projectUid: Uid
+    ): Either<AppException, Flow> =
+        either {
+            val (groupNames, flowName) = resolveGroupsAndName(pathOrName)
+                .mapLeft { exception -> AppException(cause = exception) }
+                .bind()
+
+            val group = if (groupNames.isNotEmpty()) {
+                getGroup(groupNames.last(), projectUid).bind()
+            } else {
+                null
+            }
+
+            val allCandidates = flowRepository.getFlowsByProjectUid(projectUid).bind()
+
+            val groupFlowUids = allCandidates
+                .filter { flow -> flow.groupUid == group?.uid }
+                .map { flow -> flow.uid }
+                .toSet()
+
+            val groupFlows = allCandidates.filter { flow -> flow.uid in groupFlowUids }
+            val otherFlows = allCandidates.filter { flow -> flow.uid !in groupFlowUids }
+
+            val candidates = (groupFlows + otherFlows)
+                .filter { flow -> flow.name == flowName }
+
+            candidates.firstOrNull()
+                ?: raise(EntityNotFoundByNameException(Flow::class, flowName))
+        }
 
     fun parseProjectAndGroup(
         reference: EntityReference,
