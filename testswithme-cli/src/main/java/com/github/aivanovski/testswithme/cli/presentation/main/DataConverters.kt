@@ -65,5 +65,4 @@ fun UiEntityDto.toEntity(): UiEntity =
         isChecked = isChecked
     )
 
-fun UiBoundsDto.convert(): Bounds =
-    Bounds(left, top, right, bottom)
+fun UiBoundsDto.convert(): Bounds = Bounds(left, top, right, bottom)

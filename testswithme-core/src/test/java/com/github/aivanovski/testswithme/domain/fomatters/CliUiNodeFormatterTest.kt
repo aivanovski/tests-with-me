@@ -4,7 +4,6 @@ import com.github.aivanovski.testswithme.entity.UiEntity
 import com.github.aivanovski.testswithme.entity.UiNode
 import com.github.aivanovski.testswithme.extensions.format
 import io.kotest.matchers.shouldBe
-
 import org.junit.jupiter.api.Test
 
 class CliUiNodeFormatterTest {
@@ -20,8 +19,7 @@ class CliUiNodeFormatterTest {
         """.trimIndent()
     }
 
-    private fun format(tree: UiNode<Unit>): String =
-        tree.format(CompactNodeFormatter())
+    private fun format(tree: UiNode<Unit>): String = tree.format(CompactNodeFormatter())
 
     private fun buildTree(): UiNode<Unit> {
         val root = newNode(className = "FrameLayout")
@@ -73,7 +71,7 @@ class CliUiNodeFormatterTest {
         isClickable: Boolean? = null,
         isLongClickable: Boolean? = null,
         isCheckable: Boolean? = null,
-        isChecked: Boolean? = null,
+        isChecked: Boolean? = null
     ): UiNode<Unit> =
         UiNode(
             source = Unit,

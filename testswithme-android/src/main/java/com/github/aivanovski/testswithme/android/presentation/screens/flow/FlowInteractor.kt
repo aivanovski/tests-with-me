@@ -18,9 +18,9 @@ import com.github.aivanovski.testswithme.android.domain.buildGroupTree
 import com.github.aivanovski.testswithme.android.domain.findNodeByUid
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
+import com.github.aivanovski.testswithme.android.domain.flow.model.DriverServiceState
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.domain.flow.model.DriverServiceState
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction

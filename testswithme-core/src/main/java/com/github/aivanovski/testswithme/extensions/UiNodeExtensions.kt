@@ -162,9 +162,7 @@ fun <T> UiNode<T>.cloneTree(): UiNode<T> {
     return this.map { value -> value }
 }
 
-fun <T> UiNode<T>.removeEmptyParents(
-    isEmptyPredicate: (entity: UiEntity) -> Boolean
-): UiNode<T> {
+fun <T> UiNode<T>.removeEmptyParents(isEmptyPredicate: (entity: UiEntity) -> Boolean): UiNode<T> {
     val root = this.cloneTree()
 
     val queue = LinkedList<Pair<UiNode<T>?, UiNode<T>>>()
@@ -177,9 +175,9 @@ fun <T> UiNode<T>.removeEmptyParents(
             val (parent, node) = queue.removeFirst()
 
             val isNodeEmpty = isEmptyPredicate.invoke(node.entity)
-            if (isNodeEmpty
-                && (parent == null || parent.nodes.size == 1)
-                && node.nodes.size == 1
+            if (isNodeEmpty &&
+                (parent == null || parent.nodes.size == 1) &&
+                node.nodes.size == 1
             ) {
                 val child = node.nodes.first()
 
@@ -202,9 +200,7 @@ fun <T> UiNode<T>.removeEmptyParents(
     return newRoot
 }
 
-fun <T> UiNode<T>.removeEmptyNodes(
-    isEmptyPredicate: (entity: UiEntity) -> Boolean
-): UiNode<T> {
+fun <T> UiNode<T>.removeEmptyNodes(isEmptyPredicate: (entity: UiEntity) -> Boolean): UiNode<T> {
     val root = this
 
     var index = 0

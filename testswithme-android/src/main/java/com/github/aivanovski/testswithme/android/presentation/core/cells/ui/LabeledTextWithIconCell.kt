@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.R
-import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellIntent.OnIconClick
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel

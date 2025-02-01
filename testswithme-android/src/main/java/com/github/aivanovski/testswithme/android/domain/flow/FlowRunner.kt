@@ -329,7 +329,6 @@ class FlowRunner(
         isRunNextAllowed: Boolean
     ): Either<AppException, Unit> =
         either {
-
             val job = interactor.getJobByUid(jobUid).bind()
             val flow = interactor.getCachedFlowByUid(job.flowUid).bind()
             val flowSourceType = flow.entry.sourceType

@@ -13,8 +13,8 @@ class CompactNodeFormatter : UiNodeFormatter {
         val lines = mutableListOf<String>()
 
         val isEmpty = { entity: UiEntity ->
-            entity.text.isNullOrEmpty()
-                && entity.contentDescription.isNullOrEmpty()
+            entity.text.isNullOrEmpty() &&
+                entity.contentDescription.isNullOrEmpty()
         }
 
         val cleanedTree = uiNode

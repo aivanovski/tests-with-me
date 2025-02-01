@@ -69,17 +69,13 @@ class FlowRunnerManager(
         stopFlowIfNeed()
     }
 
-    fun getDriverState(): DriverServiceState =
-        driverState.value
+    fun getDriverState(): DriverServiceState = driverState.value
 
-    fun getRunnerState(): FlowRunnerState =
-        runner.state
+    fun getRunnerState(): FlowRunnerState = runner.state
 
-    fun getUiTree(): UiNode<Unit>? =
-        runner.getUiTreeOrNull()
+    fun getUiTree(): UiNode<Unit>? = runner.getUiTreeOrNull()
 
-    fun setCollectUiTreeFlag() =
-        runner.setCollectUiTreeFlag()
+    fun setCollectUiTreeFlag() = runner.setCollectUiTreeFlag()
 
     override fun onSettingChanged(key: SettingKey) {
         Timber.d("onSettingChanged: key=%s, startJobUid=%s", key, settings.startJobUid)

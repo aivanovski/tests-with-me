@@ -5,9 +5,9 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.repository.JobRepository
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.flow.UiTreeCollector
-import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters.toDto
 import com.github.aivanovski.testswithme.android.domain.flow.model.DriverServiceState
 import com.github.aivanovski.testswithme.android.domain.flow.model.FlowRunnerState
+import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConverters.toDto
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.DriverStatusDto
@@ -23,7 +23,6 @@ class StatusController(
 
     fun getStatus(): Either<GatewayException, GetStatusResponse> =
         either {
-
             val jobs = jobRepository.getAll()
                 .sortedByDescending { job -> job.addedTimestamp }
 

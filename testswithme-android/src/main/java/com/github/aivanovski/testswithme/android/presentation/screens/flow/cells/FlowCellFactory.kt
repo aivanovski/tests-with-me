@@ -801,13 +801,10 @@ class FlowCellFactory(
         fun extractFlowUid(cellId: String): String? =
             if (cellId.startsWith(FLOW_PREFIX)) cellId.removePrefix(FLOW_PREFIX) else null
 
-        fun hasRunUid(cellId: String): Boolean =
-            cellId.startsWith(RUN_PREFIX)
+        fun hasRunUid(cellId: String): Boolean = cellId.startsWith(RUN_PREFIX)
 
-        fun hasJobUid(cellId: String): Boolean =
-            cellId.startsWith(JOB_PREFIX)
+        fun hasJobUid(cellId: String): Boolean = cellId.startsWith(JOB_PREFIX)
 
-        fun hasFlowUid(cellId: String): Boolean =
-            cellId.startsWith(FLOW_PREFIX)
+        fun hasFlowUid(cellId: String): Boolean = cellId.startsWith(FLOW_PREFIX)
     }
 }

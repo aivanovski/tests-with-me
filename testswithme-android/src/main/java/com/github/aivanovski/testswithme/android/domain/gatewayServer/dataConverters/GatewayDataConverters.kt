@@ -72,9 +72,7 @@ fun FlowWithSteps.toDto(
     )
 }
 
-fun StepResult.toDto(
-    uiNodeFormatter: UiNodeFormatter
-): StepResultDto {
+fun StepResult.toDto(uiNodeFormatter: UiNodeFormatter): StepResultDto {
     return StepResultDto(
         isSuccess = isSuccess,
         result = result,
@@ -82,9 +80,7 @@ fun StepResult.toDto(
     )
 }
 
-private fun FlowError.formatReport(
-    uiNodeFormatter: UiNodeFormatter
-): List<String> {
+private fun FlowError.formatReport(uiNodeFormatter: UiNodeFormatter): List<String> {
     return when (this) {
         is FlowError.AssertionError -> {
             listOf(
