@@ -127,6 +127,11 @@ class MainView(
             }
         }
 
+        if (screen.isNotEmpty() && errorMessage.isEmpty()) {
+            lines.add(EMPTY)
+            lines.addAll(screen.splitIntoLines())
+        }
+
         if (helpText.isNotEmpty()) {
             for (line in helpText.splitIntoLines()) {
                 lines.add(line)

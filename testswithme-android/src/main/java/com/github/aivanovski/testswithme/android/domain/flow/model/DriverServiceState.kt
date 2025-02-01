@@ -1,4 +1,4 @@
-package com.github.aivanovski.testswithme.android.entity
+package com.github.aivanovski.testswithme.android.domain.flow.model
 
 enum class DriverServiceState {
     INITIALIZED,

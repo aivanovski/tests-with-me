@@ -1,70 +1,57 @@
 package com.github.aivanovski.testswithme.android.domain.flow
 
-import android.content.Context
 import android.view.accessibility.AccessibilityNodeInfo
 import com.github.aivanovski.testswithme.android.data.settings.OnSettingsChangeListener
 import com.github.aivanovski.testswithme.android.data.settings.SettingKey
 import com.github.aivanovski.testswithme.android.data.settings.Settings
-import com.github.aivanovski.testswithme.android.entity.DriverServiceState
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
+import com.github.aivanovski.testswithme.android.domain.flow.model.DriverServiceState
+import com.github.aivanovski.testswithme.android.domain.flow.model.FlowRunnerState
+import com.github.aivanovski.testswithme.entity.UiNode
 import com.github.aivanovski.testswithme.flow.driver.Driver
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class FlowRunnerManager(
-    interactor: FlowRunnerInteractor,
-    private val settings: Settings,
-    context: Context,
-    driver: Driver<AccessibilityNodeInfo>
+    private val runner: FlowRunner,
+    private val settings: Settings
 ) : OnSettingsChangeListener {
 
-    private val runner = FlowRunner(context, settings, interactor, driver)
+    private val scope = CoroutineScope(Dispatchers.Main)
+    private var isConnectedToNotificationService by mutableStateFlow(false)
+    private val driverState = MutableStateFlow(DriverServiceState.STOPPED)
     private var timerJob: Job? = null
-    private val scopeJob = Job()
-    private val scope = CoroutineScope(Dispatchers.Main + scopeJob)
-    private var isConnectedToNotificationService = AtomicBoolean(false)
 
-    fun init() {
-        Timber.d("init:")
+    fun start() {
+        Timber.d("start:")
 
-        driverState.set(DriverServiceState.INITIALIZED)
-
-        scope.launch {
-            debugCommandChannel.receiveAsFlow()
-                .collectLatest { command ->
-                    runner.runOrAddToQueue(command)
-                }
-        }
+        driverState.value = DriverServiceState.INITIALIZED
     }
 
     fun stop() {
         Timber.d("stop:")
 
-        driverState.set(DriverServiceState.STOPPED)
-        isConnectedToNotificationService.set(false)
+        driverState.value = DriverServiceState.STOPPED
+        isConnectedToNotificationService = false
         cancelJobCheckingTimer()
         unsubscribeFromSettings()
-        scopeJob.cancel()
         stopFlowIfNeed()
     }
 
-    fun onConnectedToNotificationService() {
+    fun onConnectedToNotificationService(driver: Driver<AccessibilityNodeInfo>) {
         Timber.d("onConnectedToNotificationService:")
 
-        isConnectedToNotificationService.set(true)
-        driverState.set(DriverServiceState.RUNNING)
+        runner.onDriverConnected(driver)
+
+        isConnectedToNotificationService = true
+        driverState.value = DriverServiceState.RUNNING
         startFlowIfNeed()
         startJobCheckingTimer()
         subscribeToSettings()
@@ -73,19 +60,26 @@ class FlowRunnerManager(
     fun onDisconnectedFromNotificationService() {
         Timber.d("onDisconnectedFromNotificationService:")
 
-        if (driverState.get() == DriverServiceState.RUNNING) {
-            driverState.set(DriverServiceState.INITIALIZED)
-        }
+        runner.onDriverDisconnected()
 
-        isConnectedToNotificationService.set(false)
+        driverState.value = DriverServiceState.INITIALIZED
+        isConnectedToNotificationService = false
         cancelJobCheckingTimer()
         unsubscribeFromSettings()
         stopFlowIfNeed()
     }
 
-    fun sendCommand(command: StepCommand) {
-        runner.runOrAddToQueue(command)
-    }
+    fun getDriverState(): DriverServiceState =
+        driverState.value
+
+    fun getRunnerState(): FlowRunnerState =
+        runner.state
+
+    fun getUiTree(): UiNode<Unit>? =
+        runner.getUiTreeOrNull()
+
+    fun setCollectUiTreeFlag() =
+        runner.setCollectUiTreeFlag()
 
     override fun onSettingChanged(key: SettingKey) {
         Timber.d("onSettingChanged: key=%s, startJobUid=%s", key, settings.startJobUid)
@@ -127,16 +121,15 @@ class FlowRunnerManager(
 
     private fun startFlowIfNeed() {
         val startId = settings.startJobUid
-        val isConnected = isConnectedToNotificationService.get()
 
         Timber.d(
             "startFlowIfNeed: lastStartId=%s, isConnected=%s, isRunning=%s",
             startId,
-            isConnected,
+            isConnectedToNotificationService,
             runner.isRunning()
         )
 
-        if (!isConnected) {
+        if (!isConnectedToNotificationService) {
             return
         }
 
@@ -153,15 +146,5 @@ class FlowRunnerManager(
     companion object {
 
         private val TIME_CHECK_INTERVAL = TimeUnit.SECONDS.toMillis(10)
-
-        private val driverState = AtomicReference(DriverServiceState.STOPPED)
-
-        private val debugCommandChannel = Channel<StepCommand>()
-
-        fun sendDebugCommand(command: StepCommand) {
-            debugCommandChannel.trySendBlocking(command)
-        }
-
-        fun getDriverState(): DriverServiceState = driverState.get()
     }
 }

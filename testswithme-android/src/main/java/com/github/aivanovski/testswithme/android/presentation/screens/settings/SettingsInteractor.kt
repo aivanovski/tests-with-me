@@ -5,9 +5,10 @@ import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayServer
 import com.github.aivanovski.testswithme.android.domain.usecases.ClearDataUseCase
-import com.github.aivanovski.testswithme.android.entity.DriverServiceState
+import com.github.aivanovski.testswithme.android.domain.flow.model.DriverServiceState
 
 class SettingsInteractor(
+    private val runnerManager: FlowRunnerManager,
     private val server: GatewayServer,
     private val httpExecutor: HttpRequestExecutor,
     private val settings: Settings,
@@ -15,7 +16,7 @@ class SettingsInteractor(
 ) {
 
     fun isDriverRunning(): Boolean =
-        (FlowRunnerManager.getDriverState() == DriverServiceState.RUNNING)
+        (runnerManager.getDriverState() == DriverServiceState.RUNNING)
 
     fun isGatewayRunning(): Boolean = server.isRunning()
 

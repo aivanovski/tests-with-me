@@ -8,15 +8,17 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.view.accessibility.AccessibilityEvent
 import com.github.aivanovski.testswithme.android.NotificationService
-import com.github.aivanovski.testswithme.android.di.GlobalInjector.get
+import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
 import com.github.aivanovski.testswithme.android.domain.flow.AccessibilityDriverImpl
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
+import com.github.aivanovski.testswithme.android.domain.flow.UiTreeCollector
 
 class DriverService : AccessibilityService() {
 
+    private val runnerManager: FlowRunnerManager by inject<FlowRunnerManager>()
+    private val uiTreeCollector: UiTreeCollector by inject<UiTreeCollector>()
+
     private var serviceConnection: ServiceConnection? = null
-    private val driver = AccessibilityDriverImpl(this, this)
-    private var runnerManager: FlowRunnerManager? = null
 
     override fun onStartCommand(
         intent: Intent?,
@@ -28,25 +30,24 @@ class DriverService : AccessibilityService() {
 
     override fun onCreate() {
         super.onCreate()
-        runnerManager = FlowRunnerManager(
-            interactor = get(),
-            settings = get(),
+
+        val driver = AccessibilityDriverImpl(
             context = this,
-            driver = driver
-        ).apply {
-            init()
-        }
+            service = this,
+            uiTreeCollector = uiTreeCollector
+        )
+        runnerManager.start()
 
         val serviceConnection = object : ServiceConnection {
             override fun onServiceConnected(
                 name: ComponentName?,
                 service: IBinder?
             ) {
-                runnerManager?.onConnectedToNotificationService()
+                runnerManager.onConnectedToNotificationService(driver)
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
-                runnerManager?.onDisconnectedFromNotificationService()
+                runnerManager.onDisconnectedFromNotificationService()
                 serviceConnection = null
             }
         }
@@ -59,8 +60,7 @@ class DriverService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        runnerManager?.stop()
-        runnerManager = null
+        runnerManager.stop()
         serviceConnection?.let { unbindService(it) }
     }
 

@@ -28,8 +28,11 @@ import com.github.aivanovski.testswithme.android.data.settings.SettingsImpl
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProvider
 import com.github.aivanovski.testswithme.android.data.settings.encryption.DataCipherProviderImpl
 import com.github.aivanovski.testswithme.android.domain.VersionParser
+import com.github.aivanovski.testswithme.android.domain.flow.FlowRunner
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
+import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
 import com.github.aivanovski.testswithme.android.domain.flow.ReferenceResolver
+import com.github.aivanovski.testswithme.android.domain.flow.UiTreeCollector
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayReceiverInteractor
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.GatewayServer
 import com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers.JobController
@@ -161,6 +164,9 @@ object AndroidAppModule {
 
         // Flow runner
         singleOf(::FlowRunnerInteractor)
+        singleOf(::FlowRunnerManager)
+        singleOf(::FlowRunner)
+        singleOf(::UiTreeCollector)
 
         // Gateway server
         singleOf(::GatewayServer)

@@ -172,7 +172,7 @@ class ProjectDashboardViewModel(
 
     private fun handleDialogAction(action: DialogAction): Flow<ProjectDashboardState> {
         return when (action.actionId) {
-            ACTION_RESET_PROGRESS -> {
+            DIALOG_ACTION_RESET_PROGRESS -> {
                 navigateToResetRunsScreen()
                 dismissOptionDialog()
             }
@@ -315,7 +315,7 @@ class ProjectDashboardViewModel(
             resourceProvider.getString(R.string.reset_progress)
         )
         val actions = listOf(
-            DialogAction(ACTION_RESET_PROGRESS)
+            DialogAction(DIALOG_ACTION_RESET_PROGRESS)
         )
 
         state.value = state.value.copy(
@@ -355,6 +355,6 @@ class ProjectDashboardViewModel(
     }
 
     companion object {
-        private const val ACTION_RESET_PROGRESS = 100
+        private const val DIALOG_ACTION_RESET_PROGRESS = 100
     }
 }

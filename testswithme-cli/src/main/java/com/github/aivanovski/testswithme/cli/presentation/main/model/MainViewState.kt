@@ -13,5 +13,6 @@ data class MainViewState(
     val testStatusLabel: String = EMPTY,
     val testStatus: String = EMPTY,
     val testStatusColor: TextColor = TextColor.DEFAULT,
-    val errorMessage: String = EMPTY
+    val errorMessage: String = EMPTY,
+    val screen: String = EMPTY
 )

@@ -25,3 +25,11 @@ open class ExternalException(
 class StepVerificationException(
     cause: Exception
 ) : ExternalException(cause = cause)
+
+class DriverDisconnectedException : FlowExecutionException(
+    message = "Driver was disconnected"
+)
+
+class CancelledExecutionException : FlowExecutionException(
+    message = "Flow execution was cancelled"
+)

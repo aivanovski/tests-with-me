@@ -5,21 +5,22 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
+import com.github.aivanovski.testswithme.android.extensions.asFlow
 import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId
-import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId.extractJobUid
-import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory.CellId.extractRunUid
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.model.HistoryItemCellIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowData
@@ -39,6 +40,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.testConten
 import com.github.aivanovski.testswithme.android.presentation.screens.uploadTest.model.UploadTestScreenArgs
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.android.utils.infiniteRepeatFlow
+import com.github.aivanovski.testswithme.android.utils.toTerminalState
 import com.github.aivanovski.testswithme.android.utils.toUids
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.utils.StringUtils
@@ -117,12 +119,42 @@ class FlowViewModel(
     }
 
     override fun handleCellIntent(intent: BaseCellIntent) {
-        when (intent) {
-            is HistoryItemCellIntent.OnItemClick -> onHistoryItemClicked(intent)
-            is FlowCellIntent.OnClick -> onFlowClicked(intent)
-            is ButtonCellIntent.OnClick -> onButtonCellClicked(intent.cellId)
-            is TextButtonCellIntent.OnClick -> onTextButtonCellClicked(intent.cellId)
-            is HeaderCellIntent.OnIconClick -> onHeaderCellClicked(intent.cellId)
+        val cellId = when (intent) {
+            // is ButtonCellIntent.OnClick -> onButtonCellClicked(intent.cellId)
+            is HistoryItemCellIntent.OnItemClick -> intent.cellId
+            is FlowCellIntent.OnClick -> intent.cellId
+            is ButtonCellIntent.OnClick -> intent.cellId
+            is TextButtonCellIntent.OnClick -> intent.cellId
+            is HeaderCellIntent.OnIconClick -> intent.cellId
+            is LabeledTextWithIconCellIntent.OnIconClick -> intent.cellId
+            else -> return
+        }
+
+        when {
+            CellId.hasFlowUid(cellId) -> {
+                CellId.extractFlowUid(cellId)?.let { uid ->
+                    onFlowClicked(uid)
+                }
+            }
+
+            CellId.hasJobUid(cellId) -> {
+                CellId.extractJobUid(cellId)?.let { uid ->
+                    navigateToLocalJobReport(jobUid = uid)
+                }
+            }
+
+            CellId.hasRunUid(cellId) -> {
+                CellId.extractRunUid(cellId)?.let { uid ->
+                    navigateToFlowRunReport(flowRunUid = uid)
+                }
+            }
+
+            cellId == CellId.MORE_STEPS_BUTTON -> navigateToTestContentScreen()
+            cellId == CellId.STEPS_HEADER -> navigateToTestContentScreen()
+            cellId == CellId.APPLICATION_NAME -> showApplicationOptionsDialog()
+            cellId == CellId.APPLICATION_BUTTON -> navigateToProjectDownloadsPage()
+            cellId == CellId.RUN_TEST_BUTTON -> onRunButtonClicked()
+            cellId == CellId.DRIVER_BUTTON -> onEnableDriverButtonClicked()
         }
     }
 
@@ -144,69 +176,95 @@ class FlowViewModel(
             FlowIntent.OnDismissErrorDialog -> onDismissErrorDialog(state)
             FlowIntent.OnDismissFlowDialog -> onDismissFlowDialog(state)
             FlowIntent.OnUploadButtonClick -> onAddButtonClick()
+            FlowIntent.OnDismissOptionDialog -> dismissOptionDialog()
             is FlowIntent.OnFlowDialogActionClick -> onFlowDialogActionClick(intent, state)
             is FlowIntent.OnFlowClick -> onFlowClicked(intent, state)
             is FlowIntent.RunFlow -> startFlow(intent, state)
             is FlowIntent.RunFlows -> startFlowGroup(intent, state)
+            is FlowIntent.OnOptionDialogClick -> handleOptionDialogAction(intent.action)
         }
     }
 
-    private fun onButtonCellClicked(cellId: String) {
+    private fun onRunButtonClicked() {
         val data = data ?: return
 
-        when (cellId) {
-            CellId.DRIVER_BUTTON -> {
-                sendUiEvent(FlowUiEvent.ShowAccessibilityServices)
+        when (args.mode) {
+            is FlowScreenMode.Flow ->
+                sendIntent(FlowIntent.RunFlow(args.mode.flowUid))
+
+            is FlowScreenMode.Group ->
+                sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
+
+            is FlowScreenMode.RemainedFlows ->
+                sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
+
+            is FlowScreenMode.LocalFlow ->
+                sendIntent(FlowIntent.RunFlow(args.mode.flowUid))
+        }
+    }
+
+    private fun onEnableDriverButtonClicked() {
+        sendUiEvent(FlowUiEvent.ShowAccessibilityServices)
+    }
+
+    private fun showApplicationOptionsDialog() {
+        val optionsAndActions = mutableListOf(
+            Pair(
+                resourceProvider.getString(R.string.open_downloads_page),
+                DIALOG_ACTION_OPEN_DOWNLOADS
+            )
+        )
+
+        if (data?.project?.siteUrl != null) {
+            optionsAndActions.add(
+                Pair(
+                    resourceProvider.getString(R.string.open_project_website),
+                    DIALOG_ACTION_OPEN_WEBSITE
+                )
+            )
+        }
+
+        state.value = state.value.copy(
+            optionDialogState = OptionDialogState(
+                options = optionsAndActions.map { it.first },
+                actions = optionsAndActions.map { DialogAction(it.second) }
+            )
+        )
+    }
+
+    private fun handleOptionDialogAction(action: DialogAction): Flow<FlowState> {
+        when (action.actionId) {
+            DIALOG_ACTION_OPEN_DOWNLOADS -> {
+                navigateToProjectDownloadsPage()
             }
 
-            CellId.APPLICATION_BUTTON -> {
-                val project = getProjectOrNull() ?: return
-
-                sendUiEvent(FlowUiEvent.OpenUrl(project.downloadUrl))
-            }
-
-            CellId.RUN_TEST_BUTTON -> {
-                when (args.mode) {
-                    is FlowScreenMode.Flow ->
-                        sendIntent(FlowIntent.RunFlow(args.mode.flowUid))
-
-                    is FlowScreenMode.Group ->
-                        sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
-
-                    is FlowScreenMode.RemainedFlows ->
-                        sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
-
-                    is FlowScreenMode.LocalFlow ->
-                        sendIntent(FlowIntent.RunFlow(args.mode.flowUid))
-                }
+            DIALOG_ACTION_OPEN_WEBSITE -> {
+                navigateToProjectWebsitePage()
             }
         }
+
+        return dismissOptionDialog()
     }
 
-    private fun onTextButtonCellClicked(cellId: String) {
-        when (cellId) {
-            CellId.MORE_STEPS_BUTTON -> navigateToTestContentScreen()
-        }
+    private fun navigateToProjectDownloadsPage() {
+        val downloadsUrl = data?.project?.downloadUrl ?: return
+
+        sendUiEvent(FlowUiEvent.OpenUrl(downloadsUrl))
     }
 
-    private fun onHeaderCellClicked(cellId: String) {
-        when (cellId) {
-            CellId.STEPS_HEADER -> navigateToTestContentScreen()
-        }
+    private fun navigateToProjectWebsitePage() {
+        val websiteUrl = data?.project?.siteUrl ?: return
+
+        sendUiEvent(FlowUiEvent.OpenUrl(websiteUrl))
     }
 
-    private fun onFlowClicked(intent: FlowCellIntent.OnClick) {
-        sendIntent(FlowIntent.OnFlowClick(flowUid = intent.cellId))
-    }
+    private fun dismissOptionDialog(): Flow<FlowState> =
+        state.value.copy(
+            optionDialogState = null
+        ).asFlow()
 
-    private fun onHistoryItemClicked(intent: HistoryItemCellIntent.OnItemClick) {
-        val jobUid = extractJobUid(intent.cellId)
-        val runUid = extractRunUid(intent.cellId)
-
-        when {
-            runUid != null -> navigateToFlowRunReport(flowRunUid = runUid)
-            jobUid != null -> navigateToLocalJobReport(jobUid = jobUid)
-        }
+    private fun onFlowClicked(cellId: String) {
+        sendIntent(FlowIntent.OnFlowClick(flowUid = cellId))
     }
 
     private fun startFlowGroup(
@@ -300,9 +358,7 @@ class FlowViewModel(
         return interactor.loadData(args.mode)
             .map { loadDataResult ->
                 if (loadDataResult.isLeft()) {
-                    val terminalState = loadDataResult
-                        .formatError(resourceProvider)
-                        .toTerminalState()
+                    val terminalState = loadDataResult.toTerminalState(resourceProvider)
                     return@map FlowState(terminalState = terminalState)
                 }
 
@@ -432,12 +488,12 @@ class FlowViewModel(
         state: FlowState
     ): Flow<FlowState> {
         return when (intent.actionId) {
-            LAUNCH_SERVICES_DIALOG_ACTION -> {
+            DIALOG_ACTION_LAUNCH_SERVICES -> {
                 sendUiEvent(FlowUiEvent.ShowAccessibilityServices)
                 emptyFlow()
             }
 
-            CANCEL_FLOW_DIALOG_ACTION -> {
+            DIALOG_ACTION_CANCEL_FLOW -> {
                 cancelStartedJobs()
             }
 
@@ -454,15 +510,9 @@ class FlowViewModel(
             for (jobUid in jobUids) {
                 val cancelResult = interactor.cancelJob(jobUid)
                 if (cancelResult.isLeft()) {
-                    val terminalState = cancelResult
-                        .formatError(resourceProvider)
-                        .toTerminalState()
+                    val terminalState = cancelResult.toTerminalState(resourceProvider)
 
-                    emit(
-                        state.value.copy(
-                            terminalState = terminalState
-                        )
-                    )
+                    emit(state.value.copy(terminalState = terminalState))
                     return@flow
                 }
 
@@ -504,7 +554,7 @@ class FlowViewModel(
             isCancellable = false,
             actionButton = MessageDialogButton.ActionButton(
                 title = resourceProvider.getString(R.string.cancel),
-                actionId = CANCEL_FLOW_DIALOG_ACTION
+                actionId = DIALOG_ACTION_CANCEL_FLOW
             )
         )
     }
@@ -516,7 +566,7 @@ class FlowViewModel(
             isCancellable = true,
             actionButton = MessageDialogButton.ActionButton(
                 title = resourceProvider.getString(R.string.services),
-                actionId = LAUNCH_SERVICES_DIALOG_ACTION
+                actionId = DIALOG_ACTION_LAUNCH_SERVICES
             )
         )
     }
@@ -528,7 +578,7 @@ class FlowViewModel(
             isCancellable = false,
             actionButton = MessageDialogButton.ActionButton(
                 title = resourceProvider.getString(R.string.cancel),
-                actionId = CANCEL_FLOW_DIALOG_ACTION
+                actionId = DIALOG_ACTION_CANCEL_FLOW
             )
         )
     }
@@ -600,7 +650,9 @@ class FlowViewModel(
     }
 
     companion object {
-        private const val CANCEL_FLOW_DIALOG_ACTION = 1
-        private const val LAUNCH_SERVICES_DIALOG_ACTION = 2
+        private const val DIALOG_ACTION_CANCEL_FLOW = 1
+        private const val DIALOG_ACTION_LAUNCH_SERVICES = 2
+        private const val DIALOG_ACTION_OPEN_WEBSITE = 3
+        private const val DIALOG_ACTION_OPEN_DOWNLOADS = 4
     }
 }

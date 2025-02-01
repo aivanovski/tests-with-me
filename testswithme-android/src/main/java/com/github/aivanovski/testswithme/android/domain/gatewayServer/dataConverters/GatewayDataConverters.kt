@@ -12,11 +12,16 @@ import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobStatusD
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.Sha256HashDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.StepDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.StepResultDto
+import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.UiBoundsDto
+import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.UiEntityDto
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.domain.fomatters.UiNodeFormatter
+import com.github.aivanovski.testswithme.entity.Bounds
 import com.github.aivanovski.testswithme.entity.Hash
 import com.github.aivanovski.testswithme.entity.HashType
 import com.github.aivanovski.testswithme.entity.StepResult
-import com.github.aivanovski.testswithme.extensions.dumpToString
+import com.github.aivanovski.testswithme.entity.UiEntity
+import com.github.aivanovski.testswithme.extensions.format
 import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.utils.StringUtils
 
@@ -44,6 +49,7 @@ fun ExecutionResult.toDto(): ExecutionResultDto =
 
 fun FlowWithSteps.toDto(
     jsonSerializer: JsonSerializer,
+    uiNodeFormatter: UiNodeFormatter,
     stepUidToStepRunMap: Map<String, LocalStepRun>
 ): FlowDto {
     val steps = steps.map { step ->
@@ -56,7 +62,7 @@ fun FlowWithSteps.toDto(
 
         StepDto(
             index = step.index,
-            result = stepResult?.toDto()
+            result = stepResult?.toDto(uiNodeFormatter)
         )
     }
 
@@ -66,22 +72,26 @@ fun FlowWithSteps.toDto(
     )
 }
 
-fun StepResult.toDto(): StepResultDto {
+fun StepResult.toDto(
+    uiNodeFormatter: UiNodeFormatter
+): StepResultDto {
     return StepResultDto(
         isSuccess = isSuccess,
         result = result,
-        errorMessage = error?.formatReport() ?: emptyList()
+        errorMessage = error?.formatReport(uiNodeFormatter) ?: emptyList()
     )
 }
 
-private fun FlowError.formatReport(): List<String> {
+private fun FlowError.formatReport(
+    uiNodeFormatter: UiNodeFormatter
+): List<String> {
     return when (this) {
         is FlowError.AssertionError -> {
             listOf(
                 cause,
                 StringUtils.EMPTY,
                 "UI Tree:",
-                uiRoot.dumpToString()
+                uiRoot.format(uiNodeFormatter)
             )
         }
 
@@ -93,7 +103,7 @@ private fun FlowError.formatReport(): List<String> {
                     if (uiRoot != null) {
                         add(StringUtils.EMPTY)
                         add("UI Tree:")
-                        add(uiRoot?.dumpToString() ?: StringUtils.EMPTY)
+                        add(uiRoot?.format(uiNodeFormatter) ?: StringUtils.EMPTY)
                     }
                 }
         }
@@ -110,3 +120,28 @@ fun Sha256HashDto.convert(): Hash {
         value = value
     )
 }
+
+fun UiEntity.toDto(): UiEntityDto =
+    UiEntityDto(
+        packageName = packageName,
+        className = className,
+        bounds = bounds?.toDto(),
+        text = text,
+        contentDescription = contentDescription,
+        isEnabled = isEnabled,
+        isEditable = isEditable,
+        isFocused = isFocused,
+        isFocusable = isFocusable,
+        isClickable = isClickable,
+        isLongClickable = isLongClickable,
+        isCheckable = isCheckable,
+        isChecked = isChecked
+    )
+
+fun Bounds.toDto(): UiBoundsDto =
+    UiBoundsDto(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom
+    )

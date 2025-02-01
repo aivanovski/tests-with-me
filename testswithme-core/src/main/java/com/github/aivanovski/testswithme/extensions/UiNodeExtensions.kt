@@ -1,13 +1,10 @@
 package com.github.aivanovski.testswithme.extensions
 
+import com.github.aivanovski.testswithme.domain.fomatters.UiNodeFormatter
 import com.github.aivanovski.testswithme.entity.UiElementSelector
+import com.github.aivanovski.testswithme.entity.UiEntity
 import com.github.aivanovski.testswithme.entity.UiNode
-import com.github.aivanovski.testswithme.utils.StringUtils
-import java.lang.StringBuilder
 import java.util.LinkedList
-
-private const val DUMP_SEPARATOR = ", "
-private const val DUMP_SEPARATOR_INDICATOR = "["
 
 fun UiNode<*>.matches(selector: UiElementSelector): Boolean {
     return entity.matches(selector)
@@ -15,6 +12,34 @@ fun UiNode<*>.matches(selector: UiElementSelector): Boolean {
 
 fun UiNode<*>.toSerializableTree(): UiNode<Unit> {
     return this.map { _ -> Unit }
+}
+
+fun <T, Node> UiNode<T>.transformNode(
+    onNewNode: (node: UiNode<T>) -> Node,
+    onNewChild: (parent: Node, child: Node) -> Unit
+): Node {
+    val root = this
+    val newRoot = onNewNode.invoke(root)
+
+    val queue = LinkedList<Pair<Node, UiNode<T>>>()
+    for (node in root.nodes) {
+        queue.add(newRoot to node)
+    }
+
+    while (queue.isNotEmpty()) {
+        val (newParent, node) = queue.removeFirst()
+
+        val newNode = onNewNode.invoke(node)
+        onNewChild.invoke(newParent, newNode)
+
+        if (node.nodes.isNotEmpty()) {
+            for (child in node.nodes) {
+                queue.add(newNode to child)
+            }
+        }
+    }
+
+    return newRoot
 }
 
 fun <T, R> UiNode<T>.map(transform: (T) -> R): UiNode<R> {
@@ -114,15 +139,8 @@ fun UiNode<*>.hasElement(element: UiElementSelector): Boolean {
     return matchedNodes.isNotEmpty()
 }
 
-fun <T> UiNode<T>.dumpToString(initialIndent: String = StringUtils.EMPTY): String {
-    val lines = mutableListOf<String>()
-
-    visitWithDepth { node, depth ->
-        val indent = "  ".repeat(depth)
-        lines.add("$initialIndent$indent${node.formatShortDescription()}")
-    }
-
-    return lines.joinToString(separator = "\n")
+fun <T> UiNode<T>.format(formatter: UiNodeFormatter): String {
+    return formatter.format(this)
 }
 
 fun <T> UiNode<T>.visitWithDepth(visitor: (node: UiNode<T>, depth: Int) -> Unit) {
@@ -140,105 +158,89 @@ fun <T> UiNode<T>.visitWithDepth(visitor: (node: UiNode<T>, depth: Int) -> Unit)
     }
 }
 
-fun UiNode<*>.formatShortDescription(): String {
-    val node = this
+fun <T> UiNode<T>.cloneTree(): UiNode<T> {
+    return this.map { value -> value }
+}
 
-    return StringBuilder()
-        .apply {
-            val className = node.entity.className
+fun <T> UiNode<T>.removeEmptyParents(
+    isEmptyPredicate: (entity: UiEntity) -> Boolean
+): UiNode<T> {
+    val root = this.cloneTree()
 
-            val id = node.entity.resourceId
-            val text = node.entity.text
-            val cd = node.entity.contentDescription
-            val bounds = node.entity.bounds?.toShortString()
-            val isEditable = node.entity.isEditable
-            val isFocused = node.entity.isFocused
-            val isClickable = node.entity.isClickable
-            val childCount = node.nodes.size
+    val queue = LinkedList<Pair<UiNode<T>?, UiNode<T>>>()
+    queue.add(null to root)
 
-            if (className != null) {
-                val lastDot = className.lastIndexOf(".")
-                if (lastDot != -1) {
-                    append(className.substring(lastDot + 1))
+    var newRoot = root
+
+    while (queue.isNotEmpty()) {
+        repeat(queue.size) {
+            val (parent, node) = queue.removeFirst()
+
+            val isNodeEmpty = isEmptyPredicate.invoke(node.entity)
+            if (isNodeEmpty
+                && (parent == null || parent.nodes.size == 1)
+                && node.nodes.size == 1
+            ) {
+                val child = node.nodes.first()
+
+                if (parent == null) {
+                    newRoot = child
+                    queue.add(null to newRoot)
                 } else {
-                    append(className)
+                    parent.nodes.removeAt(0)
+                    parent.nodes.add(child)
+                    queue.add(parent to child)
+                }
+            } else {
+                for (child in node.nodes) {
+                    queue.add(node to child)
                 }
             }
-
-            append("[")
-
-            if (childCount > 0) {
-                append("children=$childCount")
-            }
-
-            if (id != null) {
-                appendWithSeparator(
-                    "id=$id",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            if (text != null) {
-                appendWithSeparator(
-                    "text=$text",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            if (cd != null) {
-                appendWithSeparator(
-                    "contDesc=$cd",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            if (bounds != null) {
-                appendWithSeparator(
-                    "bounds=$bounds",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            if (isEditable == true) {
-                appendWithSeparator(
-                    "EDITABLE",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            if (isFocused == true) {
-                appendWithSeparator(
-                    "FOCUSED",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            if (isClickable == true) {
-                appendWithSeparator(
-                    "CLICKABLE",
-                    DUMP_SEPARATOR,
-                    DUMP_SEPARATOR_INDICATOR
-                )
-            }
-
-            append("]")
         }
-        .toString()
+    }
+
+    return newRoot
 }
 
-private fun StringBuilder.appendWithSeparator(
-    value: String,
-    separator: String,
-    separatorIndicator: String
-) {
-    if (!this.endsWith(separatorIndicator)) {
-        append(separator)
+fun <T> UiNode<T>.removeEmptyNodes(
+    isEmptyPredicate: (entity: UiEntity) -> Boolean
+): UiNode<T> {
+    val root = this
+
+    var index = 0
+    val newRoot = root.map { value ->
+        ValueWrapper(
+            key = index++,
+            isEmpty = false,
+            wrappedValue = value
+        )
     }
-    append(value)
+
+    fun dfs(node: UiNode<ValueWrapper<T>>) {
+        for (child in node.nodes) {
+            dfs(child)
+        }
+
+        var childIdx = 0
+        while (childIdx < node.nodes.size) {
+            val child = node.nodes[childIdx]
+            if (child.source.isEmpty) {
+                node.nodes.removeAt(childIdx)
+            } else {
+                childIdx++
+            }
+        }
+
+        node.source.isEmpty = (isEmptyPredicate.invoke(node.entity) && node.nodes.isEmpty())
+    }
+
+    dfs(newRoot)
+
+    return newRoot.map { value -> value.wrappedValue }
 }
+
+private data class ValueWrapper<T>(
+    val key: Int,
+    var isEmpty: Boolean,
+    val wrappedValue: T
+)

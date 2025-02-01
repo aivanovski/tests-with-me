@@ -94,6 +94,8 @@
     <string name="steps">Steps</string>
     <string name="no_steps">No steps</string>
     <string name="show_more_with_str">Show %s more</string>
+    <string name="open_downloads_page">Open downloads page</string>
+    <string name="open_project_website">Open project website</string>
 
     <!-- Test Content screen -->
     <string name="view_error">View Error</string>

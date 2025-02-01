@@ -7,6 +7,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.flow.logger.TimberFlowLogger
+import com.github.aivanovski.testswithme.android.domain.flow.model.FlowRunnerState
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
 import com.github.aivanovski.testswithme.android.entity.OnStepFinishedAction
@@ -15,9 +16,13 @@ import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.presentation.MainActivity
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
+import com.github.aivanovski.testswithme.entity.UiNode
+import com.github.aivanovski.testswithme.entity.exception.CancelledExecutionException
+import com.github.aivanovski.testswithme.entity.exception.DriverDisconnectedException
+import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.extensions.toSerializableTree
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
-import com.github.aivanovski.testswithme.flow.commands.StepCommand
 import com.github.aivanovski.testswithme.flow.driver.Driver
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import com.github.aivanovski.testswithme.flow.runner.listener.ListenerComposite
@@ -25,9 +30,8 @@ import com.github.aivanovski.testswithme.flow.runner.report.ReportCollector
 import com.github.aivanovski.testswithme.flow.runner.report.ReportWriter
 import com.github.aivanovski.testswithme.flow.runner.report.ReportWriter.ShortNameTransformer
 import com.github.aivanovski.testswithme.flow.runner.report.TimeCollector
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -38,55 +42,73 @@ import timber.log.Timber
 class FlowRunner(
     private val context: Context,
     private val settings: Settings,
-    private val interactor: FlowRunnerInteractor,
-    driver: Driver<AccessibilityNodeInfo>
+    private val interactor: FlowRunnerInteractor
 ) {
 
+    var state by mutableStateFlow(FlowRunnerState.IDLE)
+        private set
+
     private val logger = TimberFlowLogger(tag = TimberFlowLogger::class.java.simpleName)
-    private val stateRef = AtomicReference(RunnerState.IDLE)
-    private val stepIndex = AtomicInteger(0)
-    private val jobUidRef = AtomicReference<String?>(null)
-    private val listeners = ListenerComposite()
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.Main)
-    private val executionContext = ExecutionContext(
-        driver = driver,
-        logger = logger,
-        environment = Environment(settings)
-    )
-    private val commandExecutor = CommandExecutor(interactor, executionContext, listeners)
+    private val environment = Environment(settings)
+    private val flowLifecycleListeners = ListenerComposite()
+    private val scopeJobs = CopyOnWriteArrayList<Job>()
+    private var scope = CoroutineScope(Dispatchers.Main)
+    private var stepIndex by mutableStateFlow(0)
+    private var jobUidRef by mutableStateFlow<String?>(null)
+    private var isCollectUiTree by mutableStateFlow(false)
+    private var driver by mutableStateFlow<Driver<AccessibilityNodeInfo>?>(null)
+    private var commandExecutor by mutableStateFlow<CommandExecutor?>(null)
+
     private val commandFactory = StepCommandFactory(interactor)
-    private val standaloneCommands = ConcurrentLinkedQueue<StepCommand>()
     private val timeCollector = TimeCollector()
     private val reportCollector = ReportCollector()
 
     init {
-        listeners.add(
+        flowLifecycleListeners.add(
             ReportWriter(
                 writer = logger,
                 flowTransformer = ShortNameTransformer()
             )
         )
-        listeners.add(timeCollector)
-        listeners.add(reportCollector)
+        flowLifecycleListeners.add(timeCollector)
+        flowLifecycleListeners.add(reportCollector)
     }
 
-    fun isRunning(): Boolean = (stateRef.get() == RunnerState.RUNNING)
+    fun isRunning(): Boolean = (state == FlowRunnerState.RUNNING)
 
-    fun isIdle(): Boolean = (stateRef.get() == RunnerState.IDLE)
+    fun isIdle(): Boolean = (state == FlowRunnerState.IDLE)
 
-    fun runOrAddToQueue(command: StepCommand) {
-        standaloneCommands.add(command)
+    fun setCollectUiTreeFlag() {
+        isCollectUiTree = true
 
-        scope.launch {
-            runStandAloneCommandsIfNeed()
+        if (isIdle()) {
+            updateUiTreeIfNeed()
         }
     }
+
+    fun onDriverConnected(driver: Driver<AccessibilityNodeInfo>) {
+        this.driver = driver
+
+        commandExecutor = CommandExecutor(
+            interactor = interactor,
+            context = ExecutionContext(driver, logger, environment),
+            lifecycleListener = flowLifecycleListeners
+        )
+    }
+
+    fun onDriverDisconnected() {
+        state = FlowRunnerState.IDLE
+        driver = null
+        commandExecutor = null
+        stop()
+    }
+
+    fun isDriverConnected(): Boolean = (driver != null)
 
     fun runNextFlow() {
         val jobUid = settings.startJobUid
 
-        scope.launch {
+        val job = scope.launch {
             val findNextJobResult = findNextJobToRun(jobUid)
             if (findNextJobResult.isLeft()) {
                 onErrorOccurred(exception = findNextJobResult.unwrapError())
@@ -102,10 +124,10 @@ class FlowRunner(
                     onErrorOccurred(exception = runResult.unwrapError())
                     return@launch
                 }
-
-                runStandAloneCommandsIfNeed()
             }
         }
+
+        scopeJobs.add(job)
     }
 
     private suspend fun findNextJobToRun(targetJobUid: String?): Either<AppException, String?> =
@@ -174,9 +196,9 @@ class FlowRunner(
             val job = jobs.firstOrNull { job -> job.uid == jobUid }
                 ?: raise(AppException("Failed to find job by uid: $jobUid"))
 
-            jobUidRef.set(jobUid)
-            stateRef.set(RunnerState.RUNNING)
-            stepIndex.set(0)
+            jobUidRef = jobUid
+            stepIndex = 0
+            state = FlowRunnerState.RUNNING
 
             if (settings.startJobUid == jobUid) {
                 settings.startJobUid = null
@@ -192,14 +214,17 @@ class FlowRunner(
             reportCollector.clear()
 
             runCurrentStep(
-                isFirstStep = true,
-                initialDelay = interactor.getDelayBetweenSteps()
+                isFirstStep = true
             ).bind()
         }
 
     fun stop() {
-        stateRef.set(RunnerState.IDLE)
-        job.cancel()
+        state = FlowRunnerState.IDLE
+
+        for (job in scopeJobs) {
+            job.cancel()
+        }
+        scopeJobs.clear()
     }
 
     private suspend fun onErrorOccurred(
@@ -208,7 +233,7 @@ class FlowRunner(
     ) {
         Timber.e("onErrorOccurred: jobUid=%s, error=%s", jobUid, exception)
         Timber.e(exception)
-        stateRef.set(RunnerState.IDLE)
+        state = FlowRunnerState.IDLE
 
         if (jobUid != null) {
             val job = interactor.getJobByUid(jobUid).getOrNull()
@@ -228,10 +253,15 @@ class FlowRunner(
         initialDelay: Long = interactor.getDelayBetweenSteps()
     ): Either<AppException, Unit> =
         either {
+            updateUiTreeIfNeed()
+
             delay(initialDelay)
 
+            val commandExecutor = commandExecutor
+                ?: raise(AppException(cause = DriverDisconnectedException()))
+
             if (!isRunning()) {
-                raise(AppException("Flow was cancelled"))
+                raise(AppException(cause = CancelledExecutionException()))
             }
 
             val jobData = interactor.getCurrentJobData().bind()
@@ -249,7 +279,7 @@ class FlowRunner(
                 flow = flow.entry,
                 stepEntry = stepEntry,
                 command = command,
-                stepIndex = stepIndex.get(),
+                stepIndex = stepIndex,
                 attemptIndex = executionData.attemptCount
             )
             if (nextActionResult.isLeft()) {
@@ -264,7 +294,7 @@ class FlowRunner(
             val nextAction = nextActionResult.unwrap()
             when (nextAction) {
                 is OnStepFinishedAction.Next -> {
-                    stepIndex.incrementAndGet()
+                    stepIndex++
                     runCurrentStep(
                         isFirstStep = false
                     ).bind()
@@ -299,7 +329,6 @@ class FlowRunner(
         isRunNextAllowed: Boolean
     ): Either<AppException, Unit> =
         either {
-            stateRef.set(RunnerState.IDLE)
 
             val job = interactor.getJobByUid(jobUid).bind()
             val flow = interactor.getCachedFlowByUid(job.flowUid).bind()
@@ -331,6 +360,7 @@ class FlowRunner(
                 }
             }
 
+            state = FlowRunnerState.IDLE
             val isRunNext = (job.onFinishAction == OnFinishAction.RUN_NEXT)
 
             Timber.d(
@@ -346,9 +376,7 @@ class FlowRunner(
                 isRunNextAllowed &&
                 (isUploaded || flowSourceType == SourceType.REMOTE)
             ) {
-                scope.launch {
-                    runNextFlow()
-                }
+                runNextFlow()
             } else if (job.onFinishAction == OnFinishAction.SHOW_DETAILS) {
                 val intent = MainActivity.createStartIntent(
                     context = context,
@@ -362,29 +390,40 @@ class FlowRunner(
             }
         }
 
-    private suspend fun runStandAloneCommandsIfNeed() {
-        if (!isIdle()) {
-            return
-        }
+    private fun updateUiTreeIfNeed() {
+        val driver = driver ?: return
 
-        while (standaloneCommands.isNotEmpty()) {
-            val command = standaloneCommands.remove()
-            val result = commandExecutor.executeStandalone(command)
-            if (result.isLeft()) {
-                Timber.d(result.unwrapError())
+        if (isCollectUiTree) {
+            isCollectUiTree = false
+
+            val job = scope.launch {
+                val getUiTreeResult = driver.getUiTree()
+                    .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
+
+                if (getUiTreeResult.isLeft()) {
+                    Timber.d(getUiTreeResult.unwrapError())
+                }
             }
+
+            scopeJobs.add(job)
+        }
+    }
+
+    fun getUiTreeOrNull(): UiNode<Unit>? {
+        val driver = driver ?: return null
+
+        val getUiTreeResult = driver.getUiTree()
+            .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
+
+        return if (getUiTreeResult.isRight()) {
+            getUiTreeResult.unwrap().toSerializableTree()
+        } else {
+            Timber.d(getUiTreeResult.unwrapError())
+            null
         }
     }
 
     private fun List<JobEntry>.filterByStatus(status: JobStatus): List<JobEntry> {
         return filter { job -> job.status == status }
-    }
-
-    enum class RunnerState {
-        IDLE,
-        RUNNING
-    }
-
-    companion object {
     }
 }
