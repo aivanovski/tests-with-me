@@ -66,7 +66,7 @@ class CompactNodeFormatter(
                         maxLength = maxStringLength,
                         ending = DOTS
                     )
-                    "cd=${contentDescription}"
+                    "cd=$contentDescription"
                 }
 
                 appendWhen(entity.isClickable == true) { "clickable" }

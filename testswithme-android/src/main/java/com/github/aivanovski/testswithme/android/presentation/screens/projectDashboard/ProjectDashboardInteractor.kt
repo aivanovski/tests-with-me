@@ -39,7 +39,7 @@ class ProjectDashboardInteractor(
             projectRepository.getProjectsFlow(),
             groupRepository.getGroupsFlow(),
             flowRepository.getFlowsFlow(),
-            flowRunRepository.getRunsFlow(),
+            flowRunRepository.getRunsFlow()
         ) { allProjects, allGroups, allFlows, allRuns ->
             either {
                 val project = allProjects.firstOrNull { project ->
@@ -89,9 +89,8 @@ class ProjectDashboardInteractor(
                     .filterByGroupUid(rootGroup.uid)
                     .filterRemoteOnly()
 
-                val (passed, failed, remained) = filteredFlows.aggregatePassedFailedAndRemainedFlows(
-                    versionRuns
-                )
+                val (passed, failed, remained) =
+                    filteredFlows.aggregatePassedFailedAndRemainedFlows(versionRuns)
 
                 ProjectDashboardData(
                     versions = versions,
