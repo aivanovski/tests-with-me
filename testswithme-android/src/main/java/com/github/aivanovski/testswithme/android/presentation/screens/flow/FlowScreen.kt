@@ -24,9 +24,12 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIc
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.ErrorDialog
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.MessageDialog
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogIntent
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.events.SingleEventEffect
+import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
@@ -128,6 +131,22 @@ private fun FlowScreen(
                 FlowDialogContent(
                     state = state.flowDialogState,
                     onIntent = onIntent
+                )
+            }
+
+            if (state.optionDialogState != null) {
+                val onDismiss = rememberOnClickedCallback {
+                    onIntent.invoke(FlowIntent.OnDismissOptionDialog)
+                }
+
+                val onClick = rememberCallback { action: DialogAction ->
+                    onIntent.invoke(FlowIntent.OnOptionDialogClick(action))
+                }
+
+                OptionDialog(
+                    state = state.optionDialogState,
+                    onDismiss = onDismiss,
+                    onClick = onClick
                 )
             }
         }

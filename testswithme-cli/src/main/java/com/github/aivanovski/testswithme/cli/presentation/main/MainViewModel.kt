@@ -25,7 +25,10 @@ import com.github.aivanovski.testswithme.cli.presentation.main.model.MainViewSta
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TestData
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TestState
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TextColor
+import com.github.aivanovski.testswithme.domain.fomatters.CompactNodeFormatter
+import com.github.aivanovski.testswithme.entity.UiNode
 import com.github.aivanovski.testswithme.extensions.describe
+import com.github.aivanovski.testswithme.extensions.format
 import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.Base64Utils
@@ -62,6 +65,7 @@ class MainViewModel(
 
     private val scope = CoroutineScope(Dispatchers.Default)
     private val queue = MessageQueue()
+    private val uiNodeFormatter = CompactNodeFormatter()
     private var loopJob: Job? by mutableStateFlow(null)
     private var heartbeatSupplierJob: Job? by mutableStateFlow(null)
     private var connection: DeviceConnection? by mutableStateFlow(null)
@@ -74,6 +78,7 @@ class MainViewModel(
     private var isLoopActive by mutableStateFlow(true)
     private var lastSentData: TestData? by mutableStateFlow(null)
     private var heartBeatRetry: Int by mutableStateFlow(0)
+    private var uiTree by mutableStateFlow<UiNode<Unit>?>(null)
 
     fun start() {
         val result = runBlocking {
@@ -252,6 +257,12 @@ class MainViewModel(
                 ) {
                     queue.add(Message.SendGetJobRequest(data = data))
                 }
+            }
+
+            uiTree = status.uiTree?.toUiNode(transform = { node -> Unit })
+
+            if (status.uiTree != null) {
+                rebuildViewState()
             }
 
             onDeviceStateChanged(
@@ -551,7 +562,8 @@ class MainViewModel(
             testStatusLabel = testStatusLabel,
             testStatus = testStatus,
             testStatusColor = testStatusColor,
-            errorMessage = errorMessage ?: StringUtils.EMPTY
+            errorMessage = errorMessage ?: StringUtils.EMPTY,
+            screen = uiTree?.format(uiNodeFormatter) ?: StringUtils.EMPTY
         )
     }
 

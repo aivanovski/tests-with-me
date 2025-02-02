@@ -22,7 +22,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.E
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
@@ -86,7 +86,7 @@ class FlowCellFactory(
 
         if (data.project != null) {
             models.addAll(
-                createAppInfoModels(
+                createApplicationInfoModels(
                     project = data.project,
                     requiredAppVersion = null,
                     installedAppData = installedAppData
@@ -142,7 +142,7 @@ class FlowCellFactory(
 
         if (data.project != null) {
             models.addAll(
-                createAppInfoModels(
+                createApplicationInfoModels(
                     project = data.project,
                     requiredAppVersion = requiredAppVersion,
                     installedAppData = installedAppData
@@ -307,7 +307,7 @@ class FlowCellFactory(
 
         if (data.project != null) {
             models.addAll(
-                createAppInfoModels(
+                createApplicationInfoModels(
                     project = data.project,
                     requiredAppVersion = requiredAppVersion,
                     installedAppData = installedAppData
@@ -360,10 +360,11 @@ class FlowCellFactory(
         val models = mutableListOf<BaseCellModel>()
 
         models.add(
-            LabeledTextCellModel(
+            LabeledTextWithIconCellModel(
                 id = CellId.TEST_NAME,
                 label = resourceProvider.getString(R.string.group),
                 text = title,
+                icon = null,
                 shape = CornersShape.TOP
             )
         )
@@ -389,10 +390,11 @@ class FlowCellFactory(
         val models = mutableListOf<BaseCellModel>()
 
         models.add(
-            LabeledTextCellModel(
+            LabeledTextWithIconCellModel(
                 id = CellId.TEST_NAME,
                 label = resourceProvider.getString(R.string.test),
                 text = flow.name,
+                icon = null,
                 shape = CornersShape.TOP
             )
         )
@@ -456,7 +458,7 @@ class FlowCellFactory(
         return models
     }
 
-    private fun createAppInfoModels(
+    private fun createApplicationInfoModels(
         project: ProjectEntry,
         requiredAppVersion: AppVersion?,
         installedAppData: ExternalAppData?
@@ -469,10 +471,11 @@ class FlowCellFactory(
             )
 
         models.add(
-            LabeledTextCellModel(
+            LabeledTextWithIconCellModel(
                 id = CellId.APPLICATION_NAME,
                 label = resourceProvider.getString(R.string.application),
                 text = project.name,
+                icon = AppIcons.Menu,
                 shape = CornersShape.TOP
             )
         )
@@ -592,7 +595,7 @@ class FlowCellFactory(
 
             models.add(
                 FlowCellModel(
-                    id = flow.uid,
+                    id = CellId.createFlowCellId(flow.uid),
                     icon = icon,
                     iconTint = iconTint,
                     title = flow.name,
@@ -779,6 +782,7 @@ class FlowCellFactory(
         private const val RUN_PREFIX = "run_"
         private const val JOB_PREFIX = "job_"
         private const val STEP_PREFIX = "step_"
+        private const val FLOW_PREFIX = "flow_"
 
         fun createRunCellId(runUid: String): String = RUN_PREFIX + runUid
 
@@ -786,24 +790,21 @@ class FlowCellFactory(
 
         fun createStepCellId(stepUid: String): String = STEP_PREFIX + stepUid
 
-        fun extractRunUid(cellId: String): String? {
-            return if (cellId.contains(RUN_PREFIX)) {
-                cellId.removePrefix(RUN_PREFIX)
-            } else {
-                null
-            }
-        }
+        fun createFlowCellId(flowUid: String): String = FLOW_PREFIX + flowUid
 
-        fun extractJobUid(cellId: String): String? {
-            return if (cellId.contains(JOB_PREFIX)) {
-                cellId.removePrefix(JOB_PREFIX)
-            } else {
-                null
-            }
-        }
+        fun extractRunUid(cellId: String): String? =
+            if (cellId.startsWith(RUN_PREFIX)) cellId.removePrefix(RUN_PREFIX) else null
+
+        fun extractJobUid(cellId: String): String? =
+            if (cellId.startsWith(JOB_PREFIX)) cellId.removePrefix(JOB_PREFIX) else null
+
+        fun extractFlowUid(cellId: String): String? =
+            if (cellId.startsWith(FLOW_PREFIX)) cellId.removePrefix(FLOW_PREFIX) else null
 
         fun hasRunUid(cellId: String): Boolean = cellId.startsWith(RUN_PREFIX)
 
         fun hasJobUid(cellId: String): Boolean = cellId.startsWith(JOB_PREFIX)
+
+        fun hasFlowUid(cellId: String): Boolean = cellId.startsWith(FLOW_PREFIX)
     }
 }

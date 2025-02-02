@@ -32,7 +32,6 @@ import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUi
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
-import com.github.aivanovski.testswithme.web.extensions.encodeToBase64
 import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
 
 class FlowController(
@@ -122,7 +121,7 @@ class FlowController(
                     projectId = flow.projectUid.toString(),
                     groupId = flow.groupUid.toString(),
                     name = flow.name,
-                    base64Content = rawContent.encodeToBase64(),
+                    base64Content = Base64Utils.encode(rawContent),
                     contentHash = hash.toDto()
                 )
             )

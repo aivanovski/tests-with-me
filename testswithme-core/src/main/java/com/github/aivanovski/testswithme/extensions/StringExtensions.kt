@@ -80,13 +80,32 @@ fun String.toIntSafely(): Int? {
     }
 }
 
+fun String.toBooleanSafely(): Boolean? {
+    return when {
+        this.equals("true", ignoreCase = true) -> true
+        this.equals("false", ignoreCase = true) -> false
+        else -> null
+    }
+}
+
 fun String.ellipsize(
     maxLength: Int,
     ending: String
 ): String {
     return if (this.length > maxLength) {
-        val sub = this.substring(0, maxLength)
-        sub + ending
+        var index = maxLength
+
+        while (this[index].isWhitespace() && index > 0) {
+            index--
+        }
+
+        val substring = if (index != 0) {
+            this.substring(0, index)
+        } else {
+            this.substring(0, maxLength)
+        }
+
+        substring + ending
     } else {
         this
     }

@@ -1,8 +1,11 @@
 package com.github.aivanovski.testswithme.android.presentation.core.cells.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,11 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleWithIconCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellIntent.OnIconClick
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.LabeledTextWithIconCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.PreviewIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedPreview
@@ -26,15 +32,17 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.MediumIconSize
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.QuarterMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.TwoLineSmallItemHeight
 import com.github.aivanovski.testswithme.android.presentation.core.compose.toComposeShape
 
 @Composable
-fun TitleWithIconCell(viewModel: TitleWithIconCellViewModel) {
+fun LabeledTextWithIconCell(viewModel: LabeledTextWithIconCellViewModel) {
     val model = viewModel.model
 
     val onClick = rememberOnClickedCallback {
-        viewModel.sendIntent(TitleWithIconCellIntent.OnIconClick(model.id))
+        viewModel.sendIntent(OnIconClick(model.id))
     }
 
     Card(
@@ -50,24 +58,35 @@ fun TitleWithIconCell(viewModel: TitleWithIconCellViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .defaultMinSize(minHeight = TwoLineSmallItemHeight)
         ) {
-            Text(
-                text = viewModel.model.title,
-                color = AppTheme.theme.colors.primaryText,
-                style = AppTheme.theme.typography.titleMedium,
+            Column(
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .weight(weight = 1f)
                     .padding(
-                        start = ElementMargin,
-                        end = ElementMargin
+                        horizontal = ElementMargin,
+                        vertical = SmallMargin
                     )
-                    .align(Alignment.CenterVertically)
-            )
+            ) {
+                Text(
+                    text = model.label,
+                    color = AppTheme.theme.colors.secondaryText,
+                    style = AppTheme.theme.typography.bodySmall
+                )
+
+                Text(
+                    text = model.text,
+                    color = AppTheme.theme.colors.primaryText,
+                    style = AppTheme.theme.typography.bodyLarge
+                )
+            }
 
             if (model.icon != null) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
+                        .padding(top = QuarterMargin)
                         .clickable(onClick = onClick)
                         .padding(all = SmallMargin)
                 ) {
@@ -86,24 +105,50 @@ fun TitleWithIconCell(viewModel: TitleWithIconCellViewModel) {
 
 @Composable
 @Preview
-fun TitleWithIconCellPreview() {
+fun LabeledTextCellPreview() {
     ThemedPreview(
         theme = LightTheme,
         background = LightTheme.colors.secondaryBackground
     ) {
-        TitleWithIconCell(newTitleWithIconCellViewModel())
+        Column {
+            LabeledTextWithIconCell(newLabeledTextCell(shape = CornersShape.TOP))
+            LabeledTextWithIconCell(newLabeledTextCellWithLongText(shape = CornersShape.NONE))
+            LabeledTextWithIconCell(
+                newLabeledTextCell(
+                    icon = AppIcons.Menu,
+                    shape = CornersShape.BOTTOM
+                )
+            )
+        }
     }
 }
 
-fun newTitleWithIconCellViewModel(
-    title: String = "Title",
+fun newLabeledTextCell(
+    icon: ImageVector? = null,
     shape: CornersShape = CornersShape.ALL
-) = TitleWithIconCellViewModel(
-    model = TitleWithIconCellModel(
+) = LabeledTextWithIconCellViewModel(
+    model = LabeledTextWithIconCellModel(
         id = "id",
-        title = title,
-        icon = AppIcons.Menu,
+        label = "Label",
+        text = "Text",
+        icon = icon,
         shape = shape
     ),
     intentProvider = PreviewIntentProvider
 )
+
+@Composable
+fun newLabeledTextCellWithLongText(
+    shape: CornersShape = CornersShape.ALL
+): LabeledTextWithIconCellViewModel {
+    return LabeledTextWithIconCellViewModel(
+        model = LabeledTextWithIconCellModel(
+            id = "id",
+            label = "Label for long text",
+            text = stringResource(R.string.long_dummy_text),
+            icon = null,
+            shape = shape
+        ),
+        intentProvider = PreviewIntentProvider
+    )
+}

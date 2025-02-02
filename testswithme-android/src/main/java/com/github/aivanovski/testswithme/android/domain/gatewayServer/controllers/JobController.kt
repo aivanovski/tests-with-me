@@ -16,6 +16,7 @@ import com.github.aivanovski.testswithme.android.entity.exception.InvalidParamet
 import com.github.aivanovski.testswithme.android.gatewayServerApi.GatewayEndpoints.Params.ID
 import com.github.aivanovski.testswithme.android.gatewayServerApi.response.GetJobResponse
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
+import com.github.aivanovski.testswithme.domain.fomatters.RegularNodeFormatter
 
 class JobController(
     private val jobRepository: JobRepository,
@@ -41,6 +42,7 @@ class JobController(
                 job = data.job.toDto(),
                 flow = data.flow.toDto(
                     jsonSerializer = jsonSerializer,
+                    uiNodeFormatter = RegularNodeFormatter(),
                     stepUidToStepRunMap = stepUidToStepRunMap
                 )
             )

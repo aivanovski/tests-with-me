@@ -18,9 +18,9 @@ import com.github.aivanovski.testswithme.android.domain.buildGroupTree
 import com.github.aivanovski.testswithme.android.domain.findNodeByUid
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerInteractor
 import com.github.aivanovski.testswithme.android.domain.flow.FlowRunnerManager
+import com.github.aivanovski.testswithme.android.domain.flow.model.DriverServiceState
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.entity.AppVersion
-import com.github.aivanovski.testswithme.android.entity.DriverServiceState
 import com.github.aivanovski.testswithme.android.entity.FlowWithSteps
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.OnFinishAction
@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class FlowInteractor(
+    private val flowRunnerManager: FlowRunnerManager,
     private val flowRunnerInteractor: FlowRunnerInteractor,
     private val flowRepository: FlowRepository,
     private val projectRepository: ProjectRepository,
@@ -63,7 +64,7 @@ class FlowInteractor(
 ) {
 
     fun isDriverServiceRunning(): Boolean {
-        return FlowRunnerManager.getDriverState() == DriverServiceState.RUNNING
+        return flowRunnerManager.getDriverState() == DriverServiceState.RUNNING
     }
 
     private fun getStepsFlow(

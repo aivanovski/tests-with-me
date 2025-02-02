@@ -1,5 +1,7 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.flow.model
 
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+
 sealed interface FlowIntent {
 
     data object Initialize : FlowIntent
@@ -11,6 +13,12 @@ sealed interface FlowIntent {
     data object OnDismissFlowDialog : FlowIntent
 
     data object OnUploadButtonClick : FlowIntent
+
+    data object OnDismissOptionDialog : FlowIntent
+
+    data class OnOptionDialogClick(
+        val action: DialogAction
+    ) : FlowIntent
 
     data class OnFlowDialogActionClick(
         val actionId: Int

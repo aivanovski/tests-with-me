@@ -5,7 +5,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.debug.model.DebugCommand
 import com.github.aivanovski.testswithme.android.entity.exception.ParsingException
-import com.github.aivanovski.testswithme.android.utils.toBooleanSafely
+import com.github.aivanovski.testswithme.extensions.toBooleanSafely
 
 class DebugCommandParser {
 

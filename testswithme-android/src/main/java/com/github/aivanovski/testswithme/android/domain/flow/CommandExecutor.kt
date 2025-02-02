@@ -31,21 +31,6 @@ class CommandExecutor(
     private val lifecycleListener: FlowLifecycleListener
 ) {
 
-    suspend fun executeStandalone(command: StepCommand): Either<FlowExecutionException, Any> =
-        either {
-            val result = when {
-                command is ExecutableStepCommand<*> -> {
-                    command.execute(context)
-                        .mapLeft { error -> FlowExecutionException.fromFlowError(error) }
-                        .bind()
-                }
-
-                else -> throw IllegalArgumentException()
-            }
-
-            result
-        }
-
     suspend fun execute(
         isFirstStep: Boolean,
         job: JobEntry,
@@ -122,7 +107,7 @@ class CommandExecutor(
             }
 
             var flow = interactor.getCachedFlowByUid(compositeCommand.flowUid)
-                .mapLeft { exception -> ExternalException(exception) }
+                .mapLeft { exception -> ExternalException(cause = exception) }
                 .bind()
 
             lifecycleListener.onFlowStarted(flow.entry)
@@ -133,7 +118,7 @@ class CommandExecutor(
                 delay(interactor.getDelayBetweenSteps())
 
                 flow = interactor.getCachedFlowByUid(compositeCommand.flowUid)
-                    .mapLeft { exception -> ExternalException(exception) }
+                    .mapLeft { exception -> ExternalException(cause = exception) }
                     .bind()
                 val command = commands[commandIndex]
 
@@ -145,7 +130,7 @@ class CommandExecutor(
                     flowUid = flow.entry.uid,
                     stepUid = stepUid
                 )
-                    .mapLeft { exception -> ExternalException(exception) }
+                    .mapLeft { exception -> ExternalException(cause = exception) }
                     .bind()
 
                 lifecycleListener.onStepStarted(

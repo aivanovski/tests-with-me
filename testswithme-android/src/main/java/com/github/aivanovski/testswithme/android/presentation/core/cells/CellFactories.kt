@@ -13,7 +13,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.I
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.MenuCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ShapedSpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
@@ -33,7 +33,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.Icon
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.IconThreeTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.LabeledTableCell
-import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.LabeledTextCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.LabeledTextWithIconCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.MenuCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ShapedSpaceCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.SpaceCell
@@ -53,7 +53,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.viewMod
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.IconTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.IconThreeTextCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.LabeledTableCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.LabeledTextCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.LabeledTextWithIconCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.MenuCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ShapedSpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
@@ -75,7 +75,7 @@ fun CreateCoreCell(viewModel: CellViewModel) {
         is IconThreeTextCellViewModel -> IconThreeTextCell(viewModel)
         is IconTextCellViewModel -> IconTextCell(viewModel)
         is LabeledTableCellViewModel -> LabeledTableCell(viewModel)
-        is LabeledTextCellViewModel -> LabeledTextCell(viewModel)
+        is LabeledTextWithIconCellViewModel -> LabeledTextWithIconCell(viewModel)
         is SpaceCellViewModel -> SpaceCell(viewModel)
         is ShapedSpaceCellViewModel -> ShapedSpaceCell(viewModel)
         is TextWithChipCellViewModel -> TextWithChipCell(viewModel)
@@ -103,7 +103,7 @@ fun createCoreCellViewModel(
         is HeaderWithDescriptionCellModel -> HeaderWithDescriptionCellViewModel(model)
         is IconThreeTextCellModel -> IconThreeTextCellViewModel(model, intentProvider)
         is IconTextCellModel -> IconTextCellViewModel(model, intentProvider)
-        is LabeledTextCellModel -> LabeledTextCellViewModel(model)
+        is LabeledTextWithIconCellModel -> LabeledTextWithIconCellViewModel(model, intentProvider)
         is LabeledTableCellModel -> LabeledTableCellViewModel(model)
         is SpaceCellModel -> SpaceCellViewModel(model)
         is ShapedSpaceCellModel -> ShapedSpaceCellViewModel(model)

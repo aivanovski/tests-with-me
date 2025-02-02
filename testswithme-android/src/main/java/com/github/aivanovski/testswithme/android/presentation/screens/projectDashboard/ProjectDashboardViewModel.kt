@@ -13,7 +13,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.I
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
-import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -36,9 +35,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetMenuState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
-import com.github.aivanovski.testswithme.android.utils.formatErrorMessage
+import com.github.aivanovski.testswithme.android.utils.toTerminalState
 import com.github.aivanovski.testswithme.extensions.unwrap
-import com.github.aivanovski.testswithme.extensions.unwrapError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -46,9 +44,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -132,47 +130,44 @@ class ProjectDashboardViewModel(
     }
 
     private fun loadData(versionName: String? = null): Flow<ProjectDashboardState> {
-        return flow {
-            emit(ProjectDashboardState(terminalState = TerminalState.Loading))
+        return interactor.loadData(
+            projectUid = args.projectUid,
+            versionName = versionName
+        )
+            .map { loadDataResult ->
+                if (loadDataResult.isLeft()) {
+                    val terminalState = loadDataResult.toTerminalState(resourceProvider)
+                    return@map ProjectDashboardState(terminalState = terminalState)
+                }
 
-            val loadDataResult = interactor.loadData(
-                projectUid = args.projectUid,
-                versionName = versionName
-            )
-            if (loadDataResult.isLeft()) {
-                val terminalState = loadDataResult.unwrapError()
-                    .formatErrorMessage(resourceProvider)
-                    .toTerminalState()
+                data.value = loadDataResult.unwrap()
+                val data = loadDataResult.unwrap()
 
-                emit(ProjectDashboardState(terminalState = terminalState))
-                return@flow
+                selectedVersionName.value = versionName ?: data.versions.firstOrNull()?.name
+
+                val isNotEmpty = (data.allFlows.isNotEmpty() && data.allGroups.size > 1)
+                if (isNotEmpty) {
+                    val viewModels = cellFactory.createCellViewModels(
+                        data = data,
+                        selectedVersion = selectedVersionName.value,
+                        intentProvider = intentProvider
+                    )
+                    ProjectDashboardState(viewModels = viewModels)
+                } else {
+                    val empty = TerminalState.Empty(
+                        message = resourceProvider.getString(R.string.empty_project_message)
+                    )
+                    ProjectDashboardState(terminalState = empty)
+                }
             }
-
-            data.value = loadDataResult.unwrap()
-            val data = loadDataResult.unwrap()
-
-            selectedVersionName.value = versionName ?: data.versions.firstOrNull()?.name
-
-            val isNotEmpty = (data.allFlows.isNotEmpty() && data.allGroups.size > 1)
-            if (isNotEmpty) {
-                val viewModels = cellFactory.createCellViewModels(
-                    data = data,
-                    selectedVersion = selectedVersionName.value,
-                    intentProvider = intentProvider
-                )
-                emit(ProjectDashboardState(viewModels = viewModels))
-            } else {
-                val empty = TerminalState.Empty(
-                    message = resourceProvider.getString(R.string.empty_project_message)
-                )
-                emit(ProjectDashboardState(terminalState = empty))
+            .onStart {
+                emit(ProjectDashboardState(terminalState = TerminalState.Loading))
             }
-        }
     }
 
     private fun handleDialogAction(action: DialogAction): Flow<ProjectDashboardState> {
         return when (action.actionId) {
-            ACTION_RESET_PROGRESS -> {
+            DIALOG_ACTION_RESET_PROGRESS -> {
                 navigateToResetRunsScreen()
                 dismissOptionDialog()
             }
@@ -315,7 +310,7 @@ class ProjectDashboardViewModel(
             resourceProvider.getString(R.string.reset_progress)
         )
         val actions = listOf(
-            DialogAction(ACTION_RESET_PROGRESS)
+            DialogAction(DIALOG_ACTION_RESET_PROGRESS)
         )
 
         state.value = state.value.copy(
@@ -355,6 +350,6 @@ class ProjectDashboardViewModel(
     }
 
     companion object {
-        private const val ACTION_RESET_PROGRESS = 100
+        private const val DIALOG_ACTION_RESET_PROGRESS = 100
     }
 }

@@ -10,6 +10,7 @@ import arrow.core.Either
 import com.github.aivanovski.testswithme.android.extensions.convertToUiNode
 import com.github.aivanovski.testswithme.entity.KeyCode
 import com.github.aivanovski.testswithme.entity.UiNode
+import com.github.aivanovski.testswithme.extensions.toSerializableTree
 import com.github.aivanovski.testswithme.flow.driver.Driver
 import com.github.aivanovski.testswithme.flow.error.DriverError
 import com.github.aivanovski.testswithme.flow.error.DriverError.FailedToFindActivityError
@@ -19,7 +20,8 @@ import com.github.aivanovski.testswithme.flow.error.DriverError.InvalidKeyPresse
 
 class AccessibilityDriverImpl(
     private val context: Context,
-    private val service: AccessibilityService
+    private val service: AccessibilityService,
+    private val uiTreeCollector: UiTreeCollector
 ) : Driver<AccessibilityNodeInfo> {
 
     // TODO: UiTree should be added to the test report
@@ -67,6 +69,7 @@ class AccessibilityDriverImpl(
             ?: return Either.Left(FailedToGetUiNodesError)
 
         val uiNode = accessibilityNode.convertToUiNode()
+        uiTreeCollector.setUiTree(uiNode.toSerializableTree())
 
         return Either.Right(uiNode)
     }

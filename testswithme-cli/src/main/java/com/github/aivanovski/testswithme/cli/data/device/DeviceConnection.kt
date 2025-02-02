@@ -71,6 +71,6 @@ class DeviceConnection(
     companion object {
         private const val APPLICATION_PACKAGE_NAME = "com.github.aivanovski.testswithme.android"
         private const val RECEIVER_PATH =
-            "$APPLICATION_PACKAGE_NAME.domain.driverServer.GatewayCommandReceiver"
+            "$APPLICATION_PACKAGE_NAME.domain.gatewayServer.GatewayCommandReceiver"
     }
 }

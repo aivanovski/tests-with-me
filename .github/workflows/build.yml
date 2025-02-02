@@ -57,7 +57,7 @@ jobs:
         run: ./gradlew testswithme-android:assembleDebug
 
       - name: Store APK file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: testswithme-debug.apk
           path: ./testswithme-android/build/outputs/apk/debug/testswithme-android-debug.apk
@@ -82,7 +82,7 @@ jobs:
         run: ./gradlew testswithme-cli:shadowJar
 
       - name: Store jar file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: testswithme-cli.jar
           path: ./testswithme-cli/build/libs/testswithme-cli.jar
@@ -107,7 +107,7 @@ jobs:
         run: ./gradlew testswithme-backend:shadowJar
 
       - name: Store jar file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: testswithme-backend.jar
           path: ./testswithme-backend/build/libs/testswithme-backend.jar
