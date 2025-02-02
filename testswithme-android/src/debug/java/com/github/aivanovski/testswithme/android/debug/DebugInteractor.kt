@@ -13,6 +13,8 @@ class DebugInteractor(
     private val runnerManager: FlowRunnerManager
 ) {
 
+    private val nodeFormatter = CompactNodeFormatter(isPrintBounds = true)
+
     fun process(data: DebugCommand) {
         when {
             data.isPrintUiTree != null -> processPrintUiTree()
@@ -33,6 +35,6 @@ class DebugInteractor(
 
         val uiTree = runnerManager.getUiTree()
         Timber.d("UI Tree:")
-        Timber.d(uiTree?.format(CompactNodeFormatter()))
+        Timber.d(uiTree?.format(nodeFormatter))
     }
 }

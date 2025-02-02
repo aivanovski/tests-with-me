@@ -2,12 +2,18 @@ package com.github.aivanovski.testswithme.domain.fomatters
 
 import com.github.aivanovski.testswithme.entity.UiEntity
 import com.github.aivanovski.testswithme.entity.UiNode
+import com.github.aivanovski.testswithme.extensions.ellipsize
 import com.github.aivanovski.testswithme.extensions.removeEmptyNodes
 import com.github.aivanovski.testswithme.extensions.removeEmptyParents
+import com.github.aivanovski.testswithme.extensions.toShortString
 import com.github.aivanovski.testswithme.extensions.visitWithDepth
 import com.github.aivanovski.testswithme.utils.StringUtils
+import com.github.aivanovski.testswithme.utils.StringUtils.DOTS
 
-class CompactNodeFormatter : UiNodeFormatter {
+class CompactNodeFormatter(
+    private val isPrintBounds: Boolean = false,
+    private val maxStringLength: Int = 30
+) : UiNodeFormatter {
 
     override fun format(uiNode: UiNode<*>): String {
         val lines = mutableListOf<String>()
@@ -46,14 +52,29 @@ class CompactNodeFormatter : UiNodeFormatter {
             if (hasContent) {
                 append(" [")
 
-                appendWhen(!entity.text.isNullOrEmpty()) { "text=${entity.text}" }
+                appendWhen(!entity.text.isNullOrEmpty()) {
+                    val text = entity.text?.ellipsize(
+                        maxLength = maxStringLength,
+                        ending = DOTS
+                    )
 
-                appendWhen(!entity.contentDescription.isNullOrEmpty()) {
-                    "cd=${entity.contentDescription}"
+                    "text=$text"
                 }
 
-                if (hasContent) {
-                    appendWhen(entity.isClickable == true) { "clickable" }
+                appendWhen(!entity.contentDescription.isNullOrEmpty()) {
+                    val contentDescription = entity.contentDescription?.ellipsize(
+                        maxLength = maxStringLength,
+                        ending = DOTS
+                    )
+                    "cd=${contentDescription}"
+                }
+
+                appendWhen(entity.isClickable == true) { "clickable" }
+
+                if (isPrintBounds) {
+                    appendWhen(entity.bounds != null) {
+                        "bounds=${entity.bounds?.toShortString()}"
+                    }
                 }
 
                 append("]")
