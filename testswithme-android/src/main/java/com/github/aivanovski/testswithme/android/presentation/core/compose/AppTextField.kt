@@ -38,18 +38,15 @@ fun AppTextField(
         mutableStateOf(value)
     }
 
-    if (innerValue != value) {
-        innerValue = value
-    }
-
     val onChange = rememberCallback { newValue: String ->
+        innerValue = newValue
         onValueChange.invoke(newValue)
     }
 
     val isError = (error != null)
 
     OutlinedTextField(
-        value = value,
+        value = innerValue,
         onValueChange = onChange,
         label = {
             Text(label)
