@@ -78,7 +78,7 @@ fun <T> UiNode<T>.traverseAndCollect(predicate: (UiNode<T>) -> Boolean): List<Ui
     val result = mutableListOf<UiNode<T>>()
 
     val nodes = LinkedList<UiNode<T>>()
-    nodes.addAll(this.nodes)
+    nodes.add(this)
 
     while (nodes.isNotEmpty()) {
         repeat(nodes.size) {
