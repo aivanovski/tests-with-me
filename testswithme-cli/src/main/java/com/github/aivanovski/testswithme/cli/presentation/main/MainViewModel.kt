@@ -7,10 +7,12 @@ import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.DriverStat
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ExecutionResultDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.JobStatusDto
+import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ScreenStateDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.response.StartTestResponse
 import com.github.aivanovski.testswithme.cli.data.argument.Arguments
 import com.github.aivanovski.testswithme.cli.data.device.DeviceConnection
 import com.github.aivanovski.testswithme.cli.data.file.FileWatcherImpl
+import com.github.aivanovski.testswithme.cli.entity.ScreenSize
 import com.github.aivanovski.testswithme.cli.entity.exception.AppException
 import com.github.aivanovski.testswithme.cli.entity.exception.ConnectionLostException
 import com.github.aivanovski.testswithme.cli.entity.exception.FailedToFindDeviceException
@@ -25,8 +27,7 @@ import com.github.aivanovski.testswithme.cli.presentation.main.model.MainViewSta
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TestData
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TestState
 import com.github.aivanovski.testswithme.cli.presentation.main.model.TextColor
-import com.github.aivanovski.testswithme.domain.fomatters.CompactNodeFormatter
-import com.github.aivanovski.testswithme.entity.UiNode
+import com.github.aivanovski.testswithme.domain.fomatters.AsciScreenNodeFormatter
 import com.github.aivanovski.testswithme.extensions.describe
 import com.github.aivanovski.testswithme.extensions.format
 import com.github.aivanovski.testswithme.extensions.getRootCause
@@ -65,7 +66,6 @@ class MainViewModel(
 
     private val scope = CoroutineScope(Dispatchers.Default)
     private val queue = MessageQueue()
-    private val uiNodeFormatter = CompactNodeFormatter()
     private var loopJob: Job? by mutableStateFlow(null)
     private var heartbeatSupplierJob: Job? by mutableStateFlow(null)
     private var connection: DeviceConnection? by mutableStateFlow(null)
@@ -78,7 +78,7 @@ class MainViewModel(
     private var isLoopActive by mutableStateFlow(true)
     private var lastSentData: TestData? by mutableStateFlow(null)
     private var heartBeatRetry: Int by mutableStateFlow(0)
-    private var uiTree by mutableStateFlow<UiNode<Unit>?>(null)
+    private var screenState by mutableStateFlow<ScreenStateDto?>(null)
 
     fun start() {
         val result = runBlocking {
@@ -259,18 +259,18 @@ class MainViewModel(
                 }
             }
 
-            uiTree = status.uiTree?.toUiNode(transform = { node -> Unit })
+            screenState = status.screen
 
-            if (status.uiTree != null) {
+            val newDeviceState = DeviceState.Connected(
+                isConnected = true,
+                isDriverReady = (status.driverStatus == DriverStatusDto.RUNNING)
+            )
+
+            if (currentDeviceState == newDeviceState && screenState != null) {
                 rebuildViewState()
             }
 
-            onDeviceStateChanged(
-                DeviceState.Connected(
-                    isConnected = true,
-                    isDriverReady = (status.driverStatus == DriverStatusDto.RUNNING)
-                )
-            )
+            onDeviceStateChanged(newDeviceState)
         }
 
     private suspend fun sendStartTestRequest(
@@ -552,6 +552,24 @@ class MainViewModel(
             else -> StringUtils.EMPTY
         }
 
+        val screenState = this.screenState
+        val screen = if (screenState != null) {
+            val size = arguments.screenSize ?: ScreenSize.DEFAULT
+
+            val formatter = AsciScreenNodeFormatter(
+                screenPixelWidth = screenState.width,
+                screenPixelHeight = screenState.height,
+                screenCharWidth = size.width,
+                screenCharHeight = size.height
+            )
+
+            screenState.uiTree
+                .toUiNode { Unit }
+                .format(formatter)
+        } else {
+            StringUtils.EMPTY
+        }
+
         return MainViewState(
             gatewayStatus = gatewayStatus,
             gatewayColor = gatewayColor,
@@ -563,7 +581,7 @@ class MainViewModel(
             testStatus = testStatus,
             testStatusColor = testStatusColor,
             errorMessage = errorMessage ?: StringUtils.EMPTY,
-            screen = uiTree?.format(uiNodeFormatter) ?: StringUtils.EMPTY
+            screen = screen
         )
     }
 

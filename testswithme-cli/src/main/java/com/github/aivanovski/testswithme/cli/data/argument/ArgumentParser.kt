@@ -3,7 +3,9 @@ package com.github.aivanovski.testswithme.cli.data.argument
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.cli.data.file.FileSystemProvider
+import com.github.aivanovski.testswithme.cli.entity.ScreenSize
 import com.github.aivanovski.testswithme.cli.entity.exception.ParsingException
+import com.github.aivanovski.testswithme.extensions.toIntSafely
 import com.github.aivanovski.testswithme.utils.StringUtils
 import java.util.LinkedList
 
@@ -20,6 +22,7 @@ class ArgumentParser(
 
             var filePath: String = StringUtils.EMPTY
             var isPrintHelp = (args.isEmpty())
+            var screenSize: ScreenSize? = null
 
             while (queue.isNotEmpty()) {
                 val optionName = queue.poll()
@@ -30,6 +33,10 @@ class ArgumentParser(
 
                     OptionType.HELP -> {
                         isPrintHelp = true
+                    }
+
+                    OptionType.SCREEN_SIZE -> {
+                        screenSize = parseScreenSize(queue.poll()).bind()
                     }
 
                     else -> raise(
@@ -44,7 +51,8 @@ class ArgumentParser(
 
             Arguments(
                 filePath = filePath,
-                isPrintHelp = isPrintHelp
+                isPrintHelp = isPrintHelp,
+                screenSize = screenSize
             )
         }
 
@@ -63,6 +71,27 @@ class ArgumentParser(
             fsProvider.correctPath(path)
                 .mapLeft { exception -> ParsingException(cause = exception) }
                 .bind()
+        }
+
+    private fun parseScreenSize(value: String?): Either<ParsingException, ScreenSize> =
+        either {
+            val optionName = OptionType.SCREEN_SIZE.fullName
+
+            if (value.isNullOrEmpty()) {
+                raise(ParsingException("Option $optionName should not be empty"))
+            }
+
+            val values = value.split("X", ignoreCase = true)
+                .mapNotNull { v -> v.toIntSafely() }
+
+            if (values.size != 2) {
+                raise(ParsingException("Failed to parse $optionName value: $value"))
+            }
+
+            ScreenSize(
+                width = values[0],
+                height = values[1]
+            )
         }
 
     companion object {

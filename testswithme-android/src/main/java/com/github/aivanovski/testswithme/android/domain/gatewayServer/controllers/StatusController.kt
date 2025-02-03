@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.domain.gatewayServer.controllers
 
+import android.content.Context
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.data.repository.JobRepository
@@ -11,6 +12,7 @@ import com.github.aivanovski.testswithme.android.domain.gatewayServer.dataConver
 import com.github.aivanovski.testswithme.android.entity.JobStatus
 import com.github.aivanovski.testswithme.android.entity.exception.GatewayException
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.DriverStatusDto
+import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.ScreenStateDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.dto.UiNodeDto
 import com.github.aivanovski.testswithme.android.gatewayServerApi.response.GetStatusResponse
 import com.github.aivanovski.testswithme.extensions.transformNode
@@ -18,7 +20,8 @@ import com.github.aivanovski.testswithme.extensions.transformNode
 class StatusController(
     private val runnerManager: FlowRunnerManager,
     private val jobRepository: JobRepository,
-    private val uiTreeCollector: UiTreeCollector
+    private val uiTreeCollector: UiTreeCollector,
+    private val context: Context
 ) {
 
     fun getStatus(): Either<GatewayException, GetStatusResponse> =
@@ -46,31 +49,41 @@ class StatusController(
                 else -> DriverStatusDto.STOPPED
             }
 
-            val runnerState = runnerManager.getRunnerState()
-
-            val uiTree = if (runnerState == FlowRunnerState.IDLE) {
-                runnerManager.getUiTree() ?: uiTreeCollector.getUiTree()
-            } else {
-                runnerManager.setCollectUiTreeFlag()
-                uiTreeCollector.getUiTree()
-            }
-
-            val uiTreeDto = uiTree?.transformNode(
-                onNewNode = { uiNode ->
-                    UiNodeDto(
-                        entity = uiNode.entity.toDto(),
-                        nodes = mutableListOf()
-                    )
-                },
-                onNewChild = { parent, child ->
-                    parent.nodes.add(child)
-                }
-            )
-
             GetStatusResponse(
                 driverStatus = driverStatus,
                 jobs = filteredJobs.map { job -> job.toDto() },
-                uiTree = uiTreeDto
+                screen = createScreenState()
             )
         }
+
+    private fun createScreenState(): ScreenStateDto? {
+        val runnerState = runnerManager.getRunnerState()
+
+        val uiTree = if (runnerState == FlowRunnerState.IDLE) {
+            runnerManager.getUiTree() ?: uiTreeCollector.getUiTree()
+        } else {
+            runnerManager.setCollectUiTreeFlag()
+            uiTreeCollector.getUiTree()
+        }
+
+        val uiTreeDto = uiTree?.transformNode(
+            onNewNode = { uiNode ->
+                UiNodeDto(
+                    entity = uiNode.entity.toDto(),
+                    nodes = mutableListOf()
+                )
+            },
+            onNewChild = { parent, child ->
+                parent.nodes.add(child)
+            }
+        ) ?: return null
+
+        val metrics = context.resources.displayMetrics
+
+        return ScreenStateDto(
+            width = metrics.widthPixels,
+            height = metrics.heightPixels,
+            uiTree = uiTreeDto
+        )
+    }
 }
