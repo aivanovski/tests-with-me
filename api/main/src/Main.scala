@@ -30,6 +30,7 @@ object Main {
       case "group" => api.getGroups()
       case s"delete-group $uid" => api.deleteGroup(uid = uid)
       case "flow-run" => api.getFlowRuns()
+      case s"flow-run $flowRunUid" => api.getFlowRun(flowRunUid)
       case s"post-flow-run $flowUid $timesStr" => {
         val times = timesStr.toIntOption.get
         for (i <- Range.inclusive(1, times)) {
@@ -73,6 +74,7 @@ def printHelp(): Unit = {
       |flow [UID]                                            Get flow by UID
       |delete-flow [UID]                                     Deletes flow by UID
       |flow-run                                              Get all flow runs
+      |flow-run [UID]                                        Get flow run by UID
       |post-flow-run [FLOW_UID]                              Posts fake run for flow with FLOW_UID
       |post-flow-run [FLOW_UID] [TIMES]                      Posts fake run specified number of times
       |setup-data                                            Creates default test data on server
