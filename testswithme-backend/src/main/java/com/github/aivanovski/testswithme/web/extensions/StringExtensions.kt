@@ -6,9 +6,7 @@ import kotlin.math.min
 
 const val CHUNK_SIZE_IN_BYTES = 1024
 
-fun String.splitIntoParts(
-    partLength: Int
-): List<String> {
+fun String.splitIntoParts(partLength: Int): List<String> {
     return if (this.length > partLength) {
         val parts = mutableListOf<String>()
 

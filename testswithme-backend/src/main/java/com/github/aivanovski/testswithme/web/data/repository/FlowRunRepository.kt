@@ -63,7 +63,10 @@ class FlowRunRepository(
                 )
         }
 
-    fun add(flowRun: FlowRun, report: String): Either<AppException, FlowRun> =
+    fun add(
+        flowRun: FlowRun,
+        report: String
+    ): Either<AppException, FlowRun> =
         either {
             val chunks = report.splitIntoChunks(entityUid = flowRun.uid)
             flowRunDao.add(flowRun)
