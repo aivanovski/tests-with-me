@@ -39,6 +39,8 @@ class ApiClient(private val baseServerUrl: String) {
 
   def getFlowRuns() = HttpClient.get(s"$baseServerUrl/flow-run", getAuthToken())
 
+  def getFlowRun(uid: String) = HttpClient.get(s"$baseServerUrl/flow-run/$uid", getAuthToken())
+
   def postProject(data: Map[String, String]) = HttpClient.post(
     url = s"$baseServerUrl/project",
     body = toJson(data),
