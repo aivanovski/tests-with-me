@@ -42,9 +42,6 @@ data class FlowRun(
     @Column(name = "result")
     val result: String,
 
-    @Column(name = "report_path")
-    val reportPath: FsPath,
-
     @Column(name = "app_version_name")
     val appVersionName: String,
 

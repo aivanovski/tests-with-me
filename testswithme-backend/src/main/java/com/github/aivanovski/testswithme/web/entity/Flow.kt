@@ -1,7 +1,6 @@
 package com.github.aivanovski.testswithme.web.entity
 
 import com.github.aivanovski.testswithme.entity.Hash
-import com.github.aivanovski.testswithme.web.data.database.converters.FsPathConverter
 import com.github.aivanovski.testswithme.web.data.database.converters.HashConverter
 import com.github.aivanovski.testswithme.web.data.database.converters.UidConverter
 import javax.persistence.Column
@@ -33,10 +32,6 @@ data class Flow(
 
     @Column(name = "name")
     val name: String,
-
-    @Column(name = "path")
-    @Convert(converter = FsPathConverter::class)
-    val path: FsPath,
 
     @Column(name = "content_hash")
     @Convert(converter = HashConverter::class)

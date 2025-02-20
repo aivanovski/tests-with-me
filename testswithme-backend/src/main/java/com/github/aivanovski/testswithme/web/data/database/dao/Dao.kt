@@ -47,6 +47,14 @@ abstract class Dao<T>(
         }
     }
 
+    fun add(entities: List<T>) {
+        return db.execTransaction {
+            for (entity in entities) {
+                save(entity)
+            }
+        }
+    }
+
     fun update(entity: T): T {
         db.execTransaction {
             update(entity)

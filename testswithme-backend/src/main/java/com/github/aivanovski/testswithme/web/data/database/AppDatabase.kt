@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.FlowRun
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Project
+import com.github.aivanovski.testswithme.web.entity.TextChunk
 import com.github.aivanovski.testswithme.web.entity.User
 import org.hibernate.Session
 import org.hibernate.SessionFactory
@@ -28,6 +29,7 @@ class AppDatabase {
                     addAnnotatedClass(Group::class.java)
                     addAnnotatedClass(Flow::class.java)
                     addAnnotatedClass(FlowRun::class.java)
+                    addAnnotatedClass(TextChunk::class.java)
 
                     // Converters
                     addAttributeConverter(FsPathConverter::class.java, true)

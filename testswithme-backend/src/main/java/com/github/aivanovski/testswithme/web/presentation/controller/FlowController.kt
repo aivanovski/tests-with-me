@@ -73,23 +73,16 @@ class FlowController(
 
             val flowUid = project.uid.append(Uid.generate())
 
-            val path = flowRepository.putFlowContent(
-                flowUid = flowUid,
-                projectUid = project.uid,
-                content = content
-            ).bind()
-
             val flow = Flow(
                 uid = flowUid,
                 projectUid = project.uid,
                 groupUid = group.uid,
                 name = parsedFlow.name,
-                path = path,
                 contentHash = content.trimLines().sha256(),
                 isDeleted = false
             )
 
-            flowRepository.add(flow).bind()
+            flowRepository.add(flow, content).bind()
 
             PostFlowResponse(
                 id = flowUid.toString()

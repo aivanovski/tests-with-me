@@ -3,12 +3,9 @@ package com.github.aivanovski.testswithme.web.data.repository
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowDao
-import com.github.aivanovski.testswithme.web.data.database.dao.GroupDao
 import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
-import com.github.aivanovski.testswithme.web.data.file.FileStorage
-import com.github.aivanovski.testswithme.web.data.file.FileStorage.StorageDestination
+import com.github.aivanovski.testswithme.web.data.database.dao.TextChunkDao
 import com.github.aivanovski.testswithme.web.entity.Flow
-import com.github.aivanovski.testswithme.web.entity.FsPath
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
@@ -16,22 +13,21 @@ import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAcces
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidAccessException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidEntityIdException
+import com.github.aivanovski.testswithme.web.extensions.splitIntoChunks
 
 class FlowRepository(
     private val flowDao: FlowDao,
     private val projectDao: ProjectDao,
-    private val groupDao: GroupDao,
-    private val fileStorage: FileStorage
+    private val textChunkDao: TextChunkDao
 ) {
 
     fun getFlowContent(uid: Uid): Either<AppException, String> =
         either {
-            val flow = getByUid(uid).bind()
-
-            fileStorage.getContent(
-                destination = StorageDestination.FLOWS,
-                path = flow.path
-            ).bind()
+            textChunkDao.getByEntityUid(uid)
+                .joinToString(
+                    separator = "",
+                    transform = { chunk -> chunk.content }
+                )
         }
 
     fun findByUid(uid: Uid): Either<AppException, Flow?> =
@@ -92,29 +88,16 @@ class FlowRepository(
             flows
         }
 
-    fun putFlowContent(
-        flowUid: Uid,
-        projectUid: Uid,
+    fun add(
+        flow: Flow,
         content: String
-    ): Either<AppException, FsPath> =
+    ): Either<AppException, Flow> =
         either {
-            val project = projectDao.findByUid(projectUid)
-                ?: raise(EntityNotFoundByUidException(Project::class, projectUid))
-
-            val path = FsPath("${project.name}/$flowUid.yaml")
-
-            fileStorage.putContent(
-                destination = StorageDestination.FLOWS,
-                path = path,
-                content = content
-            ).bind()
-
-            path
-        }
-
-    fun add(flow: Flow): Either<AppException, Flow> =
-        either {
+            val chunks = content.splitIntoChunks(
+                entityUid = flow.uid
+            )
             flowDao.add(flow)
+            textChunkDao.add(chunks)
 
             getByUid(flow.uid).bind()
         }

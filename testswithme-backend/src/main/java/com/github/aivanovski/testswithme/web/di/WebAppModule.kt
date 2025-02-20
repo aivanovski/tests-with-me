@@ -7,8 +7,8 @@ import com.github.aivanovski.testswithme.web.data.database.dao.FlowDao
 import com.github.aivanovski.testswithme.web.data.database.dao.FlowRunDao
 import com.github.aivanovski.testswithme.web.data.database.dao.GroupDao
 import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
+import com.github.aivanovski.testswithme.web.data.database.dao.TextChunkDao
 import com.github.aivanovski.testswithme.web.data.database.dao.UserDao
-import com.github.aivanovski.testswithme.web.data.file.FileStorage
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProviderImpl
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
@@ -36,7 +36,6 @@ object WebAppModule {
     val module = module {
         // core
         single<FileSystemProvider> { FileSystemProviderImpl() }
-        singleOf(::FileStorage)
         singleOf(::ReferenceResolver)
         singleOf(::AccessResolver)
         singleOf(::ArgumentParser)
@@ -48,6 +47,7 @@ object WebAppModule {
         singleOf(::ProjectDao)
         singleOf(::GroupDao)
         singleOf(::FlowRunDao)
+        singleOf(::TextChunkDao)
 
         // Repositories
         singleOf(::UserRepository)
