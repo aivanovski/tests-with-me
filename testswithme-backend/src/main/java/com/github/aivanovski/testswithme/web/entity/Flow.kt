@@ -34,10 +34,6 @@ data class Flow(
     @Column(name = "name")
     val name: String,
 
-    @Column(name = "path")
-    @Convert(converter = FsPathConverter::class)
-    val path: FsPath,
-
     @Column(name = "content_hash")
     @Convert(converter = HashConverter::class)
     val contentHash: Hash,

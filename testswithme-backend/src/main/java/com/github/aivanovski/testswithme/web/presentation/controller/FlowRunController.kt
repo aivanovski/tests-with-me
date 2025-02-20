@@ -111,12 +111,6 @@ class FlowRunController(
 
             val uid = flowUid.append(Uid.generate())
 
-            val reportPath = flowRunRepository.putReportContent(
-                flowRunUid = uid,
-                flowUid = flow.uid,
-                content = report
-            ).bind()
-
             val flowRun = FlowRun(
                 uid = uid,
                 flowUid = flow.uid,
@@ -127,11 +121,10 @@ class FlowRunController(
                 result = request.result,
                 appVersionName = request.appVersionName,
                 appVersionCode = request.appVersionCode,
-                reportPath = reportPath,
                 isExpired = false
             )
 
-            flowRunRepository.add(flowRun).bind()
+            flowRunRepository.add(flowRun, report).bind()
 
             PostFlowRunResponse(
                 id = flowRun.uid.toString(),
