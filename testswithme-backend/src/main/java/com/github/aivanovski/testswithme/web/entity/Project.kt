@@ -28,6 +28,10 @@ data class Project(
     @Convert(converter = UidConverter::class)
     val rootGroupUid: Uid,
 
+    @Column(name = "test_source_uid", nullable = true)
+    @Convert(converter = UidConverter::class)
+    val testSourceUid: Uid?,
+
     @Column(name = "package_name")
     val packageName: String,
 

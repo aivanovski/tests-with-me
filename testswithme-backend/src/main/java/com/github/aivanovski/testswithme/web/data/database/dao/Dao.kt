@@ -62,4 +62,22 @@ abstract class Dao<T>(
 
         return entity
     }
+
+    fun delete(ids: List<Long>) {
+        db.execTransaction {
+            for (id in ids) {
+                createQuery("delete from $entityName where id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+            }
+        }
+    }
+
+    fun delete(id: Long) {
+        db.execTransaction {
+            createQuery("delete from $entityName where id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+        }
+    }
 }

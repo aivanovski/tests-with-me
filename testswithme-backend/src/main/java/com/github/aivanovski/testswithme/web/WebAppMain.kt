@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.web.di.WebAppModule
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.entity.NetworkProtocolType
 import com.github.aivanovski.testswithme.web.presentation.configureAuthentication
+import com.github.aivanovski.testswithme.web.presentation.jobs.configureJobScheduler
 import com.github.aivanovski.testswithme.web.presentation.routes.configureRoutes
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -72,4 +73,5 @@ private fun Application.appModule() {
     configureDatabase()
     configureAuthentication()
     configureRoutes()
+    configureJobScheduler()
 }

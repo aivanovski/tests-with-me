@@ -116,6 +116,7 @@ class ProjectEditorViewModel(
                 description = state.description.trim(),
                 siteUrl = state.siteUrl.trim(),
                 downloadUrl = state.downloadUrl.trim(),
+                repositoryUrl = null,
                 imageUrl = null
             )
 

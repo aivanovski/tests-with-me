@@ -10,6 +10,7 @@ import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterEx
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidRequestFieldException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidTokenException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
+import com.github.aivanovski.testswithme.web.entity.exception.ValidationException
 import io.ktor.http.HttpStatusCode
 import kotlin.Exception
 
@@ -22,6 +23,7 @@ fun Exception.toHttpStatus(): HttpStatusCode? {
         is InvalidRequestFieldException -> HttpStatusCode.BadRequest
         is EntityNotFoundException -> HttpStatusCode.NotFound
         is ParsingException -> HttpStatusCode.BadRequest
+        is ValidationException -> HttpStatusCode.BadRequest
         else -> null
     }
 }

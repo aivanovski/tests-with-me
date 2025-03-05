@@ -12,6 +12,7 @@ koin = "3.5.0"
 clojure = "1.11.1"
 shadowJar = "8.1.1"
 ktor = "2.3.11"
+quartz = "2.5.0"
 logback = "1.5.6"
 timber = "5.0.1"
 multidex = "2.0.1"
@@ -36,6 +37,7 @@ coil = "2.6.0"
 dadb = "1.2.8"
 mordant = "3.0.1"
 truth = "1.4.4"
+jgit = "6.2.0.202206071550-r"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -94,6 +96,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+quartzScheduler = { module = "org.quartz-scheduler:quartz", version.ref = "quartz" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
@@ -110,3 +113,4 @@ coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 dadb = { module = "dev.mobile:dadb", version.ref = "dadb" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
+jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit"}

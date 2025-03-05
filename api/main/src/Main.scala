@@ -27,6 +27,7 @@ object Main {
       case s"delete-flow $uid" => api.deleteFlow(uid = uid)
       case "user" => api.getUsers()
       case "project" => api.getProjects()
+      case s"request-project-sync $uid" => api.requestProjectSync(uid = uid)
       case "group" => api.getGroups()
       case s"delete-group $uid" => api.deleteGroup(uid = uid)
       case "flow-run" => api.getFlowRuns()
@@ -68,6 +69,7 @@ def printHelp(): Unit = {
       |sing-up [USER_NAME]                                   Creates user with specified USER_NAME
       |user                                                  Get all users
       |project                                               Get all projects
+      |request-project-sync [UID]                            Request project to sync flows with linked GitHub repository
       |group                                                 Get all groups
       |delete-group [UID]                                    Deletes group by its UID
       |flow                                                  Get all flows

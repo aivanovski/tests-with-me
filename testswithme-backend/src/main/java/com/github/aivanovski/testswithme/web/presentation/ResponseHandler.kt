@@ -65,7 +65,11 @@ suspend inline fun <reified T : Any> handleResponse(
 suspend inline fun <reified T : Any> ApplicationCall.sendResponse(
     response: Either<ErrorResponse, T>
 ) {
-    responseLogger.debug(formatRequestLogMessage(response))
+    if (response.isRight()) {
+        responseLogger.debug(formatRequestLogMessage(response))
+    } else {
+        responseLogger.error(formatRequestLogMessage(response), response.unwrapError().exception)
+    }
 
     if (response.isRight()) {
         val originHeader = request.headers[HttpHeaders.Origin]
@@ -98,8 +102,6 @@ suspend inline fun <reified T : Any> ApplicationCall.sendResponse(
         }
     } else {
         val error = response.unwrapError()
-
-        error.exception.printStackTrace()
 
         respond(
             status = error.status,

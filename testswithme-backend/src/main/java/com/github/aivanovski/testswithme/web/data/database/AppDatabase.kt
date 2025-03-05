@@ -1,14 +1,18 @@
 package com.github.aivanovski.testswithme.web.data.database
 
-import com.github.aivanovski.testswithme.web.data.database.converters.FsPathConverter
+import com.github.aivanovski.testswithme.web.data.database.converters.HashConverter
+import com.github.aivanovski.testswithme.web.data.database.converters.SyncItemTypeConverter
 import com.github.aivanovski.testswithme.web.data.database.converters.TimestampConverter
 import com.github.aivanovski.testswithme.web.data.database.converters.UidConverter
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.FlowRun
 import com.github.aivanovski.testswithme.web.entity.Group
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem
 import com.github.aivanovski.testswithme.web.entity.Project
+import com.github.aivanovski.testswithme.web.entity.SyncResult
 import com.github.aivanovski.testswithme.web.entity.TextChunk
+import com.github.aivanovski.testswithme.web.entity.TestSource
 import com.github.aivanovski.testswithme.web.entity.User
 import org.hibernate.Session
 import org.hibernate.SessionFactory
@@ -30,11 +34,15 @@ class AppDatabase {
                     addAnnotatedClass(Flow::class.java)
                     addAnnotatedClass(FlowRun::class.java)
                     addAnnotatedClass(TextChunk::class.java)
+                    addAnnotatedClass(TestSource::class.java)
+                    addAnnotatedClass(SyncResult::class.java)
+                    addAnnotatedClass(ProcessedSyncItem::class.java)
 
                     // Converters
-                    addAttributeConverter(FsPathConverter::class.java, true)
                     addAttributeConverter(UidConverter::class.java, true)
                     addAttributeConverter(TimestampConverter::class.java, true)
+                    addAttributeConverter(HashConverter::class.java, true)
+                    addAttributeConverter(SyncItemTypeConverter::class.java, true)
                 }
                 .configure()
 

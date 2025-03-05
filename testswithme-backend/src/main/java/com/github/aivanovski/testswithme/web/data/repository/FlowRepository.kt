@@ -102,12 +102,36 @@ class FlowRepository(
             getByUid(flow.uid).bind()
         }
 
-    fun update(flow: Flow): Either<AppException, Flow> =
+    fun update(
+        flow: Flow
+    ): Either<AppException, Flow> =
         either {
             if (flow.id == 0L) {
                 raise(InvalidEntityIdException(Flow::class))
             }
 
+            flowDao.update(flow)
+        }
+
+    fun update(
+        flow: Flow,
+        content: String
+    ): Either<AppException, Flow> =
+        either {
+            if (flow.id == 0L) {
+                raise(InvalidEntityIdException(Flow::class))
+            }
+
+            val oldChunks = textChunkDao.getByEntityUid(flow.uid)
+            textChunkDao.delete(
+                ids = oldChunks.map { chunk -> chunk.id }
+            )
+
+            val newChunks = content.splitIntoChunks(
+                entityUid = flow.uid
+            )
+
+            textChunkDao.add(newChunks)
             flowDao.update(flow)
         }
 

@@ -38,7 +38,10 @@ class ReferenceResolver(
                 .bind()
 
             val group = if (groupNames.isNotEmpty()) {
-                getGroup(groupNames.last(), projectUid).bind()
+                resolveGroupsByNames(
+                    names = groupNames,
+                    groups = groupRepository.getByProjectUid(projectUid).bind()
+                ).bind().last()
             } else {
                 null
             }
@@ -221,7 +224,7 @@ class ReferenceResolver(
                     .bind()
                     .filter { group -> group.projectUid == project.uid }
 
-                resolveGroupsByName(groupNames, groups).bind()
+                resolveGroupsByNames(groupNames, groups).bind()
             } else {
                 val rootGroup = groupRepository.getByUid(project.rootGroupUid).bind()
 
@@ -278,7 +281,7 @@ class ReferenceResolver(
             }
         }
 
-    private fun resolveGroupsByName(
+    fun resolveGroupsByNames(
         names: List<String>,
         groups: List<Group>
     ): Either<AppException, List<Group>> =

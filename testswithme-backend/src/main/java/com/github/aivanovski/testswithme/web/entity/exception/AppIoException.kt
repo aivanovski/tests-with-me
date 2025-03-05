@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.web.entity.exception
 
 open class AppIoException(
     message: String? = null,
-    cause: Exception? = null
+    cause: Throwable? = null
 ) : AppException(message, cause)
 
 class FileNotFoundException(
