@@ -70,6 +70,9 @@ dependencies {
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authjwt)
     implementation(libs.ktor.server.keysore)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.logging)
 
     // Job scheduler
     implementation(libs.quartzScheduler)

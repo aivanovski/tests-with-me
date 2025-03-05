@@ -11,12 +11,13 @@ import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.data.repository.TestSourceRepository
+import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.domain.trees.TreeDiffer
 import com.github.aivanovski.testswithme.web.domain.trees.model.DiffEvent
 import com.github.aivanovski.testswithme.web.domain.trees.model.NodeType
 import com.github.aivanovski.testswithme.web.domain.usecases.CloneGitRepositoryUseCase
-import com.github.aivanovski.testswithme.web.domain.usecases.GetRepositoryLastCommitUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetLocalRepositoryLastCommitUseCase
 import com.github.aivanovski.testswithme.web.entity.AbsolutePath
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Group
@@ -34,18 +35,18 @@ import com.github.aivanovski.testswithme.web.extensions.toRelative
 import org.slf4j.LoggerFactory
 
 class FlowSynchronizer(
-    private val projectRepository: ProjectRepository,
-    private val groupRepository: GroupRepository,
-    private val flowRepository: FlowRepository,
-    private val testSourceRepository: TestSourceRepository,
-    private val fileSystemProvider: FileSystemProvider,
-    private val referenceResolver: ReferenceResolver,
-    private val cloneRepoUseCase: CloneGitRepositoryUseCase,
-    private val getLastCommitUseCase: GetRepositoryLastCommitUseCase,
     private val syncUid: Uid,
     private val source: TestSource
 ) {
 
+    private val projectRepository: ProjectRepository by lazy { get() }
+    private val groupRepository: GroupRepository by lazy { get() }
+    private val flowRepository: FlowRepository by lazy { get() }
+    private val testSourceRepository: TestSourceRepository by lazy { get() }
+    private val fileSystemProvider: FileSystemProvider by lazy { get() }
+    private val referenceResolver: ReferenceResolver by lazy { get() }
+    private val cloneRepoUseCase: CloneGitRepositoryUseCase by lazy { get() }
+    private val getLastCommitUseCase: GetLocalRepositoryLastCommitUseCase by lazy { get() }
     private val projectTreeBuilder = ProjectTreeBuilder(groupRepository, flowRepository)
     private val repositoryTreeBuilder = RepositoryTreeBuilder(fileSystemProvider)
 
@@ -107,7 +108,7 @@ class FlowSynchronizer(
                 pathToFileMap = pathToFileMap
             ).bind()
 
-            val commitHash = getLastCommitUseCase.getRepositoryLastCommitHash(repoDir).bind()
+            val commitHash = getLastCommitUseCase.getLastCommitHash(repoDir).bind()
 
             val updatedSource = testSourceRepository.update(
                 source.copy(

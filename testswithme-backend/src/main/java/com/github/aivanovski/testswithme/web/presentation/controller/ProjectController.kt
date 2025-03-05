@@ -16,6 +16,7 @@ import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.data.repository.SyncResultRepository
 import com.github.aivanovski.testswithme.web.data.repository.TestSourceRepository
 import com.github.aivanovski.testswithme.web.domain.AccessResolver
+import com.github.aivanovski.testswithme.web.domain.usecases.ParseGithubRepositoryUrlUseCase
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.SyncItemType
@@ -30,14 +31,14 @@ import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExist
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidRequestFieldException
 import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
-import java.net.URI
 
 class ProjectController(
     private val projectRepository: ProjectRepository,
     private val groupRepository: GroupRepository,
     private val testSourceRepository: TestSourceRepository,
     private val accessResolver: AccessResolver,
-    private val syncResultRepository: SyncResultRepository
+    private val syncResultRepository: SyncResultRepository,
+    private val parseGithubUrlUseCase: ParseGithubRepositoryUrlUseCase
 ) {
 
     fun postProject(
@@ -50,9 +51,11 @@ class ProjectController(
             val projectUid = Uid.generate()
             val rootGroupUid = Uid.generate()
             val testSource = if (!request.repositoryUrl.isNullOrEmpty()) {
-                val url = parseAndValidateRepositoryUrl(
-                    url = request.repositoryUrl.orEmpty()
-                ).bind()
+                val url = request.repositoryUrl.orEmpty().trim()
+
+                parseGithubUrlUseCase.parseRepositoryUrl(url)
+                    .mapLeft { _ -> InvalidRequestFieldException(FIELD_REPOSITORY_URL) }
+                    .bind()
 
                 val testSource = TestSource(
                     uid = Uid.generate(),
@@ -184,20 +187,6 @@ class ProjectController(
             if (identicalProjects.isNotEmpty()) {
                 raise(EntityAlreadyExistsException(request.name))
             }
-        }
-
-    private fun parseAndValidateRepositoryUrl(url: String): Either<AppException, String> =
-        either {
-            val uri = Either
-                .catch { URI(url.trim()) }
-                .mapLeft { _ -> InvalidRequestFieldException(FIELD_REPOSITORY_URL) }
-                .bind()
-
-            if (uri.scheme != "https" || uri.host != "github.com") {
-                raise(InvalidRequestFieldException(FIELD_REPOSITORY_URL))
-            }
-
-            uri.toString()
         }
 
     private fun SyncResultWithItems.toDto(): SyncResultDto {

@@ -7,15 +7,15 @@ import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.extensions.toFile
 import org.eclipse.jgit.api.Git
 
-class GetRepositoryLastCommitUseCase {
+class GetLocalRepositoryLastCommitUseCase {
 
-    fun getRepositoryLastCommitHash(
-        path: AbsolutePath
+    fun getLastCommitHash(
+        repositoryPath: AbsolutePath
     ): Either<AppException, String> =
         either {
             val git = Either.catch {
                 Git.init()
-                    .setDirectory(path.toFile())
+                    .setDirectory(repositoryPath.toFile())
                     .call()
             }
                 .mapLeft { error -> AppException(cause = error) }

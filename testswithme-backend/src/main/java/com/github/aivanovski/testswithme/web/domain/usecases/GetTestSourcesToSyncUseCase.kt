@@ -1,4 +1,4 @@
-package com.github.aivanovski.testswithme.web.domain.sync
+package com.github.aivanovski.testswithme.web.domain.usecases
 
 import arrow.core.Either
 import arrow.core.raise.either

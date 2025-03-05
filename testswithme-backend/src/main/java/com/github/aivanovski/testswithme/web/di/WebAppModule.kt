@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.web.di
 
+import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
 import com.github.aivanovski.testswithme.web.data.arguments.ArgumentParser
 import com.github.aivanovski.testswithme.web.data.database.AppDatabase
@@ -14,6 +15,7 @@ import com.github.aivanovski.testswithme.web.data.database.dao.TestSourceDao
 import com.github.aivanovski.testswithme.web.data.database.dao.UserDao
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProviderImpl
+import com.github.aivanovski.testswithme.web.data.network.HttpRequestExecutor
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.FlowRunRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
@@ -26,8 +28,10 @@ import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.CloneGitRepositoryUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
-import com.github.aivanovski.testswithme.web.domain.usecases.GetRepositoryLastCommitUseCase
-import com.github.aivanovski.testswithme.web.domain.sync.GetTestSourcesToSyncUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetLocalRepositoryLastCommitUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetRemoteRepositoryLastCommitUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetTestSourcesToSyncUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.ParseGithubRepositoryUrlUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController
@@ -36,17 +40,26 @@ import com.github.aivanovski.testswithme.web.presentation.controller.LoginContro
 import com.github.aivanovski.testswithme.web.presentation.controller.ProjectController
 import com.github.aivanovski.testswithme.web.presentation.controller.SignUpController
 import com.github.aivanovski.testswithme.web.presentation.controller.UserController
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import org.slf4j.LoggerFactory
 
 object WebAppModule {
 
     val module = module {
         // core
         single<FileSystemProvider> { FileSystemProviderImpl() }
+        single { createHttpClient() }
         singleOf(::ReferenceResolver)
         singleOf(::AccessResolver)
         singleOf(::ArgumentParser)
+        singleOf(::JsonSerializer)
+        singleOf(::HttpRequestExecutor)
 
         // Database
         singleOf(::AppDatabase)
@@ -74,7 +87,9 @@ object WebAppModule {
         singleOf(::GetSslKeyStoreUseCase)
         singleOf(::GetTestSourcesToSyncUseCase)
         singleOf(::CloneGitRepositoryUseCase)
-        singleOf(::GetRepositoryLastCommitUseCase)
+        singleOf(::GetLocalRepositoryLastCommitUseCase)
+        singleOf(::GetRemoteRepositoryLastCommitUseCase)
+        singleOf(::ParseGithubRepositoryUrlUseCase)
 
         // Services
         singleOf(::AuthService)
@@ -89,4 +104,17 @@ object WebAppModule {
         singleOf(::UserController)
         singleOf(::GroupController)
     }
+
+    private fun createHttpClient(): HttpClient =
+        HttpClient(OkHttp) {
+            install(Logging) {
+                val logbackLogger = LoggerFactory.getLogger(HttpClient::class.java.simpleName)
+
+                logger = object : Logger {
+                    override fun log(message: String) =
+                        logbackLogger.debug(message)
+                }
+                level = LogLevel.INFO
+            }
+        }
 }
