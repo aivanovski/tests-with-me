@@ -5,7 +5,7 @@ import com.github.aivanovski.testswithme.web.entity.TestSource
 
 fun TestSource.isNecessaryToSync(): Boolean {
     val timeSinceLastSync = System.currentTimeMillis() - (lastCheckTimestamp?.milliseconds ?: 0)
-    return lastCheckTimestamp == null
-        || timeSinceLastSync >= GetTestSourcesToSyncUseCase.SYNC_INTERVAL
-        || isForceSyncFlag
+    return lastCheckTimestamp == null ||
+        timeSinceLastSync >= GetTestSourcesToSyncUseCase.SYNC_INTERVAL ||
+        isForceSyncFlag
 }

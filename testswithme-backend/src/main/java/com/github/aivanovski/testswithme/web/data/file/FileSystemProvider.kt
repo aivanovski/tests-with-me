@@ -22,7 +22,5 @@ interface FileSystemProvider {
         maxDepth: Int
     ): Either<AppIoException, List<List<AbsolutePath>>>
 
-    fun remove(
-        path: RelativePath
-    ): Either<AppIoException, Unit>
+    fun remove(path: RelativePath): Either<AppIoException, Unit>
 }

@@ -8,22 +8,17 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
-fun AbsolutePath.isDirectory() =
-    Files.isDirectory(Path(path))
+fun AbsolutePath.isDirectory() = Files.isDirectory(Path(path))
 
-fun AbsolutePath.toPath(): Path =
-    Path(path)
+fun AbsolutePath.toPath(): Path = Path(path)
 
-fun AbsolutePath.toFile(): File =
-    toPath().toFile()
+fun AbsolutePath.toFile(): File = toPath().toFile()
 
-fun AbsolutePath.getName(): String =
-    toPath().name
+fun AbsolutePath.getName(): String = toPath().name
 
 fun AbsolutePath.toRelative(): RelativePath =
     RelativePath(
         relativePath = relativePath
     )
 
-fun String.asRelativePath(): RelativePath =
-    RelativePath(this)
+fun String.asRelativePath(): RelativePath = RelativePath(this)

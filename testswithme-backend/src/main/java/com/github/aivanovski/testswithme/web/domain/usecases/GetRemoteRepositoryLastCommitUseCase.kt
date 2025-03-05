@@ -11,9 +11,7 @@ class GetRemoteRepositoryLastCommitUseCase(
     private val executor: HttpRequestExecutor
 ) {
 
-    suspend fun getLastCommitHash(
-        repo: GithubRepository
-    ): Either<AppException, String?> =
+    suspend fun getLastCommitHash(repo: GithubRepository): Either<AppException, String?> =
         either {
             val url =
                 "https://api.github.com/repos/${repo.userName}/${repo.repositoryName}/commits"

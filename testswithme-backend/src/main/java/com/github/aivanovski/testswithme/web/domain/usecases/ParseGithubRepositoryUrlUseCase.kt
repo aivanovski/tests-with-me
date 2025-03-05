@@ -11,9 +11,7 @@ class ParseGithubRepositoryUrlUseCase {
         "^https?://github\\.com/(?<user>[a-zA-Z0-9-]+)/(?<repo>[a-zA-Z0-9._-]+)(\\.git)?/?$"
     )
 
-    fun parseRepositoryUrl(
-        url: String
-    ): Either<ParsingException, GithubRepository> =
+    fun parseRepositoryUrl(url: String): Either<ParsingException, GithubRepository> =
         either {
             val matchResult = githubUrlRegex.matchEntire(url)
                 ?: raise(ParsingException(message = "Invalid url format"))

@@ -51,24 +51,28 @@ class TreeBuilderTest {
 
         // act
         val tree = TreeBuilder.buildTree(
-            entities = entities,
+            entities = entities
         ).unwrapOrReport()
 
         // assert
         (tree == dslTree) shouldBe true
     }
 
-    private fun newBranch(uid: Uid, parentUid: Uid?) =
-        TreeBranch(
-            uid = uid,
-            parentUid = parentUid,
-            name = uid.toString()
-        )
+    private fun newBranch(
+        uid: Uid,
+        parentUid: Uid?
+    ) = TreeBranch(
+        uid = uid,
+        parentUid = parentUid,
+        name = uid.toString()
+    )
 
-    private fun newLeaf(uid: Uid, parentUid: Uid?) =
-        TreeLeaf(
-            uid = uid,
-            parentUid = parentUid,
-            name = uid.toString()
-        )
+    private fun newLeaf(
+        uid: Uid,
+        parentUid: Uid?
+    ) = TreeLeaf(
+        uid = uid,
+        parentUid = parentUid,
+        name = uid.toString()
+    )
 }

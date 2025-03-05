@@ -10,12 +10,13 @@ object TreeDiffer {
         lhs: TreeNode,
         rhs: TreeNode,
         isContentChanged: (lhs: TreeNode, rhs: TreeNode) -> Boolean
-    ): List<DiffEvent> = getDiff(
-        lhsRoot = lhs,
-        rhsRoot = rhs,
-        visited = HashSet(),
-        isContentChanged = isContentChanged
-    )
+    ): List<DiffEvent> =
+        getDiff(
+            lhsRoot = lhs,
+            rhsRoot = rhs,
+            visited = HashSet(),
+            isContentChanged = isContentChanged
+        )
 
     private fun getDiff(
         lhsRoot: TreeNode,
@@ -47,9 +48,9 @@ object TreeDiffer {
             when {
                 // item was changed
                 lhs != null && rhs != null && !isLhsVisited && !isRhsVisited -> {
-                    if (lhs.type == NodeType.LEAF
-                        && rhs.type == NodeType.LEAF
-                        && isContentChanged.invoke(lhs, rhs)
+                    if (lhs.type == NodeType.LEAF &&
+                        rhs.type == NodeType.LEAF &&
+                        isContentChanged.invoke(lhs, rhs)
                     ) {
                         events.add(
                             DiffEvent.Update(

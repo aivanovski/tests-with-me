@@ -16,11 +16,12 @@ sealed interface TreeEntity {
     data class TreeLeaf(
         override val uid: Uid,
         override val parentUid: Uid?,
-        override val name: String,
+        override val name: String
     ) : TreeEntity
 }
 
-fun TreeEntity.getType(): NodeType = when (this) {
-    is TreeEntity.TreeBranch -> NodeType.BRANCH
-    is TreeEntity.TreeLeaf -> NodeType.LEAF
-}
+fun TreeEntity.getType(): NodeType =
+    when (this) {
+        is TreeEntity.TreeBranch -> NodeType.BRANCH
+        is TreeEntity.TreeLeaf -> NodeType.LEAF
+    }

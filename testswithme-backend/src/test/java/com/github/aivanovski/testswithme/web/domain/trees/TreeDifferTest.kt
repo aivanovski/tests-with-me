@@ -1,8 +1,6 @@
 package com.github.aivanovski.testswithme.web.domain.trees
 
 import com.github.aivanovski.testswithme.web.domain.trees.model.DiffEvent
-import com.github.aivanovski.testswithme.web.entity.Uid
-import com.github.aivanovski.testswithme.web.utils.TestNodes
 import com.github.aivanovski.testswithme.web.utils.TestNodes.A1
 import com.github.aivanovski.testswithme.web.utils.TestNodes.A2
 import com.github.aivanovski.testswithme.web.utils.TestNodes.B2

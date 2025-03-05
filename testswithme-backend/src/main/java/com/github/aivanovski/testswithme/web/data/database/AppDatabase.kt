@@ -11,8 +11,8 @@ import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.SyncResult
-import com.github.aivanovski.testswithme.web.entity.TextChunk
 import com.github.aivanovski.testswithme.web.entity.TestSource
+import com.github.aivanovski.testswithme.web.entity.TextChunk
 import com.github.aivanovski.testswithme.web.entity.User
 import org.hibernate.Session
 import org.hibernate.SessionFactory

@@ -1,6 +1,5 @@
 package com.github.aivanovski.testswithme.web.extensions
 
-import arrow.core.leftNel
 import com.github.aivanovski.testswithme.web.entity.TextChunk
 import com.github.aivanovski.testswithme.web.entity.Uid
 import kotlin.math.min

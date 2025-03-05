@@ -7,9 +7,9 @@ import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.web.data.repository.SyncResultRepository
 import com.github.aivanovski.testswithme.web.data.repository.TestSourceRepository
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.inject
-import com.github.aivanovski.testswithme.web.domain.usecases.GetTestSourcesToSyncUseCase
 import com.github.aivanovski.testswithme.web.domain.sync.FlowSynchronizer
 import com.github.aivanovski.testswithme.web.domain.usecases.GetRemoteRepositoryLastCommitUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetTestSourcesToSyncUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.ParseGithubRepositoryUrlUseCase
 import com.github.aivanovski.testswithme.web.entity.SyncResult
 import com.github.aivanovski.testswithme.web.entity.Timestamp

@@ -2,17 +2,16 @@ package com.github.aivanovski.testswithme.web.utils
 
 import com.github.aivanovski.testswithme.web.domain.trees.mapLayers
 import com.github.aivanovski.testswithme.web.domain.trees.toUidTree
-import com.github.aivanovski.testswithme.web.utils.TestNodes.ROOT
 import com.github.aivanovski.testswithme.web.utils.TestNodes.A1
 import com.github.aivanovski.testswithme.web.utils.TestNodes.A2
 import com.github.aivanovski.testswithme.web.utils.TestNodes.B1
 import com.github.aivanovski.testswithme.web.utils.TestNodes.B2
-import com.github.aivanovski.testswithme.web.utils.TestNodes.C1
 import com.github.aivanovski.testswithme.web.utils.TestNodes.L1
 import com.github.aivanovski.testswithme.web.utils.TestNodes.L2
 import com.github.aivanovski.testswithme.web.utils.TestNodes.L3
 import com.github.aivanovski.testswithme.web.utils.TestNodes.L4
 import com.github.aivanovski.testswithme.web.utils.TestNodes.L5
+import com.github.aivanovski.testswithme.web.utils.TestNodes.ROOT
 import com.github.aivanovski.testswithme.web.utils.TreeDsl.tree
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -89,6 +88,7 @@ class TreeDslTest {
 
         (lhs == rhs) shouldBe true
     }
+
     @Test
     fun `test not equal trees`() {
         val lhs = tree(ROOT) {

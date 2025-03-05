@@ -17,9 +17,7 @@ class CloneGitRepositoryUseCase(
     private val fileSystemProvider: FileSystemProvider
 ) {
 
-    fun cloneGitRepository(
-        repositoryUrl: String,
-    ): Either<AppException, AbsolutePath> =
+    fun cloneGitRepository(repositoryUrl: String): Either<AppException, AbsolutePath> =
         either {
             val dirName = Uid.generate().toString()
             val destination = fileSystemProvider.getDirPath(

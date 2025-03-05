@@ -68,7 +68,7 @@ abstract class Dao<T>(
             for (id in ids) {
                 createQuery("delete from $entityName where id = :id")
                     .setParameter("id", id)
-                    .executeUpdate();
+                    .executeUpdate()
             }
         }
     }
@@ -77,7 +77,7 @@ abstract class Dao<T>(
         db.execTransaction {
             createQuery("delete from $entityName where id = :id")
                 .setParameter("id", id)
-                .executeUpdate();
+                .executeUpdate()
         }
     }
 }

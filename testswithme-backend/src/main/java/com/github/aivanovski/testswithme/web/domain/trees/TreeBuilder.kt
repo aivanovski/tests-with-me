@@ -13,16 +13,14 @@ import java.util.LinkedList
 
 object TreeBuilder {
 
-    fun buildTree(
-        entities: List<TreeEntity>
-    ): Either<AppException, TreeNode> =
+    fun buildTree(entities: List<TreeEntity>): Either<AppException, TreeNode> =
         either {
             val uidToChildrenMap = buildUidToChildrenMap(
                 entities = entities
             )
 
             val uidToPathMap = buildUidToPathMap(
-                uidToChildrenMap = uidToChildrenMap,
+                uidToChildrenMap = uidToChildrenMap
             )
 
             val uidToNodeMap = buildUidToNodeMap(
@@ -44,7 +42,7 @@ object TreeBuilder {
 
     private fun buildUidToNodeMap(
         uidToChildrenMap: Map<Uid?, List<TreeEntity>>,
-        uidToPathMap: Map<Uid, String>,
+        uidToPathMap: Map<Uid, String>
         // typeSelector: (T) -> NodeType,
         // uidSelector: (T) -> Uid,
     ): Map<Uid, TreeNode> {
@@ -105,9 +103,7 @@ object TreeBuilder {
         return uidToNodeMap
     }
 
-    private fun buildUidToChildrenMap(
-        entities: List<TreeEntity>
-    ): Map<Uid?, List<TreeEntity>> {
+    private fun buildUidToChildrenMap(entities: List<TreeEntity>): Map<Uid?, List<TreeEntity>> {
         val uidToChildrenMap = HashMap<Uid?, MutableList<TreeEntity>>()
 
         for (entity in entities) {
@@ -121,9 +117,7 @@ object TreeBuilder {
         return uidToChildrenMap
     }
 
-    private fun buildUidToPathMap(
-        uidToChildrenMap: Map<Uid?, List<TreeEntity>>,
-    ): Map<Uid, String> {
+    private fun buildUidToPathMap(uidToChildrenMap: Map<Uid?, List<TreeEntity>>): Map<Uid, String> {
         val rootEntities = uidToChildrenMap[null] ?: emptyList()
 
         val queue = LinkedList<Pair<TreeEntity?, TreeEntity>>()

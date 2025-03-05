@@ -15,9 +15,7 @@ class HttpRequestExecutor(
     val client: HttpClient
 ) {
 
-    suspend inline fun <reified T> get(
-        url: String
-    ): Either<NetworkRequestException, T> =
+    suspend inline fun <reified T> get(url: String): Either<NetworkRequestException, T> =
         either {
             val response = try {
                 client.get(urlString = url)

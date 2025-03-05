@@ -102,9 +102,7 @@ class FlowRepository(
             getByUid(flow.uid).bind()
         }
 
-    fun update(
-        flow: Flow
-    ): Either<AppException, Flow> =
+    fun update(flow: Flow): Either<AppException, Flow> =
         either {
             if (flow.id == 0L) {
                 raise(InvalidEntityIdException(Flow::class))

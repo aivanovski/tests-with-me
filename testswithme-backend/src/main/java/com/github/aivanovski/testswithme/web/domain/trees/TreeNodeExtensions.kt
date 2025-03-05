@@ -4,8 +4,7 @@ import com.github.aivanovski.testswithme.web.domain.trees.model.TreeNode
 import com.github.aivanovski.testswithme.web.entity.Uid
 import java.util.LinkedList
 
-fun TreeNode.toUidTree(): List<List<Uid>> =
-    this.mapLayers { node -> node.entityUid }
+fun TreeNode.toUidTree(): List<List<Uid>> = this.mapLayers { node -> node.entityUid }
 
 fun <T> TreeNode.mapLayers(transform: (TreeNode) -> T): List<List<T>> {
     val layers = this.treeLayers()

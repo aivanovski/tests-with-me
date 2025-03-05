@@ -86,9 +86,7 @@ class RepositoryTreeBuilder(
             pathToFileMap to tree
         }
 
-    private fun parseFlowFile(
-        path: RelativePath
-    ): Either<AppException, YamlFlow> =
+    private fun parseFlowFile(path: RelativePath): Either<AppException, YamlFlow> =
         either {
             val content = fileSystemProvider.readBytes(path)
                 .map { bytes -> String(bytes) }

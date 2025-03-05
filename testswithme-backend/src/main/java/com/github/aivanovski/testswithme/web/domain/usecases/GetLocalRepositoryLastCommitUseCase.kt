@@ -9,9 +9,7 @@ import org.eclipse.jgit.api.Git
 
 class GetLocalRepositoryLastCommitUseCase {
 
-    fun getLastCommitHash(
-        repositoryPath: AbsolutePath
-    ): Either<AppException, String> =
+    fun getLastCommitHash(repositoryPath: AbsolutePath): Either<AppException, String> =
         either {
             val git = Either.catch {
                 Git.init()

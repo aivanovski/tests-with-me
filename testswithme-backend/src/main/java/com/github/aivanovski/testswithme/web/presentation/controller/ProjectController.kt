@@ -7,9 +7,9 @@ import com.github.aivanovski.testswithme.web.api.dto.ProcessedSyncItemDto
 import com.github.aivanovski.testswithme.web.api.dto.ProcessedSyncItemTypeDto
 import com.github.aivanovski.testswithme.web.api.dto.SyncResultDto
 import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
+import com.github.aivanovski.testswithme.web.api.response.GetProjectsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
-import com.github.aivanovski.testswithme.web.api.response.GetProjectsResponse
 import com.github.aivanovski.testswithme.web.api.response.RequestProjectSyncResponse
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
@@ -207,11 +207,12 @@ class ProjectController(
         )
     }
 
-    private fun SyncItemType.toDto(): ProcessedSyncItemTypeDto = when (this) {
-        SyncItemType.INSERT_GROUP -> ProcessedSyncItemTypeDto.INSERT_GROUP
-        SyncItemType.INSERT_FLOW -> ProcessedSyncItemTypeDto.INSERT_FLOW
-        SyncItemType.UPDATE_FLOW -> ProcessedSyncItemTypeDto.UPDATE_FLOW
-    }
+    private fun SyncItemType.toDto(): ProcessedSyncItemTypeDto =
+        when (this) {
+            SyncItemType.INSERT_GROUP -> ProcessedSyncItemTypeDto.INSERT_GROUP
+            SyncItemType.INSERT_FLOW -> ProcessedSyncItemTypeDto.INSERT_FLOW
+            SyncItemType.UPDATE_FLOW -> ProcessedSyncItemTypeDto.UPDATE_FLOW
+        }
 
     companion object {
         private const val FIELD_NAME = "name"

@@ -6,8 +6,7 @@ import java.nio.file.Paths
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeBytes
 
-fun String.asUid(): Uid =
-    Uid(this)
+fun String.asUid(): Uid = Uid(this)
 
 fun List<FileEntity>.setupFiles(rootDir: Path) {
     val directories = this.mapNotNull { entity -> entity as? FileEntity.Directory }

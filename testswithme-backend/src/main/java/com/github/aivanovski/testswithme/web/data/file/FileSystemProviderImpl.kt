@@ -52,18 +52,14 @@ class FileSystemProviderImpl(
             )
         }
 
-    override fun getDirPath(
-        path: RelativePath
-    ): Either<AppIoException, AbsolutePath> =
+    override fun getDirPath(path: RelativePath): Either<AppIoException, AbsolutePath> =
         either {
             val absolutePath = convertToAbsolute(path).bind()
 
             createDirectories(absolutePath).bind()
         }
 
-    override fun readBytes(
-        path: RelativePath
-    ): Either<AppIoException, ByteArray> =
+    override fun readBytes(path: RelativePath): Either<AppIoException, ByteArray> =
         either {
             val file = convertToAbsolute(path)
                 .bind()
@@ -76,9 +72,7 @@ class FileSystemProviderImpl(
             }
         }
 
-    override fun getParent(
-        path: RelativePath
-    ): Either<AppIoException, AbsolutePath> =
+    override fun getParent(path: RelativePath): Either<AppIoException, AbsolutePath> =
         either {
             val absolutePath = convertToAbsolute(path).bind()
 
@@ -135,7 +129,6 @@ class FileSystemProviderImpl(
                     val path = queue.poll()
 
                     for (childFile in listFiles(path.toRelative()).bind()) {
-
                         layer.add(childFile)
 
                         if (childFile.isDirectory()) {
@@ -153,17 +146,13 @@ class FileSystemProviderImpl(
         }
 
     @OptIn(ExperimentalPathApi::class)
-    override fun remove(
-        path: RelativePath
-    ): Either<AppIoException, Unit> =
+    override fun remove(path: RelativePath): Either<AppIoException, Unit> =
         either {
             val absolutePath = convertToAbsolute(path).bind()
             absolutePath.toPath().deleteRecursively()
         }
 
-    private fun createDirectories(
-        path: AbsolutePath
-    ): Either<AppIoException, AbsolutePath> =
+    private fun createDirectories(path: AbsolutePath): Either<AppIoException, AbsolutePath> =
         either {
             val dir = path.toPath()
             if (dir.notExists()) {

@@ -3,8 +3,6 @@ package com.github.aivanovski.testswithme.web.data.file
 import com.github.aivanovski.testswithme.extensions.unwrapOrReport
 import com.github.aivanovski.testswithme.web.entity.RelativePath
 import com.github.aivanovski.testswithme.web.extensions.toRelative
-import com.github.aivanovski.testswithme.web.utils.FileEntity.Directory
-import com.github.aivanovski.testswithme.web.utils.FileEntity.File
 import com.github.aivanovski.testswithme.web.utils.TestFiles.FILES
 import com.github.aivanovski.testswithme.web.utils.setupFiles
 import io.kotest.matchers.shouldBe

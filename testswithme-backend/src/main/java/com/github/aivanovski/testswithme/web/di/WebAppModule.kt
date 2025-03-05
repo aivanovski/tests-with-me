@@ -10,8 +10,8 @@ import com.github.aivanovski.testswithme.web.data.database.dao.GroupDao
 import com.github.aivanovski.testswithme.web.data.database.dao.ProcessedSyncItemDao
 import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
 import com.github.aivanovski.testswithme.web.data.database.dao.SyncResultDao
-import com.github.aivanovski.testswithme.web.data.database.dao.TextChunkDao
 import com.github.aivanovski.testswithme.web.data.database.dao.TestSourceDao
+import com.github.aivanovski.testswithme.web.data.database.dao.TextChunkDao
 import com.github.aivanovski.testswithme.web.data.database.dao.UserDao
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProvider
 import com.github.aivanovski.testswithme.web.data.file.FileSystemProviderImpl
@@ -27,9 +27,9 @@ import com.github.aivanovski.testswithme.web.domain.AccessResolver
 import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.CloneGitRepositoryUseCase
-import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetLocalRepositoryLastCommitUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetRemoteRepositoryLastCommitUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetTestSourcesToSyncUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.ParseGithubRepositoryUrlUseCase
 import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
@@ -111,8 +111,7 @@ object WebAppModule {
                 val logbackLogger = LoggerFactory.getLogger(HttpClient::class.java.simpleName)
 
                 logger = object : Logger {
-                    override fun log(message: String) =
-                        logbackLogger.debug(message)
+                    override fun log(message: String) = logbackLogger.debug(message)
                 }
                 level = LogLevel.INFO
             }
