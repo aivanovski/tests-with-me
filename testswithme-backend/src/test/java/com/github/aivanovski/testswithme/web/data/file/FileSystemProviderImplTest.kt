@@ -29,8 +29,9 @@ class FileSystemProviderImplTest {
         // assert
         val relativeFiles = files.flatten()
             .map { file -> file.toRelative().relativePath }
+            .sorted()
 
-        relativeFiles shouldBe FILES.map { it.path }
+        relativeFiles shouldBe FILES.map { it.path }.sorted()
     }
 
     private fun newProvider(): FileSystemProviderImpl =
