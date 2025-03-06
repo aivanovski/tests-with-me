@@ -9,7 +9,9 @@
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="io.netty" level="INFO"/>
-    <logger name="com.zaxxer" level="INFO"/>
-    <logger name="org.hibernate" level="INFO"/>
+    <logger name="io.netty" level="INFO" />
+    <logger name="com.zaxxer" level="INFO" />
+    <logger name="org.hibernate" level="INFO" />
+    <logger name="org.quartz" level="WARN" />
+    <logger name="org.eclipse.jgit" level="INFO" />
 </configuration>

@@ -11,4 +11,14 @@ object StringUtils {
     const val DASH = "-"
     const val STAR = "*"
     const val SEMICOLON = ":"
+
+    fun concatPaths(vararg paths: String): String {
+        val sb = StringBuilder(paths.first().removeSuffix("/"))
+
+        for (index in 1 until paths.size) {
+            sb.append("/").append(paths[index].removePrefix("/"))
+        }
+
+        return sb.toString()
+    }
 }

@@ -7,6 +7,7 @@ import com.github.aivanovski.testswithme.web.entity.SslKeyStore
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.AppIoException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
+import com.github.aivanovski.testswithme.web.extensions.asRelativePath
 import java.io.ByteArrayInputStream
 import java.security.KeyStore
 import java.util.Properties
@@ -17,11 +18,11 @@ class GetSslKeyStoreUseCase(
 
     fun getKeyStore(): Either<AppException, SslKeyStore> =
         either {
-            val devKeyStoreBytes = fileSystemProvider.readBytes(DEV_KEY_STORE_PATH)
+            val devKeyStoreBytes = fileSystemProvider.readBytes(DEV_KEY_STORE_PATH.asRelativePath())
                 .mapLeft { exception -> AppIoException(cause = exception) }
                 .bind()
 
-            val properties = fileSystemProvider.readBytes(DEV_PROPERTIES_PATH)
+            val properties = fileSystemProvider.readBytes(DEV_PROPERTIES_PATH.asRelativePath())
                 .mapLeft { exception -> AppIoException(cause = exception) }
                 .map { bytes ->
                     Properties()

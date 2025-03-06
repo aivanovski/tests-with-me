@@ -35,6 +35,12 @@ class ApiClient(private val baseServerUrl: String) {
 
   def getProjects() = HttpClient.get(s"$baseServerUrl/project", getAuthToken())
 
+  def requestProjectSync(uid: String) = HttpClient.post(
+    url = s"$baseServerUrl/request-project-sync/$uid",
+    body = "",
+    authToken = getAuthToken()
+  )
+
   def getUsers() = HttpClient.get(s"$baseServerUrl/user", getAuthToken())
 
   def getFlowRuns() = HttpClient.get(s"$baseServerUrl/flow-run", getAuthToken())

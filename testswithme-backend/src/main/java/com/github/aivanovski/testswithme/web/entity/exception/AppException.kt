@@ -2,9 +2,9 @@ package com.github.aivanovski.testswithme.web.entity.exception
 
 open class AppException(
     message: String?,
-    cause: Exception?
+    cause: Throwable?
 ) : Exception(message, cause) {
 
     constructor(message: String) : this(message, null)
-    constructor(cause: Exception) : this(null, cause)
+    constructor(cause: Throwable) : this(null, cause)
 }

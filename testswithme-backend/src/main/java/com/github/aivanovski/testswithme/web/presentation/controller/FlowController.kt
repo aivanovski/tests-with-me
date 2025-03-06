@@ -91,10 +91,10 @@ class FlowController(
 
     fun getFlow(
         user: User,
-        flowUid: String
+        rawUid: String
     ): Either<AppException, FlowResponse> =
         either {
-            val uid = Uid.parse(flowUid).getOrNull()
+            val uid = Uid.parse(rawUid).getOrNull()
                 ?: raise(InvalidParameterException(ID))
 
             val allFlows = flowRepository.getFlowsByUserUid(user.uid).bind()

@@ -9,5 +9,6 @@ data class PostProjectRequest(
     val description: String?,
     val downloadUrl: String,
     val imageUrl: String?,
-    val siteUrl: String?
+    val siteUrl: String?,
+    val repositoryUrl: String?
 )

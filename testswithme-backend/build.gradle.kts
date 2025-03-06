@@ -70,6 +70,15 @@ dependencies {
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authjwt)
     implementation(libs.ktor.server.keysore)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.logging)
+
+    // Job scheduler
+    implementation(libs.quartzScheduler)
+
+    // Git
+    implementation(libs.jgit)
 
     // Database
     implementation(libs.db.h2)
@@ -78,8 +87,8 @@ dependencies {
     // Arrow
     implementation(libs.arrow.core)
     implementation(libs.arrow.coroutines)
+
+    // TestsWithMe
     implementation(project(":testswithme-core"))
     implementation(project(":testswithme-backend-api"))
-
-    // TestsWithMe API
 }

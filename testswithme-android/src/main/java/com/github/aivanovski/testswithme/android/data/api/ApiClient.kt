@@ -25,13 +25,13 @@ import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowRunResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowRunsResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
+import com.github.aivanovski.testswithme.web.api.response.GetProjectsResponse
 import com.github.aivanovski.testswithme.web.api.response.GroupsResponse
 import com.github.aivanovski.testswithme.web.api.response.LoginResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowRunResponse
 import com.github.aivanovski.testswithme.web.api.response.PostGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
-import com.github.aivanovski.testswithme.web.api.response.ProjectsResponse
 import com.github.aivanovski.testswithme.web.api.response.ResetFlowRunsResponse
 import com.github.aivanovski.testswithme.web.api.response.SignUpResponse
 import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
@@ -118,7 +118,7 @@ class ApiClient(
         }
 
     suspend fun getProjects(): Either<ApiException, List<ProjectEntry>> =
-        executor.get<ProjectsResponse>(urlFactory.projects())
+        executor.get<GetProjectsResponse>(urlFactory.projects())
             .map { response -> response.projects.toProjects() }
 
     suspend fun getFlows(): Either<ApiException, List<FlowEntry>> =
