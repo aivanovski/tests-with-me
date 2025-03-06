@@ -34,6 +34,9 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
+      - name: Run FileSystemProviderImplTest
+        run: ./gradlew testswithme-backend:test --tests com.github.aivanovski.testswithme.web.data.file.FileSystemProviderImplTest --info
+
       - name: Run tests
         run: ./gradlew test
 
