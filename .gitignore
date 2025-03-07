@@ -67,3 +67,6 @@ yarn.lock
 .vscode/
 kls_database.db
 out/
+
+# Debug data
+data/
