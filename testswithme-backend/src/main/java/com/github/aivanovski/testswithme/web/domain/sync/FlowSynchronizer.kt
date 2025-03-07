@@ -22,6 +22,7 @@ import com.github.aivanovski.testswithme.web.entity.AbsolutePath
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Group
 import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.UNSET_INDEX
 import com.github.aivanovski.testswithme.web.entity.Project
 import com.github.aivanovski.testswithme.web.entity.RelativePath
 import com.github.aivanovski.testswithme.web.entity.SyncItemType
@@ -254,6 +255,7 @@ class FlowSynchronizer(
 
                 processedItems.add(
                     ProcessedSyncItem(
+                        itemIndex = UNSET_INDEX,
                         syncUid = syncUid,
                         entityUid = newGroup.uid,
                         isSuccess = true,
@@ -295,6 +297,7 @@ class FlowSynchronizer(
 
                 if (parseYamlFlowResult.isLeft()) {
                     ProcessedSyncItem(
+                        itemIndex = UNSET_INDEX,
                         syncUid = syncUid,
                         entityUid = null,
                         type = SyncItemType.INSERT_FLOW,
@@ -322,6 +325,7 @@ class FlowSynchronizer(
 
                 processedItems.add(
                     ProcessedSyncItem(
+                        itemIndex = UNSET_INDEX,
                         syncUid = syncUid,
                         entityUid = newFlow.uid,
                         type = SyncItemType.INSERT_FLOW,
@@ -364,6 +368,7 @@ class FlowSynchronizer(
                 if (parseYamlFlowResult.isLeft()) {
                     processedItems.add(
                         ProcessedSyncItem(
+                            itemIndex = UNSET_INDEX,
                             syncUid = syncUid,
                             entityUid = null,
                             type = SyncItemType.UPDATE_FLOW,
@@ -398,6 +403,7 @@ class FlowSynchronizer(
 
                 processedItems.add(
                     ProcessedSyncItem(
+                        itemIndex = UNSET_INDEX,
                         syncUid = syncUid,
                         entityUid = newFlow.uid,
                         type = SyncItemType.UPDATE_FLOW,

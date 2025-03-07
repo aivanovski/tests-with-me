@@ -107,7 +107,7 @@ class SyncFlowsWithRepositoryJob : Job {
                         ),
                         items = processedItems.mapIndexed { index, item ->
                             item.copy(
-                                index = index
+                                itemIndex = index
                             )
                         }
                     )

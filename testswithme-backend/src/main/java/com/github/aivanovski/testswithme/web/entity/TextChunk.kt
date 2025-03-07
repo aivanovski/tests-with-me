@@ -1,28 +1,43 @@
 package com.github.aivanovski.testswithme.web.entity
 
 import com.github.aivanovski.testswithme.web.data.database.converters.UidConverter
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.Table
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.CHUNK_INDEX
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.CHUNK_SIZE_IN_BYTES
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.CONTENT
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.ENTITY_UID
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.TABLE_NAME
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
-@Table(name = "TextChunks")
+@Table(name = TABLE_NAME)
 data class TextChunk(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0L,
 
-    @Column(name = "entity_uid")
+    @Column(name = ENTITY_UID)
     @Convert(converter = UidConverter::class)
     val entityUid: Uid,
 
-    @Column(name = "chunk_index")
+    @Column(name = CHUNK_INDEX)
     val chunkIndex: Int,
 
-    @Column(name = "content", length = 1024)
+    @Column(name = CONTENT, length = CHUNK_SIZE_IN_BYTES)
     val content: String
-)
+) {
+    object DbFields {
+        const val TABLE_NAME = "TextChunks"
+
+        const val ENTITY_UID = "entity_uid"
+        const val CHUNK_INDEX = "chunk_index"
+        const val CONTENT = "content"
+
+        const val CHUNK_SIZE_IN_BYTES = 1024
+    }
+}

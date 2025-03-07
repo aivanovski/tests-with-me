@@ -8,7 +8,7 @@ class UserDao(
 ) : Dao<User>(
     db = db,
     entityType = User::class.java,
-    entityName = "User_"
+    entityName = User::class.java.simpleName
 ) {
 
     fun findByName(name: String): User? {

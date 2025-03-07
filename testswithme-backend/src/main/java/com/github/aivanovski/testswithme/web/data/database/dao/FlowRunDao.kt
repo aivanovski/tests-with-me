@@ -8,5 +8,5 @@ class FlowRunDao(
 ) : Dao<FlowRun>(
     db = db,
     entityType = FlowRun::class.java,
-    entityName = "FlowRun"
+    entityName = FlowRun::class.java.simpleName
 )

@@ -1,8 +1,8 @@
 package com.github.aivanovski.testswithme.web.data.database.converters
 
 import com.github.aivanovski.testswithme.web.entity.Timestamp
-import javax.persistence.AttributeConverter
-import javax.persistence.Converter
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 
 @Converter
 class TimestampConverter : AttributeConverter<Timestamp?, String?> {

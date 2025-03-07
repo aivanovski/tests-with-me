@@ -7,6 +7,7 @@ import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
 import com.github.aivanovski.testswithme.web.data.database.dao.TextChunkDao
 import com.github.aivanovski.testswithme.web.entity.Flow
 import com.github.aivanovski.testswithme.web.entity.Project
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.CHUNK_SIZE_IN_BYTES
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.DeletedEntityAccessException
@@ -94,7 +95,8 @@ class FlowRepository(
     ): Either<AppException, Flow> =
         either {
             val chunks = content.splitIntoChunks(
-                entityUid = flow.uid
+                entityUid = flow.uid,
+                chunkSize = CHUNK_SIZE_IN_BYTES
             )
             flowDao.add(flow)
             textChunkDao.add(chunks)
@@ -126,7 +128,8 @@ class FlowRepository(
             )
 
             val newChunks = content.splitIntoChunks(
-                entityUid = flow.uid
+                entityUid = flow.uid,
+                chunkSize = CHUNK_SIZE_IN_BYTES
             )
 
             textChunkDao.add(newChunks)

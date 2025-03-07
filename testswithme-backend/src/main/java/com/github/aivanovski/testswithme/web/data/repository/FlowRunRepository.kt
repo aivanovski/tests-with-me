@@ -7,6 +7,7 @@ import com.github.aivanovski.testswithme.web.data.database.dao.FlowRunDao
 import com.github.aivanovski.testswithme.web.data.database.dao.ProjectDao
 import com.github.aivanovski.testswithme.web.data.database.dao.TextChunkDao
 import com.github.aivanovski.testswithme.web.entity.FlowRun
+import com.github.aivanovski.testswithme.web.entity.TextChunk.DbFields.CHUNK_SIZE_IN_BYTES
 import com.github.aivanovski.testswithme.web.entity.Uid
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
@@ -68,7 +69,10 @@ class FlowRunRepository(
         report: String
     ): Either<AppException, FlowRun> =
         either {
-            val chunks = report.splitIntoChunks(entityUid = flowRun.uid)
+            val chunks = report.splitIntoChunks(
+                entityUid = flowRun.uid,
+                chunkSize = CHUNK_SIZE_IN_BYTES
+            )
             flowRunDao.add(flowRun)
             textChunkDao.add(chunks)
 
