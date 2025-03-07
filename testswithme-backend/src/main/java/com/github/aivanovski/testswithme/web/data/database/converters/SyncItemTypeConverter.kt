@@ -1,8 +1,8 @@
 package com.github.aivanovski.testswithme.web.data.database.converters
 
 import com.github.aivanovski.testswithme.web.entity.SyncItemType
-import javax.persistence.AttributeConverter
-import javax.persistence.Converter
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 
 @Converter
 class SyncItemTypeConverter : AttributeConverter<SyncItemType?, String?> {

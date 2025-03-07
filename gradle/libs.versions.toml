@@ -31,7 +31,8 @@ arrow = "1.2.4"
 decompose = "3.0.0"
 materialIcons = "1.6.8"
 viewMaterial = "1.12.0"
-hibernate = "5.6.0.Final"
+sqliteJdbc = "3.49.1.0"
+hibernate = "6.3.1.Final"
 h2 = "2.2.224"
 coil = "2.6.0"
 dadb = "1.2.8"
@@ -108,9 +109,11 @@ arrow-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensions = { module = "com.arkivanov.decompose:extensions-compose-android", version.ref = "decompose" }
 db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
+db-sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
 db-hibernate = { module = "org.hibernate:hibernate-core", version.ref = "hibernate" }
+db-hibernateDialects = { module = "org.hibernate.orm:hibernate-community-dialects", version.ref = "hibernate" }
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 dadb = { module = "dev.mobile:dadb", version.ref = "dadb" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit"}
+jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }

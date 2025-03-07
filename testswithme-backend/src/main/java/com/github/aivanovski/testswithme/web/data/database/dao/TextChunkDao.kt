@@ -9,7 +9,7 @@ class TextChunkDao(
 ) : Dao<TextChunk>(
     db = db,
     entityType = TextChunk::class.java,
-    entityName = "TextChunk"
+    entityName = TextChunk::class.java.simpleName
 ) {
 
     fun getByEntityUid(entityUid: Uid): List<TextChunk> {

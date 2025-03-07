@@ -2,39 +2,59 @@ package com.github.aivanovski.testswithme.web.entity
 
 import com.github.aivanovski.testswithme.web.data.database.converters.SyncItemTypeConverter
 import com.github.aivanovski.testswithme.web.data.database.converters.UidConverter
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.Table
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.ENTITY_UID
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.IS_SUCCESS
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.ITEM_INDEX
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.PATH
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.SYNC_UID
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.TABLE_NAME
+import com.github.aivanovski.testswithme.web.entity.ProcessedSyncItem.DbFields.TYPE
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
-@Table(name = "ProcessedSyncItems")
+@Table(name = TABLE_NAME)
 data class ProcessedSyncItem(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long = 0,
 
-    @Column(name = "index")
-    val index: Int = -1,
+    @Column(name = ITEM_INDEX)
+    val itemIndex: Int,
 
-    @Column(name = "sync_uid")
+    @Column(name = SYNC_UID)
     @Convert(converter = UidConverter::class)
     val syncUid: Uid,
 
-    @Column(name = "entity_uid")
+    @Column(name = ENTITY_UID)
     @Convert(converter = UidConverter::class)
     val entityUid: Uid?,
 
-    @Column(name = "type")
+    @Column(name = TYPE)
     @Convert(converter = SyncItemTypeConverter::class)
     val type: SyncItemType,
 
-    @Column(name = "is_success")
+    @Column(name = IS_SUCCESS)
     val isSuccess: Boolean,
 
-    @Column(name = "path")
+    @Column(name = PATH)
     val path: String
-)
+) {
+    object DbFields {
+        const val TABLE_NAME = "ProcessedSyncItems"
+
+        const val ITEM_INDEX = "item_index"
+        const val SYNC_UID = "sync_uid"
+        const val ENTITY_UID = "entity_uid"
+        const val TYPE = "type"
+        const val IS_SUCCESS = "is_success"
+        const val PATH = "path"
+
+        const val UNSET_INDEX = -1
+    }
+}
