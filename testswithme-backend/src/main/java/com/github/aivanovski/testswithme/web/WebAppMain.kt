@@ -68,9 +68,7 @@ fun main(args: Array<String>) {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun Application.configureApplication(
-    jwtData: JwtData
-) {
+private fun Application.configureApplication(jwtData: JwtData) {
     install(ContentNegotiation) {
         json(
             Json {
