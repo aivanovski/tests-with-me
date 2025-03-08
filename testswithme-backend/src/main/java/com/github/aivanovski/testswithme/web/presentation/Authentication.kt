@@ -15,10 +15,7 @@ import io.ktor.server.response.respond
 
 const val AUTH_PROVIDER = "jwt-auth-provider"
 
-fun Application.configureAuthentication() {
-    // TODO: should be read from properties file in production environment
-    val jwtData = JwtData.DEFAULT
-
+fun Application.configureAuthentication(jwtData: JwtData) {
     install(Authentication) {
         jwt(AUTH_PROVIDER) {
             realm = jwtData.realm

@@ -27,6 +27,7 @@ import com.github.aivanovski.testswithme.web.domain.AccessResolver
 import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.domain.usecases.CloneGitRepositoryUseCase
+import com.github.aivanovski.testswithme.web.domain.usecases.GetJwtDataUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetLocalRepositoryLastCommitUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetRemoteRepositoryLastCommitUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
@@ -85,6 +86,7 @@ object WebAppModule {
         // UseCases
         singleOf(::ValidateEmailUseCase)
         singleOf(::GetSslKeyStoreUseCase)
+        singleOf(::GetJwtDataUseCase)
         singleOf(::GetTestSourcesToSyncUseCase)
         singleOf(::CloneGitRepositoryUseCase)
         singleOf(::GetLocalRepositoryLastCommitUseCase)
