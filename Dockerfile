@@ -4,8 +4,7 @@ WORKDIR /home/gradle/src
 RUN gradle testswithme-backend:shadowJar --no-daemon
 
 FROM openjdk:17
-EXPOSE 8080:8080
-RUN mkdir /app
-RUN mkdir /app-data
+EXPOSE 8080 8443
+RUN mkdir /app /data /app-data
 COPY --from=build /home/gradle/src/testswithme-backend/build/libs/testswithme-backend.jar /app/testswithme-backend.jar
-ENTRYPOINT ["java", "-jar", "/app/testswithme-backend.jar", "--protocol", "http"]
+ENTRYPOINT ["java", "-jar", "/app/testswithme-backend.jar"]

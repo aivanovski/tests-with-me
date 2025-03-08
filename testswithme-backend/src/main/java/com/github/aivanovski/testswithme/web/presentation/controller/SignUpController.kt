@@ -33,12 +33,12 @@ class SignUpController(
 
             userRepository.add(user).bind()
 
-            val token = authService.getOrCreateToken(
+            val token = authService.createNewToken(
                 credentials = Credentials(
                     username = user.name,
                     password = user.password
                 )
-            )
+            ).bind()
 
             SignUpResponse(
                 userId = user.uid.toString(),

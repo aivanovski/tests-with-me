@@ -18,10 +18,11 @@ object Main {
     println(s"Command: $command")
     println(s"Using url: ${url.value}")
 
+    val user = Data.readDefaultUser()
+
     val response = command match {
-      case "login" => api.login()
-      case "sign-up" => api.signUp()
-      case s"sign-up $username" => api.signUp(username = username)
+      case "login" => api.login(user.username, user.password)
+      case "sign-up" => api.signUp(user.username, user.password, user.email)
       case "flow" => api.getFlows()
       case s"flow $uid" => api.getFlow(uid = uid)
       case s"delete-flow $uid" => api.deleteFlow(uid = uid)
@@ -66,7 +67,6 @@ def printHelp(): Unit = {
       |
       |login                                                 Sends login request with default credentials
       |sing-up                                               Creates user with default credentials
-      |sing-up [USER_NAME]                                   Creates user with specified USER_NAME
       |user                                                  Get all users
       |project                                               Get all projects
       |request-project-sync [UID]                            Request project to sync flows with linked GitHub repository

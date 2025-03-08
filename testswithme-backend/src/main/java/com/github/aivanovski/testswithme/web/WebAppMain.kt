@@ -5,7 +5,9 @@ import com.github.aivanovski.testswithme.web.data.arguments.ArgumentParser
 import com.github.aivanovski.testswithme.web.data.database.configureDatabase
 import com.github.aivanovski.testswithme.web.di.GlobalInjector.get
 import com.github.aivanovski.testswithme.web.di.WebAppModule
+import com.github.aivanovski.testswithme.web.domain.usecases.GetJwtDataUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
+import com.github.aivanovski.testswithme.web.entity.JwtData
 import com.github.aivanovski.testswithme.web.entity.NetworkProtocolType
 import com.github.aivanovski.testswithme.web.presentation.configureAuthentication
 import com.github.aivanovski.testswithme.web.presentation.jobs.configureJobScheduler
@@ -29,9 +31,11 @@ fun main(args: Array<String>) {
     }
 
     val getKeyStoreUseCase: GetSslKeyStoreUseCase = get()
+    val getJwtDataUseCase: GetJwtDataUseCase = get()
     val argumentParser: ArgumentParser = get()
 
     val arguments = argumentParser.parse(args).unwrapOrReport()
+    val jwtData = getJwtDataUseCase.getJwtData().unwrapOrReport()
 
     val environment = applicationEngineEnvironment {
         when (arguments.protocolType) {
@@ -55,14 +59,16 @@ fun main(args: Array<String>) {
             }
         }
 
-        module(Application::appModule)
+        module {
+            configureApplication(jwtData)
+        }
     }
 
     embeddedServer(Netty, environment).start(wait = true)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun Application.appModule() {
+private fun Application.configureApplication(jwtData: JwtData) {
     install(ContentNegotiation) {
         json(
             Json {
@@ -71,7 +77,7 @@ private fun Application.appModule() {
         )
     }
     configureDatabase()
-    configureAuthentication()
+    configureAuthentication(jwtData)
     configureRoutes()
     configureJobScheduler()
 }

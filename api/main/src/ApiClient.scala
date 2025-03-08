@@ -10,20 +10,27 @@ enum ServerUrl(val value: String):
 
 class ApiClient(private val baseServerUrl: String) {
 
-  def login(): Response = HttpClient.post(
+  def login(
+    username: String,
+    password: String
+  ): Response = HttpClient.post(
     url = s"$baseServerUrl/login",
     body = toJson(Map(
-      "username" -> "admin",
-      "password" -> "abc123"
+      "username" -> username,
+      "password" -> password
     ))
   )
 
-  def signUp(username: String = "admin") = HttpClient.post(
+  def signUp(
+    username: String,
+    password: String,
+    email: String
+  ) = HttpClient.post(
     url = s"$baseServerUrl/sign-up",
     body = toJson(Map(
       "username" -> username,
-      "password" -> "abc123",
-      "email" -> s"$username@test.com"
+      "password" -> password,
+      "email" -> email
     ))
   )
 
@@ -91,7 +98,8 @@ class ApiClient(private val baseServerUrl: String) {
   def deleteFlow(uid: String) = HttpClient.delete(s"$baseServerUrl/flow/$uid", getAuthToken())
 
   def getAuthToken(): Option[String] = {
-    val response = login()
+    val user = Data.readDefaultUser()
+    val response = login(username = user.username, password = user.password)
 
     response.code() match {
       case 200 => JsonUtils.parseLoginResponse(response.body().string())

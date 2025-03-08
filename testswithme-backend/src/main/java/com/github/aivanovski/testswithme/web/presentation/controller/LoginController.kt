@@ -34,7 +34,7 @@ class LoginController(
                 raise(InvalidCredentialsException())
             }
 
-            val token = authService.getOrCreateToken(credentials)
+            val token = authService.createNewToken(credentials).bind()
             val user = userRepository.getUserByName(name = credentials.username).bind()
 
             val responseHeaders = if (isSetCookie) {

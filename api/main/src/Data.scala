@@ -1,11 +1,20 @@
+import model.User
 import utils.printResponse
-import scala.io.Source
+
+import java.io.FileInputStream
+import java.util.Properties
 
 object Data {
 
   def setupData(api: ApiClient): Unit = {
+    val user = readDefaultUser()
+
     val requests = List(
-      () => api.signUp(),
+      () => api.signUp(
+        username = user.username,
+        password = user.password,
+        email = user.email
+      ),
 
       // Projects
       () => api.postProject(
@@ -34,11 +43,23 @@ object Data {
     for (response <- requests) printResponse(response.apply())
   }
 
-  private val FLOW_DIRECTORY_PATH = "$HOME/dev/tests-with-me/flows/keepassvault"
+  def readDefaultUser(): User = {
+    val debugPropertiesPath = "$HOME/dev/tests-with-me/data/debug.properties"
+      .replace("$HOME", System.getProperty("user.home"))
 
-  private def readFile(path: String): String = {
-    Source.fromFile(path.replace("$HOME", System.getProperty("user.home")))
-      .getLines()
-      .mkString("\n")
+    val properties = new Properties()
+    val inputStream = new FileInputStream(debugPropertiesPath)
+    properties.load(inputStream)
+    inputStream.close()
+
+    val username = properties.getProperty("username")
+    val password = properties.getProperty("password")
+    val email = properties.getProperty("email")
+
+    if (username.isEmpty || password.isEmpty || email.isEmpty) {
+      throw IllegalStateException("Failed to read debug credentials")
+    }
+
+    User(username, password, email)
   }
 }

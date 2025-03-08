@@ -4,26 +4,26 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.interfaces.DecodedJWT
 import com.github.aivanovski.testswithme.web.data.repository.UserRepository
+import com.github.aivanovski.testswithme.web.domain.usecases.GetJwtDataUseCase
 import com.github.aivanovski.testswithme.web.entity.Credentials
 import com.github.aivanovski.testswithme.web.entity.ErrorResponse
-import com.github.aivanovski.testswithme.web.entity.JwtData
 import com.github.aivanovski.testswithme.web.entity.User
+import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.ExpiredTokenException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidTokenException
 import com.github.aivanovski.testswithme.web.extensions.toErrorResponse
 import io.ktor.server.auth.jwt.JWTPrincipal
 import java.util.Date
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.hours
 import org.slf4j.LoggerFactory
 
 class AuthService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    getJwtDataUseCase: GetJwtDataUseCase
 ) {
 
-    private val storage: MutableMap<Credentials, String> = ConcurrentHashMap<Credentials, String>()
+    private val jwtDatResult = getJwtDataUseCase.getJwtData()
 
     fun areCredentialsValid(credentials: Credentials): Boolean {
         val user = userRepository.getUserByName(credentials.username).getOrNull()
@@ -59,45 +59,28 @@ class AuthService(
             user
         }
 
-    fun getOrCreateToken(credentials: Credentials): String {
-        val existingToken = storage[credentials]
-        if (existingToken != null) {
-            val token = JWT.decode(existingToken)
-            if (!token.isExpired()) {
-                logger.debug("Reuse existing token: token=%s".format(existingToken))
-                return existingToken
-            }
+    fun createNewToken(credentials: Credentials): Either<AppException, String> =
+        either {
+            val jwtData = jwtDatResult.bind()
+
+            val expires = System.currentTimeMillis() + TOKEN_VALIDITY_PERIOD
+
+            val token = JWT.create()
+                .withAudience(jwtData.audience)
+                .withIssuer(jwtData.issuer)
+                .withClaim(USERNAME, credentials.username)
+                .withExpiresAt(Date(expires))
+                .sign(Algorithm.HMAC256(jwtData.secret))
+
+            logger.debug("Created new token: username=%s, token=%s".format(credentials, token))
+
+            token
         }
-
-        val newToken = createToken(credentials.username)
-        storage[credentials] = newToken
-
-        logger.debug("Created new token: username=%s, token=%s".format(credentials, newToken))
-
-        return newToken
-    }
-
-    private fun createToken(username: String): String {
-        val jwtData = JwtData.DEFAULT
-
-        val expires = System.currentTimeMillis() + TOKEN_VALIDITY_PERIOD
-
-        return JWT.create()
-            .withAudience(jwtData.audience)
-            .withIssuer(jwtData.issuer)
-            .withClaim(USERNAME, username)
-            .withExpiresAt(Date(expires))
-            .sign(Algorithm.HMAC256(jwtData.secret))
-    }
-
-    private fun DecodedJWT.isExpired(): Boolean {
-        return System.currentTimeMillis() >= expiresAt.time
-    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(AuthService::class.java)
         private const val USERNAME = "username"
 
-        val TOKEN_VALIDITY_PERIOD = 1.hours.inWholeMilliseconds
+        val TOKEN_VALIDITY_PERIOD = 2.hours.inWholeMilliseconds
     }
 }
