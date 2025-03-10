@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -12,6 +15,24 @@ fun getVersionCode(): Int {
     val values = getVersionName().split(".")
     return values[0].toInt() * 10000 + values[1].toInt() * 100 + values[2].toInt()
 }
+
+fun readDebugCredentials(): List<Pair<String, String>> {
+    val propertiesFile = File(project.rootProject.rootDir, "data/debug.properties")
+
+    val properties = Properties().apply {
+        load(FileInputStream(propertiesFile))
+    }
+
+    val users = properties.getProperty("androidDebugUsers").trim().split(",")
+    val passwords = properties.getProperty("androidDebugPasswords").trim().split(",")
+    val credentials = if (users.size == passwords.size) users.zip(passwords) else emptyList()
+
+    project.logger.lifecycle("Debug credentials: $credentials")
+
+    return credentials
+}
+
+val debugCredentials = readDebugCredentials()
 
 android {
     namespace = "com.github.aivanovski.testswithme.android"
@@ -33,9 +54,27 @@ android {
 
     buildTypes {
         debug {
+            isDebuggable = true
+
+            buildConfigField(
+                "String[]",
+                "DEBUG_USERS",
+                debugCredentials.map { (user, _) -> user }
+                    .joinToString(prefix = "{", postfix = "}") { "\"$it\"" }
+            )
+            buildConfigField(
+                "String[]",
+                "DEBUG_PASSWORDS",
+                debugCredentials.map { (_, password) -> password }
+                    .joinToString(prefix = "{", postfix = "}") { "\"$it\"" }
+            )
         }
         release {
             isMinifyEnabled = false
+
+            buildConfigField("String[]", "DEBUG_USERS", "null")
+            buildConfigField("String[]", "DEBUG_PASSWORDS", "null")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -142,9 +181,9 @@ dependencies {
     // Navigation
     implementation(libs.decompose)
     implementation(libs.decompose.extensions)
+
+    // TestsWithMe API
     implementation(project(":testswithme-core"))
     implementation(project(":testswithme-backend-api"))
     implementation(project(":testswithme-gateway-api"))
-
-    // TestsWithMe API
 }

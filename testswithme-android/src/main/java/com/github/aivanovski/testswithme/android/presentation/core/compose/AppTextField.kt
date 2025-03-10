@@ -11,10 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -22,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
 import com.github.aivanovski.testswithme.utils.StringUtils
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun AppTextField(
@@ -34,19 +34,23 @@ fun AppTextField(
     onPasswordToggleClicked: ((isPasswordVisible: Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    var innerValue by remember {
-        mutableStateOf(value)
+    // TODO: resolve issue with inner state
+    val innerValue = remember {
+        MutableStateFlow(value)
     }
+    innerValue.value = value
 
     val onChange = rememberCallback { newValue: String ->
-        innerValue = newValue
+        innerValue.value = newValue
         onValueChange.invoke(newValue)
     }
+
+    val observedInnerValue by innerValue.collectAsState()
 
     val isError = (error != null)
 
     OutlinedTextField(
-        value = innerValue,
+        value = observedInnerValue,
         onValueChange = onChange,
         label = {
             Text(label)

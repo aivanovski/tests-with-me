@@ -23,6 +23,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.T
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TwoLineTextWithChipCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.UnshapedChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.UnshapedTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.ButtonCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.DividerCell
@@ -43,6 +44,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.Text
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TextWithChipCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TitleWithIconCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.TwoLineTextWithChipCell
+import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.UnshapedChipRowCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.UnshapedTextCell
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.ButtonCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.DividerCellViewModel
@@ -63,6 +65,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.viewMod
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TextWithChipCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TitleWithIconCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.TwoLineWithChipCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.UnshapedChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.UnshapedTextCellViewModel
 
 @Composable
@@ -88,6 +91,7 @@ fun CreateCoreCell(viewModel: CellViewModel) {
         is TitleWithIconCellViewModel -> TitleWithIconCell(viewModel)
         is UnshapedTextCellViewModel -> UnshapedTextCell(viewModel)
         is TwoLineWithChipCellViewModel -> TwoLineTextWithChipCell(viewModel)
+        is UnshapedChipRowCellViewModel -> UnshapedChipRowCell(viewModel)
         else -> throw UnsupportedCellViewModelException(viewModel)
     }
 }
@@ -117,6 +121,7 @@ fun createCoreCellViewModel(
         is TitleWithIconCellModel -> TitleWithIconCellViewModel(model, intentProvider)
         is UnshapedTextCellModel -> UnshapedTextCellViewModel(model)
         is TwoLineTextWithChipCellModel -> TwoLineWithChipCellViewModel(model, intentProvider)
+        is UnshapedChipRowCellModel -> UnshapedChipRowCellViewModel(model, intentProvider)
         else -> throw UnsupportedCellModelException(model)
     }
 }

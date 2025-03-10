@@ -2,6 +2,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.login.mod
 
 import com.github.aivanovski.testswithme.android.entity.ErrorMessage
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.UnshapedChipRowCellViewModel
 import com.github.aivanovski.testswithme.utils.StringUtils
 
 data class LoginState(
@@ -13,5 +14,6 @@ data class LoginState(
     val confirmPassword: String = StringUtils.EMPTY,
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
-    val errorMessage: ErrorMessage? = null
+    val errorMessage: ErrorMessage? = null,
+    val users: UnshapedChipRowCellViewModel? = null
 )

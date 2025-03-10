@@ -42,6 +42,7 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProviderImpl
 import com.github.aivanovski.testswithme.android.domain.usecases.ClearDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetCurrentJobUseCase
+import com.github.aivanovski.testswithme.android.domain.usecases.GetDebugCredentialsUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalApplicationDataUseCase
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
@@ -63,6 +64,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.groups.cel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.model.GroupsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.login.LoginViewModel
+import com.github.aivanovski.testswithme.android.presentation.screens.login.cells.LoginCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardInteractor
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.ProjectDashboardViewModel
@@ -145,6 +147,7 @@ object AndroidAppModule {
         singleOf(::GetExternalApplicationDataUseCase)
         singleOf(::ValidateEmailUseCase)
         singleOf(::ClearDataUseCase)
+        singleOf(::GetDebugCredentialsUseCase)
 
         // Interactors
         singleOf(::RootInteractor)
@@ -184,6 +187,7 @@ object AndroidAppModule {
         singleOf(::BottomSheetMenuCellFactory)
         singleOf(::TextViewerCellFactory)
         singleOf(::TestContentCellFactory)
+        singleOf(::LoginCellFactory)
 
         // ViewModels
         factory { (menu: BottomSheetMenu) -> BottomSheetMenuViewModel(get(), menu) }
@@ -197,6 +201,7 @@ object AndroidAppModule {
         }
         factory { (vm: RootViewModel, router: Router, args: LoginScreenArgs) ->
             LoginViewModel(
+                get(),
                 get(),
                 get(),
                 vm,

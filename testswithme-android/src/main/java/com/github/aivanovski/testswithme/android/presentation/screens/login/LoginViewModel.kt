@@ -1,14 +1,15 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.login
 
-import androidx.lifecycle.viewModelScope
-import com.github.aivanovski.testswithme.android.BuildConfig
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.extensions.asFlow
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.UnshapedChipRowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
+import com.github.aivanovski.testswithme.android.presentation.screens.login.cells.LoginCellFactory
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.login.model.LoginScreenType
@@ -21,30 +22,24 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.RootIntent.SetTopBarState
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
 import com.github.aivanovski.testswithme.android.utils.formatError
-import com.github.aivanovski.testswithme.utils.StringUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val interactor: LoginInteractor,
     private val resourceProvider: ResourceProvider,
+    private val cellFactory: LoginCellFactory,
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: LoginScreenArgs
-) : BaseViewModel() {
+) : MviViewModel<LoginState, LoginIntent>(
+    initialState = LoginState(terminalState = TerminalState.Loading),
+    initialIntent = LoginIntent.Initialize
+) {
 
-    val state = MutableStateFlow(createInitialState())
-    private val intents = Channel<LoginIntent>()
-    private var isSubscribed: Boolean = false
+    private var debugCredentials by mutableStateFlow(emptyList<Pair<String, String>>())
 
     override fun start() {
         super.start()
@@ -52,39 +47,18 @@ class LoginViewModel(
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
         rootViewModel.sendIntent(SetBottomBarState(BottomBarState.HIDDEN))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
-
-        if (!isSubscribed) {
-            isSubscribed = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(LoginIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent, state.value) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-        }
     }
 
-    fun sendIntent(intent: LoginIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(
-        intent: LoginIntent,
-        state: LoginState
-    ): Flow<LoginState> {
+    override fun handleIntent(intent: LoginIntent): Flow<LoginState> {
         return when (intent) {
             is LoginIntent.Initialize -> createInitialState().asFlow()
-            is LoginIntent.OnLoginButtonClicked -> onLoginButtonClicked(state)
+            is LoginIntent.OnLoginButtonClicked -> onLoginButtonClicked(state.value)
             is LoginIntent.OnUsernameChanged -> onUsernameChanged(intent)
             is LoginIntent.OnEmailChanged -> onEmailChanged(intent)
             is LoginIntent.OnPasswordChanged -> onPasswordChanged(intent)
             is LoginIntent.OnConfirmPasswordChanged -> onConfirmPasswordChanged(intent)
             is LoginIntent.OnPasswordVisibilityChanged -> onPasswordVisibilityChanged(intent)
-            is LoginIntent.OnCreateButtonClicked -> onCreateButtonClicked(state)
+            is LoginIntent.OnCreateButtonClicked -> onCreateButtonClicked(state.value)
 
             is LoginIntent.OnConfirmPasswordVisibilityChanged -> {
                 onConfirmPasswordVisibilityChanged(intent)
@@ -95,6 +69,21 @@ class LoginViewModel(
                 emptyFlow()
             }
         }
+    }
+
+    override fun handleCellIntent(intent: BaseCellIntent) {
+        when (intent) {
+            is UnshapedChipRowCellIntent.OnClick -> onDefaultUserClicked(intent.chipIndex)
+        }
+    }
+
+    private fun onDefaultUserClicked(index: Int) {
+        val (user, password) = debugCredentials.getOrNull(index) ?: return
+
+        state.value = state.value.copy(
+            username = user,
+            password = password
+        )
     }
 
     private fun onUsernameChanged(intent: LoginIntent.OnUsernameChanged): Flow<LoginState> =
@@ -205,16 +194,16 @@ class LoginViewModel(
     }
 
     private fun createInitialState(): LoginState {
-        val (username, password) = if (BuildConfig.DEBUG && args.type == LoginScreenType.LOG_IN) {
-            DEBUG_USERNAME to DEBUG_PASSWORD
-        } else {
-            StringUtils.EMPTY to StringUtils.EMPTY
-        }
+        debugCredentials = interactor.getDebugCredentials()
+
+        val users = debugCredentials.map { (user, _) -> user }
 
         return LoginState(
             type = args.type,
-            username = username,
-            password = password
+            users = cellFactory.createUsersCell(
+                users = users,
+                intentProvider = intentProvider
+            )
         )
     }
 
