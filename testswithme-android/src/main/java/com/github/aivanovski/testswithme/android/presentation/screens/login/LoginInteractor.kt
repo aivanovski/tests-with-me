@@ -5,6 +5,7 @@ import arrow.core.raise.either
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.data.repository.AuthRepository
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
+import com.github.aivanovski.testswithme.android.domain.usecases.GetDebugCredentialsUseCase
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.entity.exception.UserInputValidationException
 import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
@@ -12,7 +13,8 @@ import com.github.aivanovski.testswithme.domain.validation.ValidateEmailUseCase
 class LoginInteractor(
     private val authRepository: AuthRepository,
     private val resourceProvider: ResourceProvider,
-    private val validateEmailUseCase: ValidateEmailUseCase
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val getDebugCredentialsUseCase: GetDebugCredentialsUseCase
 ) {
 
     suspend fun login(
@@ -75,4 +77,7 @@ class LoginInteractor(
             password = password,
             email = email
         )
+
+    fun getDebugCredentials(): List<Pair<String, String>> =
+        getDebugCredentialsUseCase.getDebugCredentials()
 }

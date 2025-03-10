@@ -189,14 +189,16 @@ class CommandExecutor(
         either {
             when (command) {
                 is ExecutableStepCommand<*> -> {
-                    command.execute(context).transformError()
+                    command.execute(context)
+                        .transformError()
+                        .bind()
                 }
 
                 is CompositeStepCommand -> {
                     executeCompositeCommand(
                         job = job,
                         compositeCommand = command
-                    )
+                    ).bind()
                 }
 
                 is Precondition -> {
@@ -216,12 +218,14 @@ class CommandExecutor(
                                         isSatisfied = true,
                                         result = compositeResult
                                     )
-                                }
+                                }.bind()
                         } else {
-                            preconditionResult
+                            preconditionResult.bind()
                         }
                     } else {
-                        command.execute(context).transformError()
+                        command.execute(context)
+                            .transformError()
+                            .bind()
                     }
                 }
 
