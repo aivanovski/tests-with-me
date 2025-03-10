@@ -18,6 +18,9 @@ fun getVersionCode(): Int {
 
 fun readDebugCredentials(): List<Pair<String, String>> {
     val propertiesFile = File(project.rootProject.rootDir, "data/debug.properties")
+    if (!propertiesFile.exists()) {
+        return emptyList()
+    }
 
     val properties = Properties().apply {
         load(FileInputStream(propertiesFile))
