@@ -104,5 +104,6 @@ private fun newDataState() =
             newProjectViewModel(),
             newSpaceCell(SmallMargin),
             newProjectViewModel()
-        )
+        ),
+        isAddButtonVisible = true
     )

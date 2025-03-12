@@ -2,9 +2,10 @@ package com.github.aivanovski.testswithme.android.presentation.core.cells.model
 
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 
-interface TwoLineWithChipCellIntent : BaseCellIntent {
+interface LabeledTableCellIntent : BaseCellIntent {
 
-    data class OnClick(
-        val cellId: String
-    ) : TwoLineWithChipCellIntent
+    data class OnColumnClick(
+        val cellId: String,
+        val columnIndex: Int
+    ) : LabeledTableCellIntent
 }

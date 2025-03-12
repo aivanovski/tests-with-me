@@ -39,7 +39,9 @@ import com.github.aivanovski.testswithme.android.extensions.filterRemoteOnly
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowSelection
 import com.github.aivanovski.testswithme.android.utils.aggregateDescendantFlows
+import com.github.aivanovski.testswithme.android.utils.aggregateLastRunByFlowUid
 import com.github.aivanovski.testswithme.android.utils.aggregateRunCountByFlowUid
 import com.github.aivanovski.testswithme.android.utils.combineEitherFlows
 import kotlinx.coroutines.Dispatchers
@@ -143,10 +145,11 @@ class FlowInteractor(
                         groupUid = mode.groupUid
                     ).bind()
 
-                    is FlowScreenMode.RemainedFlows -> getRemainedFlows(
+                    is FlowScreenMode.FlowList -> getRemainedFlows(
                         allFlows = flows,
                         allRuns = runs,
-                        version = mode.version
+                        version = mode.version,
+                        selection = mode.selection
                     ).bind()
                 }
 
@@ -220,7 +223,8 @@ class FlowInteractor(
     private fun getRemainedFlows(
         allFlows: List<FlowEntry>,
         allRuns: List<FlowRunEntry>,
-        version: AppVersion?
+        version: AppVersion?,
+        selection: FlowSelection
     ): Either<AppException, List<FlowEntry>> =
         either {
             val filteredRuns = if (version != null) {
@@ -232,11 +236,17 @@ class FlowInteractor(
             }
 
             val flowUidToRunCount = filteredRuns.aggregateRunCountByFlowUid()
+            val flowUidToLastRun = filteredRuns.aggregateLastRunByFlowUid()
 
             allFlows.filter { flow ->
-                val runs = flowUidToRunCount[flow.uid] ?: 0
+                val runCount = flowUidToRunCount[flow.uid] ?: 0
+                val lastRun = flowUidToLastRun[flow.uid]
 
-                runs == 0
+                when (selection) {
+                    is FlowSelection.Remained -> runCount == 0
+                    is FlowSelection.Failed -> lastRun?.isSuccess == false
+                    is FlowSelection.Passed -> lastRun?.isSuccess == true
+                }
             }
         }
 
@@ -261,7 +271,7 @@ class FlowInteractor(
                         ?: raise(FailedToFindEntityByUidException(GroupEntry::class, mode.groupUid))
                 }
 
-                is FlowScreenMode.RemainedFlows -> {
+                is FlowScreenMode.FlowList -> {
                     mode.projectUid
                 }
             }

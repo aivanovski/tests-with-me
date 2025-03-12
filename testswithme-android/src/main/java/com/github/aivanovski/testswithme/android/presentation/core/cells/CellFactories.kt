@@ -108,7 +108,7 @@ fun createCoreCellViewModel(
         is IconThreeTextCellModel -> IconThreeTextCellViewModel(model, intentProvider)
         is IconTextCellModel -> IconTextCellViewModel(model, intentProvider)
         is LabeledTextWithIconCellModel -> LabeledTextWithIconCellViewModel(model, intentProvider)
-        is LabeledTableCellModel -> LabeledTableCellViewModel(model)
+        is LabeledTableCellModel -> LabeledTableCellViewModel(model, intentProvider)
         is SpaceCellModel -> SpaceCellViewModel(model)
         is ShapedSpaceCellModel -> ShapedSpaceCellViewModel(model)
         is TextWithChipCellModel -> TextWithChipCellViewModel(model)

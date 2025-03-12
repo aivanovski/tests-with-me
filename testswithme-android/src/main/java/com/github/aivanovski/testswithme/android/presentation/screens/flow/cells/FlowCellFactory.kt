@@ -36,6 +36,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.viewModel.HistoryItemCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowData
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowSelection
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.FlowCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.viewModel.FlowCellViewModel
 import com.github.aivanovski.testswithme.android.utils.aggregateByFlowUid
@@ -122,6 +123,7 @@ class FlowCellFactory(
     }
 
     fun createRemainedFlowsCellViewModels(
+        selection: FlowSelection,
         data: FlowData,
         requiredAppVersion: AppVersion?,
         installedAppData: ExternalAppData?,
@@ -151,9 +153,15 @@ class FlowCellFactory(
             models.add(newElementSpaceModel())
         }
 
+        val title = when (selection) {
+            is FlowSelection.Remained -> resourceProvider.getString(R.string.remained_tests)
+            is FlowSelection.Passed -> resourceProvider.getString(R.string.passed_tests)
+            is FlowSelection.Failed -> resourceProvider.getString(R.string.failed_tests)
+        }
+
         models.addAll(
             createGroupTitleModels(
-                title = resourceProvider.getString(R.string.remained_tests),
+                title = title,
                 isDriverRunning = isDriverRunning,
                 isAppInstalled = isAppInstalled
             )
@@ -491,6 +499,7 @@ class FlowCellFactory(
                     requiredAppVersion?.name ?: resourceProvider.getString(R.string.any),
                     installedAppData?.appVersion?.name ?: DASH
                 ),
+                isClickable = false,
                 shape = if (isInstalled) CornersShape.BOTTOM else CornersShape.NONE
             )
         )
@@ -533,6 +542,7 @@ class FlowCellFactory(
                     totalRuns.toString(),
                     "$successRate%"
                 ),
+                isClickable = false,
                 shape = CornersShape.TOP
             )
         )
@@ -548,6 +558,7 @@ class FlowCellFactory(
                     passedRuns.toString(),
                     failedRuns.toString()
                 ),
+                isClickable = false,
                 shape = CornersShape.BOTTOM
             )
         )

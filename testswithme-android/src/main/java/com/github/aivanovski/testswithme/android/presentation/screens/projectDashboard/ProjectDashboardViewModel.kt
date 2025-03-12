@@ -1,24 +1,28 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard
 
-import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
-import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
+import com.github.aivanovski.testswithme.android.presentation.core.dialogFactories.OptionDialogFactory
+import com.github.aivanovski.testswithme.android.presentation.core.dialogFactories.OptionDialogFactory.createProgressOptionDialog
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowSelection
 import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.model.GroupEditorScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.FlowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.GroupCellIntent
@@ -29,6 +33,7 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardState
+import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardUiEvent
 import com.github.aivanovski.testswithme.android.presentation.screens.resetRuns.model.ResetRunsScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.MenuState
@@ -37,19 +42,14 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
 import com.github.aivanovski.testswithme.android.utils.toTerminalState
 import com.github.aivanovski.testswithme.extensions.unwrap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 
 class ProjectDashboardViewModel(
     private val interactor: ProjectDashboardInteractor,
@@ -58,36 +58,24 @@ class ProjectDashboardViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: ProjectDashboardScreenArgs
-) : BaseViewModel() {
+) : MviViewModel<ProjectDashboardState, ProjectDashboardIntent>(
+    initialState = ProjectDashboardState(terminalState = TerminalState.Loading),
+    initialIntent = ProjectDashboardIntent.Initialize
+) {
 
-    val state = MutableStateFlow(ProjectDashboardState())
-    private val intents = Channel<ProjectDashboardIntent>()
-    private var isSubscribed = false
-    private val data = MutableStateFlow<ProjectDashboardData?>(null)
-    private val selectedVersionName = MutableStateFlow<String?>(null)
+    private val _events = Channel<ProjectDashboardUiEvent>(capacity = Channel.BUFFERED)
+    val events: Flow<ProjectDashboardUiEvent> = _events.receiveAsFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private var data by mutableStateFlow<ProjectDashboardData?>(null)
+    private var selectedVersionName by mutableStateFlow<String?>(null)
+
     override fun start() {
         super.start()
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
-        if (!isSubscribed) {
-            isSubscribed = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(ProjectDashboardIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-        } else {
-            sendIntent(ProjectDashboardIntent.ReloadData)
-        }
+        sendIntent(ProjectDashboardIntent.ReloadData)
     }
 
     override fun handleCellIntent(intent: BaseCellIntent) {
@@ -99,14 +87,13 @@ class ProjectDashboardViewModel(
             is GroupCellIntent.OnClick -> navigateToGroupScreen(intent.cellId)
             is GroupCellIntent.OnDetailsClick -> navigateToGroupDetailsScreen(intent.cellId)
             is TitleWithIconCellIntent.OnIconClick -> onTitleCellClicked(intent.cellId)
+            is LabeledTextWithIconCellIntent.OnIconClick -> showApplicationOptionsDialog()
+            is ButtonCellIntent.OnClick -> navigateToProjectDownloadsPage()
+            is LabeledTableCellIntent.OnColumnClick -> onTableColumnClicked(intent.columnIndex)
         }
     }
 
-    fun sendIntent(intent: ProjectDashboardIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(intent: ProjectDashboardIntent): Flow<ProjectDashboardState> {
+    override fun handleIntent(intent: ProjectDashboardIntent): Flow<ProjectDashboardState> {
         return when (intent) {
             ProjectDashboardIntent.Initialize -> loadData()
 
@@ -129,6 +116,10 @@ class ProjectDashboardViewModel(
         }
     }
 
+    private fun sendUiEvent(event: ProjectDashboardUiEvent) {
+        _events.trySend(event)
+    }
+
     private fun loadData(versionName: String? = null): Flow<ProjectDashboardState> {
         return interactor.loadData(
             projectUid = args.projectUid,
@@ -140,16 +131,16 @@ class ProjectDashboardViewModel(
                     return@map ProjectDashboardState(terminalState = terminalState)
                 }
 
-                data.value = loadDataResult.unwrap()
+                data = loadDataResult.unwrap()
                 val data = loadDataResult.unwrap()
 
-                selectedVersionName.value = versionName ?: data.versions.firstOrNull()?.name
+                selectedVersionName = versionName ?: data.versions.firstOrNull()?.name
 
-                val isNotEmpty = (data.allFlows.isNotEmpty() && data.allGroups.size > 1)
+                val isNotEmpty = (data.allFlows.isNotEmpty() || data.allGroups.size > 1)
                 if (isNotEmpty) {
                     val viewModels = cellFactory.createCellViewModels(
                         data = data,
-                        selectedVersion = selectedVersionName.value,
+                        selectedVersion = selectedVersionName,
                         intentProvider = intentProvider
                     )
                     ProjectDashboardState(viewModels = viewModels)
@@ -165,15 +156,30 @@ class ProjectDashboardViewModel(
             }
     }
 
+    private fun onTableColumnClicked(columnIndex: Int) {
+        when (columnIndex) {
+            0 -> navigateToPassedFlowsScreen()
+            1 -> navigateToFailedFlowsScreen()
+            2 -> navigateToRemainedFlowsScreen()
+        }
+    }
+
     private fun handleDialogAction(action: DialogAction): Flow<ProjectDashboardState> {
-        return when (action.actionId) {
-            DIALOG_ACTION_RESET_PROGRESS -> {
+        when (action.actionId) {
+            OptionDialogFactory.ACTION_RESET_PROGRESS -> {
                 navigateToResetRunsScreen()
-                dismissOptionDialog()
             }
 
-            else -> dismissOptionDialog()
+            OptionDialogFactory.ACTION_OPEN_DOWNLOADS_PAGE -> {
+                navigateToProjectDownloadsPage()
+            }
+
+            OptionDialogFactory.ACTION_OPEN_WEBSITE -> {
+                navigateToProjectWebsitePage()
+            }
         }
+
+        return dismissOptionDialog()
     }
 
     private fun onHeaderCellClicked(cellId: String) {
@@ -186,16 +192,25 @@ class ProjectDashboardViewModel(
 
     private fun onTitleCellClicked(cellId: String) {
         when (cellId) {
-            CellId.TITLE -> showProjectOptionsDialog()
+            CellId.TITLE -> showProgressOptionsDialog()
             else -> throw IllegalArgumentException("Invalid cellId: $cellId")
         }
     }
 
+    private fun showApplicationOptionsDialog() {
+        state.value = state.value.copy(
+            optionDialogState = OptionDialogFactory.createApplicationOptionsDialog(
+                project = data?.project,
+                resourceProvider = resourceProvider
+            )
+        )
+    }
+
     private fun onVersionsCellClicked(versionIndex: Int) {
-        val data = this.data.value ?: return
+        val data = this.data ?: return
         val newVersion = data.versions.getOrNull(versionIndex) ?: return
 
-        if (newVersion.name != selectedVersionName.value) {
+        if (newVersion.name != selectedVersionName) {
             sendIntent(ProjectDashboardIntent.OnVersionClick(newVersion.name))
         }
     }
@@ -205,23 +220,52 @@ class ProjectDashboardViewModel(
             Screen.Groups(
                 GroupsScreenArgs(
                     projectUid = args.projectUid,
-                    groupUid = data.value?.rootGroup?.uid
+                    groupUid = data?.rootGroup?.uid
                 )
             )
         )
     }
 
     private fun navigateToRemainedFlowsScreen() {
-        val version = getSelectedVersion()
-
         router.navigateTo(
             Screen.Flow(
                 FlowScreenArgs(
-                    mode = FlowScreenMode.RemainedFlows(
+                    mode = FlowScreenMode.FlowList(
                         projectUid = args.projectUid,
-                        version = version
+                        version = getSelectedVersion(),
+                        selection = FlowSelection.Remained
                     ),
                     screenTitle = resourceProvider.getString(R.string.remained_tests)
+                )
+            )
+        )
+    }
+
+    private fun navigateToPassedFlowsScreen() {
+        router.navigateTo(
+            Screen.Flow(
+                FlowScreenArgs(
+                    mode = FlowScreenMode.FlowList(
+                        projectUid = args.projectUid,
+                        version = getSelectedVersion(),
+                        selection = FlowSelection.Passed
+                    ),
+                    screenTitle = resourceProvider.getString(R.string.passed_tests)
+                )
+            )
+        )
+    }
+
+    private fun navigateToFailedFlowsScreen() {
+        router.navigateTo(
+            Screen.Flow(
+                FlowScreenArgs(
+                    mode = FlowScreenMode.FlowList(
+                        projectUid = args.projectUid,
+                        version = getSelectedVersion(),
+                        selection = FlowSelection.Failed
+                    ),
+                    screenTitle = resourceProvider.getString(R.string.failed_tests)
                 )
             )
         )
@@ -305,19 +349,21 @@ class ProjectDashboardViewModel(
         )
     }
 
-    private fun showProjectOptionsDialog() {
-        val options = listOf(
-            resourceProvider.getString(R.string.reset_progress)
-        )
-        val actions = listOf(
-            DialogAction(DIALOG_ACTION_RESET_PROGRESS)
-        )
+    private fun navigateToProjectDownloadsPage() {
+        val downloadsUrl = data?.project?.downloadUrl ?: return
 
+        sendUiEvent(ProjectDashboardUiEvent.OpenUrl(downloadsUrl))
+    }
+
+    private fun navigateToProjectWebsitePage() {
+        val websiteUrl = data?.project?.siteUrl ?: return
+
+        sendUiEvent(ProjectDashboardUiEvent.OpenUrl(websiteUrl))
+    }
+
+    private fun showProgressOptionsDialog() {
         state.value = state.value.copy(
-            optionDialogState = OptionDialogState(
-                options = options,
-                actions = actions
-            )
+            optionDialogState = createProgressOptionDialog(resourceProvider)
         )
     }
 
@@ -330,16 +376,15 @@ class ProjectDashboardViewModel(
     }
 
     private fun findGroupByUid(groupUid: String): GroupEntry? {
-        return data.value?.allGroups?.firstOrNull { group -> group.uid == groupUid }
+        return data?.allGroups?.firstOrNull { group -> group.uid == groupUid }
     }
 
     private fun findFlowByUid(flowUid: String): FlowEntry? {
-        return data.value?.allFlows?.firstOrNull { flow -> flow.uid == flowUid }
+        return data?.allFlows?.firstOrNull { flow -> flow.uid == flowUid }
     }
 
     private fun getSelectedVersion(): AppVersion? {
-        return data.value?.versions
-            ?.firstOrNull { version -> version.name == selectedVersionName.value }
+        return data?.versions?.firstOrNull { version -> version.name == selectedVersionName }
     }
 
     private fun createTopBarState(): TopBarState {
@@ -347,9 +392,5 @@ class ProjectDashboardViewModel(
             title = args.screenTitle,
             isBackVisible = true
         )
-    }
-
-    companion object {
-        private const val DIALOG_ACTION_RESET_PROGRESS = 100
     }
 }

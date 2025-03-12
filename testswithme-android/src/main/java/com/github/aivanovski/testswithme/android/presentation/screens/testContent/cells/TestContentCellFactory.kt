@@ -62,14 +62,17 @@ class TestContentCellFactory(
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
-        models.add(SpaceCellModel(height = GroupMargin))
-
         if (mode !is TestContentScreenMode.FlowContent) {
             val executionResult = getFlowExecutionResult(data)
+            models.add(SpaceCellModel(GroupMargin))
             models.addAll(createStatusModels(executionResult, data.parsedReport))
         }
 
         if (data.report != null) {
+            if (models.isEmpty()) {
+                models.add(SpaceCellModel(GroupMargin))
+            }
+
             models.addAll(createReportModels())
         }
 
@@ -81,7 +84,7 @@ class TestContentCellFactory(
             )
         )
 
-        models.add(SpaceCellModel(height = GroupMargin))
+        models.add(SpaceCellModel(GroupMargin))
 
         return models
     }

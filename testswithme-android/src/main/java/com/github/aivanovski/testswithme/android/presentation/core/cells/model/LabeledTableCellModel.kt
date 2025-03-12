@@ -6,5 +6,6 @@ data class LabeledTableCellModel(
     override val id: String,
     val labels: List<String>,
     val values: List<String>,
+    val isClickable: Boolean,
     val shape: CornersShape
 ) : BaseCellModel(id)
