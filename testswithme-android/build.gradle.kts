@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+data class SigningData(val alias: String, val password: String)
+
 fun getVersionName(): String = libs.versions.appVersion.get()
 
 fun getVersionCode(): Int {
@@ -23,7 +25,9 @@ fun readDebugCredentials(): List<Pair<String, String>> {
     }
 
     val properties = Properties().apply {
-        load(FileInputStream(propertiesFile))
+        FileInputStream(propertiesFile).use {
+            load(it)
+        }
     }
 
     val users = properties.getProperty("androidDebugUsers").trim().split(",")
@@ -35,7 +39,30 @@ fun readDebugCredentials(): List<Pair<String, String>> {
     return credentials
 }
 
+fun readSigningCredentials(): SigningData? {
+    val propertiesFile = File(project.rootProject.rootDir, "data/signing.properties")
+    if (!propertiesFile.exists()) {
+        return null
+    }
+
+    val properties = Properties().apply {
+        FileInputStream(propertiesFile).use {
+            load(it)
+        }
+    }
+
+    val alias = properties.getProperty("releaseKeystoreAlias").trim()
+    val password = properties.getProperty("releaseKeystorePassword").trim()
+
+    return if (alias.isNotEmpty() && password.isNotEmpty()) {
+        SigningData(alias, password)
+    } else {
+        null
+    }
+}
+
 val debugCredentials = readDebugCredentials()
+val signingCredentials = readSigningCredentials()
 
 android {
     namespace = "com.github.aivanovski.testswithme.android"
@@ -52,36 +79,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
-        }
-    }
-
-    buildTypes {
-        debug {
-            isDebuggable = true
-
-            buildConfigField(
-                "String[]",
-                "DEBUG_USERS",
-                debugCredentials.map { (user, _) -> user }
-                    .joinToString(prefix = "{", postfix = "}") { "\"$it\"" }
-            )
-            buildConfigField(
-                "String[]",
-                "DEBUG_PASSWORDS",
-                debugCredentials.map { (_, password) -> password }
-                    .joinToString(prefix = "{", postfix = "}") { "\"$it\"" }
-            )
-        }
-        release {
-            isMinifyEnabled = false
-
-            buildConfigField("String[]", "DEBUG_USERS", "null")
-            buildConfigField("String[]", "DEBUG_PASSWORDS", "null")
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
 
@@ -118,6 +115,52 @@ android {
                     "META-INF/INDEX.LIST",
                     "META-INF/io.netty.versions.properties"
                 )
+            )
+        }
+    }
+
+    signingConfigs {
+        getByName("debug") {
+            storeFile = File(project.rootProject.rootDir, "keys/debug.keystore")
+        }
+
+        create("release") {
+            storeFile = File(project.rootProject.rootDir, "keys/release.keystore")
+            storePassword = signingCredentials?.password.orEmpty()
+            keyAlias = signingCredentials?.alias.orEmpty()
+            keyPassword = signingCredentials?.password.orEmpty()
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
+
+            buildConfigField(
+                "String[]",
+                "DEBUG_USERS",
+                debugCredentials.map { (user, _) -> user }
+                    .joinToString(prefix = "{", postfix = "}") { "\"$it\"" }
+            )
+            buildConfigField(
+                "String[]",
+                "DEBUG_PASSWORDS",
+                debugCredentials.map { (_, password) -> password }
+                    .joinToString(prefix = "{", postfix = "}") { "\"$it\"" }
+            )
+        }
+
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+
+            buildConfigField("String[]", "DEBUG_USERS", "null")
+            buildConfigField("String[]", "DEBUG_PASSWORDS", "null")
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
     }
