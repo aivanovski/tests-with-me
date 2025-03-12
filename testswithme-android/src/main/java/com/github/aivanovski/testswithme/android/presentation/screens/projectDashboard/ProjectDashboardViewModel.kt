@@ -10,6 +10,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellIntent
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
@@ -21,6 +22,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.navigation.Ro
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowScreenMode
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.FlowSelection
 import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.model.GroupEditorScreenArgs
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.FlowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.GroupCellIntent
@@ -87,6 +89,7 @@ class ProjectDashboardViewModel(
             is TitleWithIconCellIntent.OnIconClick -> onTitleCellClicked(intent.cellId)
             is LabeledTextWithIconCellIntent.OnIconClick -> showApplicationOptionsDialog()
             is ButtonCellIntent.OnClick -> navigateToProjectDownloadsPage()
+            is LabeledTableCellIntent.OnColumnClick -> onTableColumnClicked(intent.columnIndex)
         }
     }
 
@@ -153,6 +156,14 @@ class ProjectDashboardViewModel(
             }
     }
 
+    private fun onTableColumnClicked(columnIndex: Int) {
+        when (columnIndex) {
+            0 -> navigateToPassedFlowsScreen()
+            1 -> navigateToFailedFlowsScreen()
+            2 -> navigateToRemainedFlowsScreen()
+        }
+    }
+
     private fun handleDialogAction(action: DialogAction): Flow<ProjectDashboardState> {
         when (action.actionId) {
             OptionDialogFactory.ACTION_RESET_PROGRESS -> {
@@ -216,16 +227,45 @@ class ProjectDashboardViewModel(
     }
 
     private fun navigateToRemainedFlowsScreen() {
-        val version = getSelectedVersion()
-
         router.navigateTo(
             Screen.Flow(
                 FlowScreenArgs(
-                    mode = FlowScreenMode.RemainedFlows(
+                    mode = FlowScreenMode.FlowList(
                         projectUid = args.projectUid,
-                        version = version
+                        version = getSelectedVersion(),
+                        selection = FlowSelection.Remained
                     ),
                     screenTitle = resourceProvider.getString(R.string.remained_tests)
+                )
+            )
+        )
+    }
+
+    private fun navigateToPassedFlowsScreen() {
+        router.navigateTo(
+            Screen.Flow(
+                FlowScreenArgs(
+                    mode = FlowScreenMode.FlowList(
+                        projectUid = args.projectUid,
+                        version = getSelectedVersion(),
+                        selection = FlowSelection.Passed
+                    ),
+                    screenTitle = resourceProvider.getString(R.string.passed_tests)
+                )
+            )
+        )
+    }
+
+    private fun navigateToFailedFlowsScreen() {
+        router.navigateTo(
+            Screen.Flow(
+                FlowScreenArgs(
+                    mode = FlowScreenMode.FlowList(
+                        projectUid = args.projectUid,
+                        version = getSelectedVersion(),
+                        selection = FlowSelection.Failed
+                    ),
+                    screenTitle = resourceProvider.getString(R.string.failed_tests)
                 )
             )
         )

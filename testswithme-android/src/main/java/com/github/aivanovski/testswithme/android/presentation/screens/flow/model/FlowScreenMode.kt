@@ -23,8 +23,9 @@ sealed class FlowScreenMode {
     ) : FlowScreenMode()
 
     @Serializable
-    data class RemainedFlows(
+    data class FlowList(
         val projectUid: String,
-        val version: AppVersion?
+        val version: AppVersion?,
+        val selection: FlowSelection
     ) : FlowScreenMode()
 }

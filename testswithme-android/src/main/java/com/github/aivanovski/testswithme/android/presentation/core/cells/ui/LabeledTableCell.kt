@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.presentation.core.cells.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -13,9 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.LabeledTableCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.compose.PreviewIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedPreview
+import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightTheme
@@ -25,6 +29,9 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.toCom
 @Composable
 fun LabeledTableCell(viewModel: LabeledTableCellViewModel) {
     val model = viewModel.model
+
+    val onClick = rememberOnClickedCallback {
+    }
 
     Card(
         shape = model.shape.toComposeShape(),
@@ -57,6 +64,17 @@ fun LabeledTableCell(viewModel: LabeledTableCellViewModel) {
                     modifier = Modifier
                         .weight(weight = weight)
                         .fillMaxWidth()
+                        .clickable(
+                            enabled = model.isClickable,
+                            onClick = {
+                                val intent = LabeledTableCellIntent.OnColumnClick(
+                                    cellId = model.id,
+                                    columnIndex = columnIndex
+                                )
+
+                                viewModel.sendIntent(intent)
+                            }
+                        )
                 ) {
                     Text(
                         text = labelText,
@@ -99,8 +117,10 @@ fun newTableCellViewModel(
         id = "id",
         labels = labels,
         values = values,
+        isClickable = false,
         shape = shape
-    )
+    ),
+    intentProvider = PreviewIntentProvider
 )
 
 fun newOneColumnTableCell(shape: CornersShape = CornersShape.ALL) =
@@ -109,8 +129,10 @@ fun newOneColumnTableCell(shape: CornersShape = CornersShape.ALL) =
             id = "id",
             labels = listOf("Column 1"),
             values = listOf("Value 1"),
+            isClickable = false,
             shape = shape
-        )
+        ),
+        intentProvider = PreviewIntentProvider
     )
 
 fun newTwoColumnsTableCell(shape: CornersShape = CornersShape.ALL) =
@@ -119,8 +141,10 @@ fun newTwoColumnsTableCell(shape: CornersShape = CornersShape.ALL) =
             id = "id",
             labels = listOf("Column 1", "Column 2"),
             values = listOf("Value 1", "Value 2"),
+            isClickable = false,
             shape = shape
-        )
+        ),
+        intentProvider = PreviewIntentProvider
     )
 
 fun newThreeColumnsTableCell(shape: CornersShape = CornersShape.ALL) =
@@ -129,6 +153,8 @@ fun newThreeColumnsTableCell(shape: CornersShape = CornersShape.ALL) =
             id = "id",
             labels = listOf("Column 1", "Column 2", "Column 3"),
             values = listOf("Value 1", "Value 2", "Value 3"),
+            isClickable = false,
             shape = shape
-        )
+        ),
+        intentProvider = PreviewIntentProvider
     )

@@ -196,7 +196,7 @@ class FlowViewModel(
             is FlowScreenMode.Group ->
                 sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
 
-            is FlowScreenMode.RemainedFlows ->
+            is FlowScreenMode.FlowList ->
                 sendIntent(FlowIntent.RunFlows(data.visibleFlows.toUids()))
 
             is FlowScreenMode.LocalFlow ->
@@ -412,9 +412,10 @@ class FlowViewModel(
                 )
             }
 
-            is FlowScreenMode.RemainedFlows -> {
+            is FlowScreenMode.FlowList -> {
                 FlowState(
                     viewModels = cellFactory.createRemainedFlowsCellViewModels(
+                        selection = args.mode.selection,
                         data = data,
                         requiredAppVersion = args.mode.version,
                         installedAppData = appData,
@@ -523,7 +524,7 @@ class FlowViewModel(
             is FlowScreenMode.LocalFlow -> data.visibleFlows.first().name
             is FlowScreenMode.Flow -> data.visibleFlows.first().name
             is FlowScreenMode.Group -> data.group?.name ?: StringUtils.EMPTY
-            is FlowScreenMode.RemainedFlows -> resourceProvider.getString(R.string.remained_tests)
+            is FlowScreenMode.FlowList -> resourceProvider.getString(R.string.remained_tests)
         }
 
         return TopBarState(

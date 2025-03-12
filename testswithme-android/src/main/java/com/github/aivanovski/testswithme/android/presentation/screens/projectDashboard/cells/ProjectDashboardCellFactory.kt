@@ -129,6 +129,7 @@ class ProjectDashboardCellFactory(
                     installedAppData?.appVersion?.name
                         ?: resourceProvider.getString(R.string.not_installed)
                 ),
+                isClickable = false,
                 shape = if (isInstalled) CornersShape.BOTTOM else CornersShape.NONE
             )
         )
@@ -246,6 +247,7 @@ class ProjectDashboardCellFactory(
                         data.failedFlows.size.toString(),
                         data.remainedFlows.size.toString()
                     ),
+                    isClickable = true,
                     shape = CornersShape.NONE
                 ),
                 ShapedSpaceCellModel(
