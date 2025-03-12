@@ -8,15 +8,18 @@ import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
+import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ShapedSpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipItem
@@ -25,8 +28,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.T
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.GroupMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
+import com.github.aivanovski.testswithme.android.presentation.screens.flow.model.ExternalAppData
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.FlowCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.model.GroupCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.groups.cells.viewModel.FlowCellViewModel
@@ -69,22 +74,75 @@ class ProjectDashboardCellFactory(
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
-        if (data.allFlows.isNotEmpty()) {
-            models.add(SpaceCellModel(ElementMargin))
-            models.addAll(createProgressSection(data, selectedVersion))
+        models.add(SpaceCellModel(GroupMargin))
+        models.addAll(
+            createApplicationInfoModels(
+                project = data.project,
+                installedAppData = data.installedAppData
+            )
+        )
+        models.add(SpaceCellModel(ElementMargin))
 
-            if (data.remainedFlows.isNotEmpty()) {
-                models.addAll(createRemainedSection(data))
-            }
+        if (data.allFlows.isNotEmpty() || data.allGroups.size > 1) {
+            if (data.allFlows.isNotEmpty()) {
+                models.addAll(createProgressSection(data, selectedVersion))
 
-            if (models.isEmpty()) {
-                models.add(SpaceCellModel(ElementMargin))
-            } else {
+                if (data.remainedFlows.isNotEmpty()) {
+                    models.addAll(createRemainedSection(data))
+                }
+
                 models.add(SpaceCellModel(SmallMargin))
             }
 
             models.addAll(createRootGroupSection(data))
             models.add(SpaceCellModel(ElementMargin))
+        }
+
+        return models
+    }
+
+    private fun createApplicationInfoModels(
+        project: ProjectEntry,
+        installedAppData: ExternalAppData?
+    ): List<BaseCellModel> {
+        val models = mutableListOf<BaseCellModel>()
+        val installedVersion = installedAppData?.appVersion
+        val isInstalled = (installedVersion != null)
+
+        models.add(
+            LabeledTextWithIconCellModel(
+                id = CellId.APPLICATION_NAME,
+                label = resourceProvider.getString(R.string.application),
+                text = project.name,
+                icon = AppIcons.Menu,
+                shape = CornersShape.TOP
+            )
+        )
+
+        models.add(
+            LabeledTableCellModel(
+                id = CellId.APPLICATION_VERSION,
+                labels = listOf(
+                    resourceProvider.getString(R.string.installed_version)
+                ),
+                values = listOf(
+                    installedAppData?.appVersion?.name
+                        ?: resourceProvider.getString(R.string.not_installed)
+                ),
+                shape = if (isInstalled) CornersShape.BOTTOM else CornersShape.NONE
+            )
+        )
+
+        if (!isInstalled) {
+            models.add(
+                ButtonCellModel(
+                    id = CellId.INSTALL_APPLICATION_BUTTON,
+                    isButtonEnabled = true,
+                    buttonColor = themeProvider.theme.colors.greenButton,
+                    text = resourceProvider.getString(R.string.install_app),
+                    shape = CornersShape.BOTTOM
+                )
+            )
         }
 
         return models
@@ -235,10 +293,11 @@ class ProjectDashboardCellFactory(
             )
         )
 
-        val visibleGroups = data.visibleGroups.take(MAX_VISIBLE_ELEMENTS)
-        val groupTree = data.allGroups
-            .filter { group -> group.parentUid != null }
-            .buildGroupTree()
+        val groupTree = data.allGroups.buildGroupTree()
+        val uidToGroupMap = data.allGroups.associateBy { group -> group.uid }
+
+        val visibleGroups = groupTree.nodes
+            .mapNotNull { node -> uidToGroupMap[node.entity.uid] }
 
         for ((index, group) in visibleGroups.withIndex()) {
             if (index > 0) {
@@ -268,20 +327,20 @@ class ProjectDashboardCellFactory(
             )
         }
 
-        if (visibleGroups.size < MAX_VISIBLE_ELEMENTS) {
-            if (visibleGroups.isNotEmpty()) {
-                models.add(SpaceCellModel(SmallMargin))
-            }
-
-            val visibleFlows = data.visibleFlows.take(MAX_VISIBLE_ELEMENTS - visibleGroups.size)
-
-            models.addAll(
-                createFlowCellModels(
-                    flows = visibleFlows,
-                    allRuns = data.allRuns
-                )
-            )
-        }
+        // if (visibleGroups.size < MAX_VISIBLE_ELEMENTS) {
+        //     if (visibleGroups.isNotEmpty()) {
+        //         models.add(SpaceCellModel(SmallMargin))
+        //     }
+        //
+        //     val visibleFlows = data.visibleFlows.take(MAX_VISIBLE_ELEMENTS - visibleGroups.size)
+        //
+        //     models.addAll(
+        //         createFlowCellModels(
+        //             flows = visibleFlows,
+        //             allRuns = data.allRuns
+        //         )
+        //     )
+        // }
 
         return models
     }
@@ -351,6 +410,9 @@ class ProjectDashboardCellFactory(
     }
 
     object CellId {
+        const val APPLICATION_NAME = "application-name"
+        const val APPLICATION_VERSION = "application-version"
+        const val INSTALL_APPLICATION_BUTTON = "install-application-button"
         const val TITLE = "title"
         const val PROGRESS = "progress"
         const val STATS_TABLE = "stats-table"

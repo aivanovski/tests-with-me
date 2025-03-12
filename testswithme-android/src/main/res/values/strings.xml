@@ -113,6 +113,7 @@
     <string name="remained_tests">Remained tests</string>
     <string name="empty_project_message">This project doesn\'t have any tests yet</string>
     <string name="reset_progress">Reset progress</string>
+    <string name="not_installed">Not installed</string>
 
     <!-- Project Editor -->
     <string name="create_project">Create Project</string>

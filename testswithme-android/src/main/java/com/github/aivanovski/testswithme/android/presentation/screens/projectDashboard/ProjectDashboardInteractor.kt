@@ -92,7 +92,11 @@ class ProjectDashboardInteractor(
                 val (passed, failed, remained) =
                     filteredFlows.aggregatePassedFailedAndRemainedFlows(versionRuns)
 
+                val installedAppData = getAppDataUseCase.getApplicationData(project.packageName)
+                    .getOrNull()
+
                 ProjectDashboardData(
+                    project = project,
                     versions = versions,
                     allRuns = filteredRuns,
                     allFlows = filteredFlows,
@@ -103,7 +107,8 @@ class ProjectDashboardInteractor(
                     remainedFlows = remained,
                     rootGroup = rootGroup,
                     visibleGroups = visibleGroups,
-                    visibleFlows = visibleFlows
+                    visibleFlows = visibleFlows,
+                    installedAppData = installedAppData
                 )
             }
         }

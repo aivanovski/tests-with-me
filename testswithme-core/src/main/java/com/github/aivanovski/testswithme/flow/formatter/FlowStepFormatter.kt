@@ -45,7 +45,7 @@ class FlowStepFormatter {
             is FlowStep.SendBroadcast -> this.formatSendBroadcast(format)
             is FlowStep.TapOn -> this.formatTapOn()
             is FlowStep.AssertVisible -> this.formatAssertVisible()
-            is FlowStep.AssertNotVisible -> this.toString() // TODO: implement
+            is FlowStep.AssertNotVisible -> this.formatAssertNotVisible()
             is FlowStep.InputText -> this.formatInputText(format)
             is FlowStep.PressKey -> this.toString() // TODO: implement
             is FlowStep.WaitUntil -> this.formatWaitUntil(format)
@@ -95,8 +95,39 @@ class FlowStepFormatter {
     private fun FlowStep.AssertVisible.formatAssertVisible(): String =
         buildString {
             append(INDENT)
-            // TODO: implement other elements
-            append(elements.first().format())
+            if (elements.size > 1) {
+                append("[")
+
+                for ((index, element) in elements.withIndex()) {
+                    if (index > 0) {
+                        append(", ")
+                    }
+                    append(element.text)
+                }
+
+                append("]")
+            } else {
+                append(elements.first().format())
+            }
+        }
+
+    private fun FlowStep.AssertNotVisible.formatAssertNotVisible(): String =
+        buildString {
+            append(INDENT)
+            if (elements.size > 1) {
+                append("[")
+
+                for ((index, element) in elements.withIndex()) {
+                    if (index > 0) {
+                        append(", ")
+                    }
+                    append(element.text)
+                }
+
+                append("]")
+            } else {
+                append(elements.first().format())
+            }
         }
 
     private fun FlowStep.TapOn.formatTapOn(): String =
@@ -184,6 +215,6 @@ class FlowStepFormatter {
     }
 
     companion object {
-        private val INDENT = ""
+        private const val INDENT = ""
     }
 }

@@ -1,5 +1,6 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.aivanovski.testswithme.android.R
@@ -29,6 +31,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIc
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+import com.github.aivanovski.testswithme.android.presentation.core.compose.events.SingleEventEffect
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
@@ -48,6 +51,8 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnDismissOptionDialog
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnOptionDialogClick
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardState
+import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardUiEvent
+import com.github.aivanovski.testswithme.android.utils.IntentUtils
 
 @Composable
 fun ProjectDashboardScreen(viewModel: ProjectDashboardViewModel) {
@@ -56,6 +61,20 @@ fun ProjectDashboardScreen(viewModel: ProjectDashboardViewModel) {
     ProjectDashboardScreen(
         state = state,
         onIntent = viewModel::sendIntent
+    )
+
+    val context = LocalContext.current
+
+    SingleEventEffect(
+        eventFlow = viewModel.events,
+        collector = { event ->
+            when (event) {
+                is ProjectDashboardUiEvent.OpenUrl -> {
+                    val intent = Intent.createChooser(IntentUtils.newOpenUrlIntent(event.url), null)
+                    context.startActivity(intent)
+                }
+            }
+        }
     )
 }
 

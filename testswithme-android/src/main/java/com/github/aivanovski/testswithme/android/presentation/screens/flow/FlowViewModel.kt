@@ -16,7 +16,8 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
-import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
+import com.github.aivanovski.testswithme.android.presentation.core.dialogFactories.OptionDialogFactory
+import com.github.aivanovski.testswithme.android.presentation.core.dialogFactories.OptionDialogFactory.createApplicationOptionsDialog
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.flow.cells.FlowCellFactory
@@ -208,37 +209,21 @@ class FlowViewModel(
     }
 
     private fun showApplicationOptionsDialog() {
-        val optionsAndActions = mutableListOf(
-            Pair(
-                resourceProvider.getString(R.string.open_downloads_page),
-                DIALOG_ACTION_OPEN_DOWNLOADS
-            )
-        )
-
-        if (data?.project?.siteUrl != null) {
-            optionsAndActions.add(
-                Pair(
-                    resourceProvider.getString(R.string.open_project_website),
-                    DIALOG_ACTION_OPEN_WEBSITE
-                )
-            )
-        }
-
         state.value = state.value.copy(
-            optionDialogState = OptionDialogState(
-                options = optionsAndActions.map { it.first },
-                actions = optionsAndActions.map { DialogAction(it.second) }
+            optionDialogState = createApplicationOptionsDialog(
+                project = data?.project,
+                resourceProvider = resourceProvider
             )
         )
     }
 
     private fun handleOptionDialogAction(action: DialogAction): Flow<FlowState> {
         when (action.actionId) {
-            DIALOG_ACTION_OPEN_DOWNLOADS -> {
+            OptionDialogFactory.ACTION_OPEN_DOWNLOADS_PAGE -> {
                 navigateToProjectDownloadsPage()
             }
 
-            DIALOG_ACTION_OPEN_WEBSITE -> {
+            OptionDialogFactory.ACTION_OPEN_WEBSITE -> {
                 navigateToProjectWebsitePage()
             }
         }
@@ -652,7 +637,7 @@ class FlowViewModel(
     companion object {
         private const val DIALOG_ACTION_CANCEL_FLOW = 1
         private const val DIALOG_ACTION_LAUNCH_SERVICES = 2
-        private const val DIALOG_ACTION_OPEN_WEBSITE = 3
-        private const val DIALOG_ACTION_OPEN_DOWNLOADS = 4
+        // private const val DIALOG_ACTION_OPEN_WEBSITE = 3
+        // private const val DIALOG_ACTION_OPEN_DOWNLOADS = 4
     }
 }
