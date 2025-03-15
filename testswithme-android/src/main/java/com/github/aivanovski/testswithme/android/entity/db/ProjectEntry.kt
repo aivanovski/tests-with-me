@@ -29,5 +29,8 @@ data class ProjectEntry(
     val imageUrl: String?,
 
     @ColumnInfo("siteUrl")
-    val siteUrl: String?
+    val siteUrl: String?,
+
+    @ColumnInfo("repositoryUrl")
+    val repositoryUrl: String?
 )

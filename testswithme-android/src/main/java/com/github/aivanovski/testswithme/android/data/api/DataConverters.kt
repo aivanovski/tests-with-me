@@ -87,7 +87,8 @@ fun List<ProjectsItemDto>.toProjects(): List<ProjectEntry> {
             packageName = item.packageName,
             downloadUrl = item.downloadUrl,
             imageUrl = item.imageUrl,
-            siteUrl = item.siteUrl
+            siteUrl = item.siteUrl,
+            repositoryUrl = item.repositoryUrl
         )
     }
 }

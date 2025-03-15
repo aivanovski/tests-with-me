@@ -12,7 +12,13 @@ sealed interface ProjectDashboardIntent {
 
     data object OnDismissOptionDialog : ProjectDashboardIntent
 
+    data object OnDismissMessageDialog : ProjectDashboardIntent
+
     data class OnOptionDialogClick(
+        val action: DialogAction
+    ) : ProjectDashboardIntent
+
+    data class OnMessageDialogClick(
         val action: DialogAction
     ) : ProjectDashboardIntent
 

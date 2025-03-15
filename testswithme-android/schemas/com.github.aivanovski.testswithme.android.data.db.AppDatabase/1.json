@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1ba4d42242782b256775c2ebb6b4c21a",
+    "identityHash": "422f985a60dea09081c61c8543562e06",
     "entities": [
       {
         "tableName": "step_entry",
@@ -346,7 +346,7 @@
       },
       {
         "tableName": "project_entry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `uid` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `packageName` TEXT NOT NULL, `downloadUrl` TEXT NOT NULL, `imageUrl` TEXT, `siteUrl` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `uid` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `packageName` TEXT NOT NULL, `downloadUrl` TEXT NOT NULL, `imageUrl` TEXT, `siteUrl` TEXT, `repositoryUrl` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -393,6 +393,12 @@
           {
             "fieldPath": "siteUrl",
             "columnName": "siteUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "repositoryUrl",
+            "columnName": "repositoryUrl",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -554,7 +560,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ba4d42242782b256775c2ebb6b4c21a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '422f985a60dea09081c61c8543562e06')"
     ]
   }
 }
