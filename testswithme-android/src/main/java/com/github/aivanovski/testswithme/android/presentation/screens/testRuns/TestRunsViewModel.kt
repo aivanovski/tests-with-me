@@ -4,10 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.SourceType
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.isLoading
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
@@ -26,15 +27,10 @@ import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.m
 import com.github.aivanovski.testswithme.android.presentation.screens.testRuns.model.TestRunsState
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class TestRunsViewModel(
@@ -43,11 +39,11 @@ class TestRunsViewModel(
     private val resourceProvider: ResourceProvider,
     private val rootViewModel: RootViewModel,
     private val router: Router
-) : BaseViewModel() {
+) : CellsMviViewModel<TestRunsState, TestRunsIntent>(
+    initialState = TestRunsState(terminalState = TerminalState.Loading),
+    initialIntent = TestRunsIntent.Initialize
+) {
 
-    val state = MutableStateFlow(TestRunsState())
-    private val intents = Channel<TestRunsIntent>()
-    private var isSubscribed = false
     private val data = MutableStateFlow<TestRunsData?>(null)
 
     override fun start() {
@@ -57,26 +53,16 @@ class TestRunsViewModel(
         rootViewModel.sendIntent(SetBottomBarState(createBottomBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
-        if (!isSubscribed) {
-            isSubscribed = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(TestRunsIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent, state.value) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-
+        doOnceWhenStarted {
             viewModelScope.launch {
                 interactor.isLoggedInFlow()
                     .collect {
-                        intents.trySend(TestRunsIntent.ReloadData)
+                        sendIntent(TestRunsIntent.ReloadData)
                     }
             }
-        } else {
+        }
+
+        if (!state.value.isLoading()) {
             sendIntent(TestRunsIntent.ReloadData)
         }
     }
@@ -87,13 +73,8 @@ class TestRunsViewModel(
         }
     }
 
-    fun sendIntent(intent: TestRunsIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(
+    override fun handleIntent(
         intent: TestRunsIntent,
-        state: TestRunsState
     ): Flow<TestRunsState> {
         return when (intent) {
             TestRunsIntent.Initialize -> loadData()

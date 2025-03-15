@@ -1,11 +1,11 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.groups
 
-import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
@@ -32,20 +32,15 @@ import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class GroupsViewModel(
@@ -55,33 +50,20 @@ class GroupsViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: GroupsScreenArgs
-) : BaseViewModel() {
-
-    val state = MutableStateFlow(GroupsState(terminalState = TerminalState.Loading))
-    private val intents = Channel<GroupsIntent>()
+) : CellsMviViewModel<GroupsState, GroupsIntent>(
+    initialState = GroupsState(terminalState = TerminalState.Loading),
+    initialIntent = GroupsIntent.Initialize
+) {
 
     private var data = MutableStateFlow<GroupsData?>(null)
     private var selectedGroup = MutableStateFlow<GroupEntry?>(null)
     private var selectedFlow = MutableStateFlow<FlowEntry?>(null)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
         super.start()
 
         rootViewModel.sendIntent(SetTopBarState(createInitialTopBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
-
-        doOnceWhenStarted {
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(GroupsIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-        }
     }
 
     override fun handleCellIntent(intent: BaseCellIntent) {
@@ -94,11 +76,7 @@ class GroupsViewModel(
         }
     }
 
-    fun sendIntent(intent: GroupsIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(intent: GroupsIntent): Flow<GroupsState> {
+    override fun handleIntent(intent: GroupsIntent): Flow<GroupsState> {
         return when (intent) {
             GroupsIntent.Initialize -> loadData()
             GroupsIntent.ReloadData -> loadData()

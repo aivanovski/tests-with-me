@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.projectEd
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.DeprecatedBaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.projectEditor.model.ProjectEditorArgs
@@ -38,7 +38,7 @@ class ProjectEditorViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: ProjectEditorArgs
-) : BaseViewModel() {
+) : DeprecatedBaseViewModel() {
 
     val state = MutableStateFlow(newLoadingState())
     private val intents = Channel<ProjectEditorIntent>()

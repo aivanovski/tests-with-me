@@ -5,6 +5,7 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
@@ -63,7 +64,7 @@ class ProjectDashboardViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: ProjectDashboardScreenArgs
-) : MviViewModel<ProjectDashboardState, ProjectDashboardIntent>(
+) : CellsMviViewModel<ProjectDashboardState, ProjectDashboardIntent>(
     initialState = ProjectDashboardState(terminalState = TerminalState.Loading),
     initialIntent = ProjectDashboardIntent.Initialize
 ) {

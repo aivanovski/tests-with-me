@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.projects
 import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
@@ -25,16 +25,10 @@ import com.github.aivanovski.testswithme.android.presentation.screens.root.model
 import com.github.aivanovski.testswithme.android.presentation.screens.root.model.TopBarState
 import com.github.aivanovski.testswithme.android.utils.formatError
 import com.github.aivanovski.testswithme.extensions.unwrap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class ProjectsViewModel(
@@ -43,12 +37,12 @@ class ProjectsViewModel(
     private val resourceProvider: ResourceProvider,
     private val rootViewModel: RootViewModel,
     private val router: Router
-) : BaseViewModel() {
+) : CellsMviViewModel<ProjectsState, ProjectsIntent>(
+    initialState = ProjectsState(terminalState = TerminalState.Loading),
+    initialIntent = ProjectsIntent.Initialize
+) {
 
-    val state = MutableStateFlow(ProjectsState(terminalState = TerminalState.Loading))
-    private val intents = Channel<ProjectsIntent>()
     private var data: ProjectsData? = null
-    private var isSubscribed = false
 
     override fun start() {
         super.start()
@@ -57,23 +51,11 @@ class ProjectsViewModel(
         rootViewModel.sendIntent(SetBottomBarState(createBottomBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
-        if (!isSubscribed) {
-            isSubscribed = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(ProjectsIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent, state.value) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-
+        doOnceWhenStarted {
             viewModelScope.launch {
                 interactor.isLoggedInFlow()
                     .collect {
-                        intents.trySend(ProjectsIntent.ReloadData)
+                        sendIntent(ProjectsIntent.ReloadData)
                     }
             }
         }
@@ -87,13 +69,8 @@ class ProjectsViewModel(
         }
     }
 
-    fun sendIntent(intent: ProjectsIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(
+    override fun handleIntent(
         intent: ProjectsIntent,
-        state: ProjectsState
     ): Flow<ProjectsState> {
         return when (intent) {
             ProjectsIntent.Initialize -> loadData()

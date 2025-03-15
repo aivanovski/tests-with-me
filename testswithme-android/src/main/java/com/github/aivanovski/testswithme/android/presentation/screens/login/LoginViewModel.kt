@@ -3,6 +3,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.login
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.extensions.asFlow
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.UnshapedChipRowCellIntent
@@ -34,7 +35,7 @@ class LoginViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: LoginScreenArgs
-) : MviViewModel<LoginState, LoginIntent>(
+) : CellsMviViewModel<LoginState, LoginIntent>(
     initialState = LoginState(terminalState = TerminalState.Loading),
     initialIntent = LoginIntent.Initialize
 ) {

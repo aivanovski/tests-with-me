@@ -5,7 +5,7 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
@@ -27,17 +27,11 @@ import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.dto.EntityReferenceDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class UploadTestViewModel(
@@ -46,11 +40,11 @@ class UploadTestViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: UploadTestScreenArgs
-) : BaseViewModel() {
+) : MviViewModel<UploadTestState, UploadTestIntent>(
+    initialState = UploadTestState(terminalState = TerminalState.Loading),
+    initialIntent = UploadTestIntent.Initialize
+) {
 
-    val state = MutableStateFlow(newInitialState())
-    private val intents = Channel<UploadTestIntent>()
-    private var isInitialized = false
     private val data = MutableStateFlow<UploadTestScreenData?>(null)
     private val newFlowUid = MutableStateFlow<String?>(null)
 
@@ -58,37 +52,16 @@ class UploadTestViewModel(
         super.start()
 
         rootViewModel.sendIntent(SetTopBarState(createInitialTopBarState()))
-
-        if (!isInitialized) {
-            isInitialized = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(UploadTestIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent, state.value) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-        }
     }
 
-    fun sendIntent(intent: UploadTestIntent) {
-        viewModelScope.launch {
-            intents.send(intent)
-        }
-    }
-
-    private fun handleIntent(
-        intent: UploadTestIntent,
-        state: UploadTestState
+    override fun handleIntent(
+        intent: UploadTestIntent
     ): Flow<UploadTestState> {
         return when (intent) {
             UploadTestIntent.Initialize -> loadData()
-            UploadTestIntent.OnUploadButtonClick -> uploadTest(state)
-            is UploadTestIntent.OnProjectSelected -> onProjectSelected(intent, state)
-            is UploadTestIntent.OnGroupSelected -> onGroupSelected(intent, state)
+            UploadTestIntent.OnUploadButtonClick -> uploadTest(state.value)
+            is UploadTestIntent.OnProjectSelected -> onProjectSelected(intent, state.value)
+            is UploadTestIntent.OnGroupSelected -> onGroupSelected(intent, state.value)
             is UploadTestIntent.OnDialogActionClick -> onDialogClick(intent)
         }
     }
@@ -291,10 +264,6 @@ class UploadTestViewModel(
                 actionId = ACTION_OK
             )
         )
-    }
-
-    private fun newInitialState(): UploadTestState {
-        return UploadTestState(terminalState = TerminalState.Loading)
     }
 
     companion object {
