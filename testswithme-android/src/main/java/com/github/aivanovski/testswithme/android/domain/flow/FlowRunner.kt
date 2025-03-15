@@ -16,14 +16,18 @@ import com.github.aivanovski.testswithme.android.entity.db.JobEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
 import com.github.aivanovski.testswithme.android.presentation.MainActivity
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
+import com.github.aivanovski.testswithme.domain.fomatters.CompactNodeFormatter
 import com.github.aivanovski.testswithme.entity.UiNode
 import com.github.aivanovski.testswithme.entity.exception.CancelledExecutionException
 import com.github.aivanovski.testswithme.entity.exception.DriverDisconnectedException
 import com.github.aivanovski.testswithme.entity.exception.FlowExecutionException
+import com.github.aivanovski.testswithme.extensions.format
+import com.github.aivanovski.testswithme.extensions.getRootCause
 import com.github.aivanovski.testswithme.extensions.toSerializableTree
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.flow.driver.Driver
+import com.github.aivanovski.testswithme.flow.error.FlowError
 import com.github.aivanovski.testswithme.flow.runner.ExecutionContext
 import com.github.aivanovski.testswithme.flow.runner.listener.ListenerComposite
 import com.github.aivanovski.testswithme.flow.runner.report.ReportCollector
@@ -62,6 +66,7 @@ class FlowRunner(
     private val commandFactory = StepCommandFactory(interactor)
     private val timeCollector = TimeCollector()
     private val reportCollector = ReportCollector()
+    private val uiNodeFormatter = CompactNodeFormatter()
 
     init {
         flowLifecycleListeners.add(
@@ -233,7 +238,10 @@ class FlowRunner(
     ) {
         Timber.e("onErrorOccurred: jobUid=%s, error=%s", jobUid, exception)
         Timber.e(exception)
+
         state = FlowRunnerState.IDLE
+
+        printUiTreeIfCan(exception)
 
         if (jobUid != null) {
             val job = interactor.getJobByUid(jobUid).getOrNull()
@@ -245,6 +253,26 @@ class FlowRunner(
                     )
                 )
             }
+        }
+    }
+
+    private fun printUiTreeIfCan(exception: AppException) {
+        val cause = exception.getRootCause()
+
+        val uiTree = if (cause is FlowExecutionException) {
+            when (val flowError = cause.error) {
+                is FlowError.AssertionError -> flowError.uiRoot
+                is FlowError.FailedToFindUiNodeError -> flowError.uiRoot
+                else -> getUiTreeOrNull()
+            }
+        } else {
+            getUiTreeOrNull()
+        }
+
+        if (uiTree != null) {
+            val formattedTree = uiTree.format(uiNodeFormatter)
+            Timber.e("UI Tree:")
+            Timber.e(formattedTree)
         }
     }
 
@@ -283,6 +311,8 @@ class FlowRunner(
                 attemptIndex = executionData.attemptCount
             )
             if (nextActionResult.isLeft()) {
+                printUiTreeIfCan(nextActionResult.unwrapError())
+
                 finishFlowExecution(
                     jobUid = job.uid,
                     isRunNextAllowed = (job.onFinishAction == OnFinishAction.RUN_NEXT)
