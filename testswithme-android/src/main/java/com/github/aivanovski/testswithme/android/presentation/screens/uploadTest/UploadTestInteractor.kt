@@ -55,8 +55,8 @@ class UploadTestInteractor(
 
             val updatedFlow = flow.entry.copy(
                 uid = newFlowUid,
-                projectUid = request.projectId.orEmpty(),
-                groupUid = request.groupId,
+                projectUid = request.parent.projectId.orEmpty(),
+                groupUid = request.parent.groupId,
                 sourceType = SourceType.REMOTE
             )
 

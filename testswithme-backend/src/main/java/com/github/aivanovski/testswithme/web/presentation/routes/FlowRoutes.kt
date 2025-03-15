@@ -14,6 +14,7 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 
 fun Routing.flowRoutes() {
     val authService: AuthService by lazy { get() }
@@ -36,6 +37,13 @@ fun Routing.flowRoutes() {
         post("/$FLOW") {
             handleResponseWithUser(authService, call) { user ->
                 flowController.postFlow(user, call.receive())
+            }
+        }
+
+        put("/$FLOW/{$ID}") {
+            handleResponseWithUser(authService, call) { user ->
+                val uid = call.parameters[ID].orEmpty()
+                flowController.updateFlow(user, uid, call.receive())
             }
         }
 
