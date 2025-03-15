@@ -83,7 +83,7 @@ dependencies {
     // Database
     implementation(libs.db.hibernate)
     implementation(libs.db.hibernateDialects)
-    implementation(libs.db.sqlite)
+    implementation(libs.db.h2)
 
     // Arrow
     implementation(libs.arrow.core)
