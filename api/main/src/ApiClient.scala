@@ -1,5 +1,5 @@
 import okhttp3.Response
-import utils.{HttpClient, JsonUtils}
+import utils.{HttpClient, JsonUtils, PostFlowRequest, PutFlowRequest}
 import utils.JsonUtils.toJson
 
 import java.util.Base64
@@ -69,9 +69,25 @@ class ApiClient(private val baseServerUrl: String) {
   def postFlow(path: String, content: String) = HttpClient.post(
     url = s"$baseServerUrl/flow",
     body = toJson(
-      Map(
-        "path" -> path,
-        "base64Content" -> Base64.getEncoder.encodeToString(content.getBytes())
+      PostFlowRequest(
+        parent = Map(
+          "path" -> path
+        ),
+        base64Content = Base64.getEncoder.encodeToString(content.getBytes())
+      )
+    ),
+    authToken = getAuthToken()
+  )
+
+  def putFlow(
+    flowUid: String,
+    content: String
+  ) = HttpClient.put(
+    url = s"$baseServerUrl/flow/$flowUid",
+    body = toJson(
+      PutFlowRequest(
+        parent = None,
+        base64Content = Base64.getEncoder.encodeToString(content.getBytes())
       )
     ),
     authToken = getAuthToken()
