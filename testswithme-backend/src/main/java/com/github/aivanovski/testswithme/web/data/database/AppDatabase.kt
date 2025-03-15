@@ -35,7 +35,6 @@ class AppDatabase(
         fileSystemProvider: FileSystemProvider
     ): Either<AppException, SessionFactory> =
         either {
-            // Create db directory if necessary (SQLite driver doesn't create it automatically)
             fileSystemProvider.getDirPath(RelativePath("app-data/db")).bind()
 
             Either.catch {
