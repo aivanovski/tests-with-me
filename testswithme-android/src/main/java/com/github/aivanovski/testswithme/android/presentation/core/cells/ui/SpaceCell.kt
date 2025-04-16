@@ -34,6 +34,7 @@ fun SpaceCellLightPreview() {
 fun newSpaceCell(height: Dp): SpaceCellViewModel {
     return SpaceCellViewModel(
         model = SpaceCellModel(
+            id = "space",
             height = height
         )
     )

@@ -31,9 +31,12 @@ fun CellsScreen(
     } else {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
-            items(state.viewModels) { viewModel ->
+            items(
+                items = state.viewModels,
+                key = { viewModel -> viewModel.hashCode() }
+            ) { viewModel ->
                 cellFactory.invoke(viewModel)
             }
         }

@@ -16,6 +16,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.CellIntentPro
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.EmptyTextCellModel
@@ -23,7 +24,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.H
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
@@ -80,10 +80,11 @@ class FlowCellFactory(
 
         val isAppInstalled = (installedAppData != null)
 
-        models.add(SpaceCellModel(height = ElementMargin))
+        val spaceCellFactory = SpaceCellFactory(CellId.SECTION_SPACE_PREFIX)
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         models.addAll(createDriverStatusModels(isDriverRunning))
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.project != null) {
             models.addAll(
@@ -93,7 +94,7 @@ class FlowCellFactory(
                     installedAppData = installedAppData
                 )
             )
-            models.add(newElementSpaceModel())
+            models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         }
 
         val parents = findParentGroups(group, data.allGroups)
@@ -105,7 +106,7 @@ class FlowCellFactory(
                 isAppInstalled = isAppInstalled
             )
         )
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.visibleFlows.isNotEmpty()) {
             models.addAll(createStatsModels(data.visibleRuns))
@@ -138,9 +139,11 @@ class FlowCellFactory(
                 (installedVersion != null && installedVersion.name == requiredAppVersion.name)
             )
 
-        models.add(newElementSpaceModel())
+        val spaceCellFactory = SpaceCellFactory(CellId.SECTION_SPACE_PREFIX)
+
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         models.addAll(createDriverStatusModels(isDriverRunning))
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.project != null) {
             models.addAll(
@@ -150,7 +153,7 @@ class FlowCellFactory(
                     installedAppData = installedAppData
                 )
             )
-            models.add(newElementSpaceModel())
+            models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         }
 
         val title = when (selection) {
@@ -167,7 +170,7 @@ class FlowCellFactory(
             )
         )
 
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.visibleFlows.isNotEmpty()) {
             models.addAll(createTestListModels(data.visibleFlows, data.visibleRuns))
@@ -191,9 +194,11 @@ class FlowCellFactory(
         val models = mutableListOf<BaseCellModel>()
         val flow = data.visibleFlows.firstOrNull() ?: return emptyList()
 
-        models.add(newElementSpaceModel())
+        val spaceCellFactory = SpaceCellFactory(CellId.SECTION_SPACE_PREFIX)
+
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         models.addAll(createDriverStatusModels(isDriverRunning))
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         models.addAll(
             createTestTitleModels(
@@ -202,14 +207,14 @@ class FlowCellFactory(
                 isAppInstalled = true
             )
         )
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         models.addAll(
             createStepModels(
                 steps = data.steps.getOrNull() ?: emptyList()
             )
         )
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.visibleJobs.isNotEmpty()) {
             models.addAll(
@@ -309,9 +314,11 @@ class FlowCellFactory(
 
         val isAppInstalled = (installedAppData != null)
 
-        models.add(newElementSpaceModel())
+        val spaceCellFactory = SpaceCellFactory(CellId.GROUP_SPACE_PREFIX)
+
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         models.addAll(createDriverStatusModels(isDriverRunning))
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.project != null) {
             models.addAll(
@@ -321,7 +328,7 @@ class FlowCellFactory(
                     installedAppData = installedAppData
                 )
             )
-            models.add(newElementSpaceModel())
+            models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         }
 
         models.addAll(
@@ -331,7 +338,7 @@ class FlowCellFactory(
                 isAppInstalled = isAppInstalled
             )
         )
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         val steps = data.steps.getOrNull() ?: emptyList()
 
@@ -339,12 +346,12 @@ class FlowCellFactory(
             models.addAll(createStatsModels(data.visibleRuns))
 
             if (steps.isNotEmpty()) {
-                models.add(newElementSpaceModel())
+                models.add(spaceCellFactory.newSpaceCell(ElementMargin))
             }
         }
 
         models.addAll(createStepModels(steps))
-        models.add(newElementSpaceModel())
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.visibleRuns.isNotEmpty()) {
             models.addAll(createRecentRunsModels(data.visibleRuns, data.allUsers))
@@ -584,10 +591,11 @@ class FlowCellFactory(
 
         val flowUidToRunsMap = runs.aggregateByFlowUid()
         val sortedFlows = flows.sortByRunsAndName(flowUidToRunsMap)
+        val spaceCellFactory = SpaceCellFactory(CellId.TEST_SPACE_PREFIX)
 
         for ((index, flow) in sortedFlows.withIndex()) {
             if (index > 0) {
-                models.add(SpaceCellModel(height = SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             val flowRuns = flowUidToRunsMap[flow.uid] ?: emptyList()
@@ -617,7 +625,7 @@ class FlowCellFactory(
             )
         }
 
-        models.add(SpaceCellModel(ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         return models
     }
@@ -648,9 +656,11 @@ class FlowCellFactory(
             )
         )
 
+        val spaceCellFactory = SpaceCellFactory(CellId.RUN_SPACE_PREFIX)
+
         for ((idx, job) in visibleJobs.withIndex()) {
             if (idx > 0) {
-                models.add(SpaceCellModel(height = SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             val isSuccessfullyFinished = (job.executionResult == ExecutionResult.SUCCESS)
@@ -675,7 +685,7 @@ class FlowCellFactory(
             )
         }
 
-        models.add(SpaceCellModel(height = ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         return models
     }
@@ -707,9 +717,11 @@ class FlowCellFactory(
             )
         )
 
+        val spaceCellFactory = SpaceCellFactory(CellId.RUN_SPACE_PREFIX)
+
         for ((idx, run) in visibleRuns.withIndex()) {
             if (idx > 0) {
-                models.add(SpaceCellModel(height = SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             val userName = userMap[run.userUid]
@@ -737,7 +749,7 @@ class FlowCellFactory(
             )
         }
 
-        models.add(SpaceCellModel(height = ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         return models
     }
@@ -772,8 +784,6 @@ class FlowCellFactory(
         return sortedByRuns + sortedByName
     }
 
-    private fun newElementSpaceModel(): SpaceCellModel = SpaceCellModel(height = ElementMargin)
-
     object CellId {
         const val EMPTY_MESSAGE = "empty-message"
         const val DRIVER_STATUS = "driver-status"
@@ -789,6 +799,11 @@ class FlowCellFactory(
         const val TESTS_HEADER = "tests-header"
         const val STEPS_HEADER = "steps-header"
         const val MORE_STEPS_BUTTON = "more-steps-button"
+
+        const val GROUP_SPACE_PREFIX = "group_space_"
+        const val TEST_SPACE_PREFIX = "test_space_"
+        const val RUN_SPACE_PREFIX = "run_space_"
+        const val SECTION_SPACE_PREFIX = "section_space_"
 
         private const val RUN_PREFIX = "run_"
         private const val JOB_PREFIX = "job_"

@@ -6,6 +6,7 @@ import com.github.aivanovski.testswithme.android.entity.exception.UnsupportedCel
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
@@ -33,11 +34,13 @@ class ProjectsCellFactory(
     private fun createModels(projects: List<ProjectEntry>): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
-        models.add(SpaceCellModel(ElementMargin))
+        val spaceCellFactory = SpaceCellFactory(SPACE_PREFIX)
+
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         projects.forEachIndexed { index, project ->
             if (index > 0) {
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             models.add(
@@ -50,8 +53,12 @@ class ProjectsCellFactory(
             )
         }
 
-        models.add(SpaceCellModel(ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         return models
+    }
+
+    companion object {
+        private const val SPACE_PREFIX = "space_"
     }
 }

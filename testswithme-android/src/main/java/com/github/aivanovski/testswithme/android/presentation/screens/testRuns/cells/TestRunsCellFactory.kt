@@ -8,6 +8,7 @@ import com.github.aivanovski.testswithme.android.entity.exception.UnsupportedCel
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconThreeTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
@@ -39,8 +40,9 @@ class TestRunsCellFactory(
 
     private fun createModels(data: TestRunsData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(SPACE_PREFIX)
 
-        models.add(SpaceCellModel(ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(height = ElementMargin))
 
         val allFlowsMap = data.allFlows
             .associateBy { flow -> flow.entry.uid }
@@ -55,7 +57,7 @@ class TestRunsCellFactory(
             val flow = allFlowsMap[job.flowUid] ?: continue
 
             if (index > 0) {
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(height = SmallMargin))
             }
 
             val icon = when (job.executionResult) {
@@ -91,8 +93,12 @@ class TestRunsCellFactory(
             )
         }
 
-        models.add(SpaceCellModel(ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(height = ElementMargin))
 
         return models
+    }
+
+    companion object {
+        private const val SPACE_PREFIX = "space_"
     }
 }

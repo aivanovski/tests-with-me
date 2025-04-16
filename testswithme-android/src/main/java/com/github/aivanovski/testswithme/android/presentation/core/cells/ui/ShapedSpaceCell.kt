@@ -58,6 +58,7 @@ fun newShapedSpaceCellViewModel(
     shape: CornersShape = CornersShape.ALL
 ) = ShapedSpaceCellViewModel(
     model = ShapedSpaceCellModel(
+        id = "id",
         height = height,
         shape = shape
     )

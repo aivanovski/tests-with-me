@@ -12,11 +12,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.CellIntentPro
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.EmptyTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ShapedSpaceCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextWithChipCellModel
@@ -61,16 +60,17 @@ class TestContentCellFactory(
         mode: TestContentScreenMode
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(CellId.SPACE_PREFIX)
 
         if (mode !is TestContentScreenMode.FlowContent) {
             val executionResult = getFlowExecutionResult(data)
-            models.add(SpaceCellModel(GroupMargin))
-            models.addAll(createStatusModels(executionResult, data.parsedReport))
+            models.add(spaceCellFactory.newSpaceCell(height = GroupMargin))
+            models.addAll(createStatusModels(executionResult, data.parsedReport, spaceCellFactory))
         }
 
         if (data.report != null) {
             if (models.isEmpty()) {
-                models.add(SpaceCellModel(GroupMargin))
+                models.add(spaceCellFactory.newSpaceCell(height = GroupMargin))
             }
 
             models.addAll(createReportModels())
@@ -84,7 +84,7 @@ class TestContentCellFactory(
             )
         )
 
-        models.add(SpaceCellModel(GroupMargin))
+        models.add(spaceCellFactory.newSpaceCell(height = GroupMargin))
 
         return models
     }
@@ -102,7 +102,8 @@ class TestContentCellFactory(
 
     private fun createStatusModels(
         executionResult: ExecutionResult,
-        parsedReport: ReportItem.FlowItem?
+        parsedReport: ReportItem.FlowItem?,
+        spaceCellFactory: SpaceCellFactory
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
@@ -160,7 +161,7 @@ class TestContentCellFactory(
             if (stacktrace.isNotEmpty()) {
                 if (errorMessage.isNotEmpty()) {
                     models.add(
-                        ShapedSpaceCellModel(
+                        spaceCellFactory.newShapedSpaceModel(
                             height = QuarterMargin,
                             shape = CornersShape.NONE
                         )
@@ -184,7 +185,7 @@ class TestContentCellFactory(
             }
 
             models.add(
-                ShapedSpaceCellModel(
+                spaceCellFactory.newShapedSpaceModel(
                     height = ElementMargin,
                     shape = CornersShape.BOTTOM
                 )
@@ -322,5 +323,7 @@ class TestContentCellFactory(
         const val ERROR_HEADER = "error-header"
 
         const val EMPTY_MESSAGE = "empty-message"
+
+        const val SPACE_PREFIX = "space_"
     }
 }

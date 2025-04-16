@@ -9,6 +9,7 @@ import com.github.aivanovski.testswithme.android.presentation.core.CellIntentPro
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.IconTint
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.viewModel.SpaceCellViewModel
@@ -42,18 +43,19 @@ class GroupsCellModelFactory(
         }
     }
 
-    fun createCellModels(data: GroupsData): List<BaseCellModel> {
+    private fun createCellModels(data: GroupsData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory("space_")
 
         if (data.groups.isNotEmpty() || data.flows.isNotEmpty()) {
-            models.add(SpaceCellModel(ElementMargin))
+            models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         }
 
         val groupTree = data.allGroups.buildGroupTree()
 
         for ((index, group) in data.groups.withIndex()) {
             if (index > 0) {
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             val groupNode = groupTree.findNodeByUid(group.uid)
@@ -98,7 +100,7 @@ class GroupsCellModelFactory(
 
         for ((index, flow) in data.flows.withIndex()) {
             if (models.size > 0) {
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             val flowRuns = flowUidToRunsMap[flow.uid] ?: emptyList()

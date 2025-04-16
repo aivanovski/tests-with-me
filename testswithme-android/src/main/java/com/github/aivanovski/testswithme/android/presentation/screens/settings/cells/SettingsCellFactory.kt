@@ -8,20 +8,21 @@ import com.github.aivanovski.testswithme.android.presentation.core.CellIntentPro
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.DividerCellModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.DividerCellFactory
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderWithDescriptionCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ElementMargin
-import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.LightAppColors
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.SmallMargin
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.model.SwitchCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.model.TwoTextCellModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.SwitchCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.cells.viewModel.TwoTextCellViewModel
 
 class SettingsCellFactory(
+    private val themeProvider: ThemeProvider,
     private val resourceProvider: ResourceProvider
 ) {
 
@@ -53,6 +54,8 @@ class SettingsCellFactory(
         isGatewaySwitchEnabled: Boolean
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(CellId.SPACE_PREFIX)
+        val dividerCellFactory = DividerCellFactory(themeProvider, CellId.DIVIDER_PREFIX)
 
         if (BuildConfig.DEBUG) {
             models.add(
@@ -74,7 +77,7 @@ class SettingsCellFactory(
             )
         )
 
-        models.addAll(createSeparatorCells())
+        models.addAll(createSeparatorCells(spaceCellFactory, dividerCellFactory))
 
         models.add(
             HeaderWithDescriptionCellModel(
@@ -99,7 +102,7 @@ class SettingsCellFactory(
             )
         )
 
-        models.addAll(createSeparatorCells())
+        models.addAll(createSeparatorCells(spaceCellFactory, dividerCellFactory))
 
         models.add(
             SwitchCellModel(
@@ -111,7 +114,7 @@ class SettingsCellFactory(
             )
         )
 
-        models.addAll(createSeparatorCells())
+        models.addAll(createSeparatorCells(spaceCellFactory, dividerCellFactory))
         models.addAll(createFlakinessSection(settings))
 
         return models
@@ -138,14 +141,14 @@ class SettingsCellFactory(
             )
         )
 
-    private fun createSeparatorCells(): List<BaseCellModel> =
+    private fun createSeparatorCells(
+        spaceCellFactory: SpaceCellFactory,
+        dividerCellFactory: DividerCellFactory
+    ): List<BaseCellModel> =
         listOf(
-            SpaceCellModel(height = SmallMargin),
-            DividerCellModel(
-                padding = ElementMargin,
-                color = LightAppColors.dividerOnPrimary
-            ),
-            SpaceCellModel(height = SmallMargin)
+            spaceCellFactory.newSpaceCell(SmallMargin),
+            dividerCellFactory.newDividerModel(ElementMargin),
+            spaceCellFactory.newSpaceCell(SmallMargin)
         )
 
     object CellId {
@@ -157,5 +160,8 @@ class SettingsCellFactory(
         const val FLAKINESS_CONFIGURATION_HEADER = "flakiness_configuration_header"
         const val DELAY_SCALE_FACTOR = "delay_scale_factor"
         const val NUMBER_OF_RETRIES = "number_of_retries"
+
+        const val SPACE_PREFIX = "space_"
+        const val DIVIDER_PREFIX = "divider_"
     }
 }

@@ -6,13 +6,13 @@ import com.github.aivanovski.testswithme.android.domain.findNodeByUid
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
-import com.github.aivanovski.testswithme.android.entity.db.FlowRunEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.presentation.core.CellIntentProvider
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.createCoreCellViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.factory.SpaceCellFactory
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.CornersShape
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellModel
@@ -21,7 +21,6 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.I
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTableCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ShapedSpaceCellModel
-import com.github.aivanovski.testswithme.android.presentation.core.cells.model.SpaceCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipItem
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextChipRowCellModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextSize
@@ -40,10 +39,6 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.cells.viewModel.LargeBarCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardData
 import com.github.aivanovski.testswithme.android.utils.aggregateDescendantGroupsAndFlows
-import com.github.aivanovski.testswithme.android.utils.aggregateLastRunByFlowUid
-import com.github.aivanovski.testswithme.android.utils.aggregateRunCountByFlowUid
-import com.github.aivanovski.testswithme.android.utils.formatRunTime
-import com.github.aivanovski.testswithme.utils.StringUtils
 
 class ProjectDashboardCellFactory(
     private val resourceProvider: ResourceProvider,
@@ -73,15 +68,16 @@ class ProjectDashboardCellFactory(
         selectedVersion: String?
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(CellId.SECTION_SPACE_PREFIX)
 
-        models.add(SpaceCellModel(GroupMargin))
+        models.add(spaceCellFactory.newSpaceCell(GroupMargin))
         models.addAll(
             createApplicationInfoModels(
                 project = data.project,
                 installedAppData = data.installedAppData
             )
         )
-        models.add(SpaceCellModel(ElementMargin))
+        models.add(spaceCellFactory.newSpaceCell(ElementMargin))
 
         if (data.allFlows.isNotEmpty() || data.allGroups.size > 1) {
             if (data.allFlows.isNotEmpty()) {
@@ -91,11 +87,11 @@ class ProjectDashboardCellFactory(
                     models.addAll(createRemainedSection(data))
                 }
 
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             models.addAll(createRootGroupSection(data))
-            models.add(SpaceCellModel(ElementMargin))
+            models.add(spaceCellFactory.newSpaceCell(ElementMargin))
         }
 
         return models
@@ -149,9 +145,11 @@ class ProjectDashboardCellFactory(
         return models
     }
 
-    private fun createTitleCellModels(): List<BaseCellModel> {
+    private fun createTitleCellModels(
+        spaceCellFactory: SpaceCellFactory
+    ): List<BaseCellModel> {
         return listOf(
-            ShapedSpaceCellModel(
+            spaceCellFactory.newShapedSpaceModel(
                 height = SmallMargin,
                 shape = CornersShape.TOP
             ),
@@ -166,7 +164,8 @@ class ProjectDashboardCellFactory(
 
     private fun createVersionsCellModels(
         versions: List<AppVersion>,
-        selectedVersion: String?
+        selectedVersion: String?,
+        spaceCellFactory: SpaceCellFactory
     ): List<BaseCellModel> {
         if (versions.isEmpty()) {
             return emptyList()
@@ -185,7 +184,7 @@ class ProjectDashboardCellFactory(
         }
 
         return listOf(
-            ShapedSpaceCellModel(
+            spaceCellFactory.newShapedSpaceModel(
                 height = SmallMargin,
                 shape = CornersShape.NONE
             ),
@@ -202,12 +201,14 @@ class ProjectDashboardCellFactory(
         selectedVersion: String?
     ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(CellId.PROGRESS_SPACE_PREFIX)
 
-        models.addAll(createTitleCellModels())
+        models.addAll(createTitleCellModels(spaceCellFactory))
         models.addAll(
             createVersionsCellModels(
                 versions = data.versions,
-                selectedVersion = selectedVersion
+                selectedVersion = selectedVersion,
+                spaceCellFactory = spaceCellFactory
             )
         )
 
@@ -231,7 +232,7 @@ class ProjectDashboardCellFactory(
                     },
                     shape = CornersShape.NONE
                 ),
-                ShapedSpaceCellModel(
+                spaceCellFactory.newShapedSpaceModel(
                     height = ElementMargin,
                     shape = CornersShape.NONE
                 ),
@@ -250,7 +251,7 @@ class ProjectDashboardCellFactory(
                     isClickable = true,
                     shape = CornersShape.NONE
                 ),
-                ShapedSpaceCellModel(
+                spaceCellFactory.newShapedSpaceModel(
                     height = SmallMargin,
                     shape = CornersShape.BOTTOM
                 )
@@ -262,8 +263,9 @@ class ProjectDashboardCellFactory(
 
     private fun createRemainedSection(data: ProjectDashboardData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(CellId.REMAINED_SPACE_PREFIX)
 
-        models.add(SpaceCellModel(height = SmallMargin))
+        models.add(spaceCellFactory.newSpaceCell(SmallMargin))
         models.add(
             HeaderCellModel(
                 id = CellId.REMAINED_FLOWS_HEADER,
@@ -276,7 +278,8 @@ class ProjectDashboardCellFactory(
         val visibleRemainedFlows = data.remainedFlows.take(MAX_VISIBLE_ELEMENTS)
         models.addAll(
             createRemainedFlowCellModels(
-                flows = visibleRemainedFlows
+                flows = visibleRemainedFlows,
+                spaceCellFactory = spaceCellFactory
             )
         )
 
@@ -285,6 +288,7 @@ class ProjectDashboardCellFactory(
 
     private fun createRootGroupSection(data: ProjectDashboardData): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
+        val spaceCellFactory = SpaceCellFactory(CellId.GROUP_SPACE_PREFIX)
 
         models.add(
             HeaderCellModel(
@@ -303,7 +307,7 @@ class ProjectDashboardCellFactory(
 
         for ((index, group) in visibleGroups.withIndex()) {
             if (index > 0) {
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             val groupNode = groupTree.findNodeByUid(group.uid)
@@ -329,30 +333,18 @@ class ProjectDashboardCellFactory(
             )
         }
 
-        // if (visibleGroups.size < MAX_VISIBLE_ELEMENTS) {
-        //     if (visibleGroups.isNotEmpty()) {
-        //         models.add(SpaceCellModel(SmallMargin))
-        //     }
-        //
-        //     val visibleFlows = data.visibleFlows.take(MAX_VISIBLE_ELEMENTS - visibleGroups.size)
-        //
-        //     models.addAll(
-        //         createFlowCellModels(
-        //             flows = visibleFlows,
-        //             allRuns = data.allRuns
-        //         )
-        //     )
-        // }
-
         return models
     }
 
-    private fun createRemainedFlowCellModels(flows: List<FlowEntry>): List<BaseCellModel> {
+    private fun createRemainedFlowCellModels(
+        flows: List<FlowEntry>,
+        spaceCellFactory: SpaceCellFactory
+    ): List<BaseCellModel> {
         val models = mutableListOf<BaseCellModel>()
 
         for ((index, flow) in flows.withIndex()) {
             if (index > 0) {
-                models.add(SpaceCellModel(SmallMargin))
+                models.add(spaceCellFactory.newSpaceCell(SmallMargin))
             }
 
             models.add(
@@ -361,49 +353,6 @@ class ProjectDashboardCellFactory(
                     title = flow.name,
                     icon = AppIcons.CheckCircle,
                     iconTint = IconTint.PRIMARY_ICON
-                )
-            )
-        }
-
-        return models
-    }
-
-    private fun createFlowCellModels(
-        flows: List<FlowEntry>,
-        allRuns: List<FlowRunEntry>
-    ): List<BaseCellModel> {
-        val models = mutableListOf<BaseCellModel>()
-        val flowUidToLastRunMap = allRuns.aggregateLastRunByFlowUid()
-        val flowUidToRunCountMap = allRuns.aggregateRunCountByFlowUid()
-
-        for ((index, flow) in flows.withIndex()) {
-            if (index > 0) {
-                models.add(SpaceCellModel(SmallMargin))
-            }
-
-            val lastRun = flowUidToLastRunMap[flow.uid]
-            val runCount = flowUidToRunCountMap[flow.uid] ?: 0
-
-            val icon = when {
-                lastRun?.isSuccess == false -> AppIcons.ErrorCircle
-                else -> AppIcons.CheckCircle
-            }
-
-            val iconTint = when {
-                lastRun == null -> IconTint.PRIMARY_ICON
-                lastRun.isSuccess -> IconTint.GREEN
-                else -> IconTint.RED
-            }
-
-            models.add(
-                FlowCellModel(
-                    id = flow.uid,
-                    title = flow.name,
-                    icon = icon,
-                    iconTint = iconTint,
-                    description = lastRun?.finishedAt?.formatRunTime(resourceProvider)
-                        ?: StringUtils.EMPTY,
-                    chipText = resourceProvider.getString(R.string.runs_with_number, runCount)
                 )
             )
         }
@@ -421,6 +370,11 @@ class ProjectDashboardCellFactory(
         const val VERSIONS = "versions"
         const val REMAINED_FLOWS_HEADER = "remained-flows-header"
         const val GROUPS_HEADER = "groups-header"
+
+        const val SECTION_SPACE_PREFIX = "section_space_"
+        const val REMAINED_SPACE_PREFIX = "remained_space_"
+        const val GROUP_SPACE_PREFIX = "group_space_"
+        const val PROGRESS_SPACE_PREFIX = "progress_space_"
     }
 
     companion object {

@@ -41,6 +41,7 @@ fun DividerCellPreview() {
 fun newDividerCell() =
     DividerCellViewModel(
         model = DividerCellModel(
+            id = "id",
             padding = 16.dp,
             color = AppTheme.theme.colors.dividerOnPrimary
         )
