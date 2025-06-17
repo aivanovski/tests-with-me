@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import com.arkivanov.decompose.defaultComponentContext
 import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
 import com.github.aivanovski.testswithme.android.extensions.getParcelableCompat
@@ -14,10 +15,15 @@ import com.github.aivanovski.testswithme.android.presentation.core.compose.theme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreen
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreenComponent
+import com.github.aivanovski.testswithme.android.presentation.screens.sandbox.SandboxScreen
+import com.github.aivanovski.testswithme.android.presentation.screens.sandbox.SandboxViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val themeProvider: ThemeProvider by inject()
+    private val viewModel: SandboxViewModel by lazy {
+        ViewModelProvider(this)[SandboxViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,12 +39,16 @@ class MainActivity : AppCompatActivity() {
             args = getArguments()
         )
 
+
         setContent {
             val themeProvider = ThemeProviderImpl(LocalContext.current)
 
             AppTheme(theme = themeProvider.getCurrentTheme()) {
-                RootScreen(
-                    rootComponent = component
+//                RootScreen(
+//                    rootComponent = component
+//                )
+                SandboxScreen(
+                    viewModel = viewModel
                 )
             }
         }
