@@ -4,21 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.ViewModelProvider
 import com.github.aivanovski.testswithme.android.R
-import com.github.aivanovski.testswithme.android.databinding.BottomSheetBinding
+import com.github.aivanovski.testswithme.android.databinding.ComposeViewBinding
+import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
 import com.github.aivanovski.testswithme.android.extensions.getParcelableCompat
 import com.github.aivanovski.testswithme.android.extensions.requireArgument
-import com.github.aivanovski.testswithme.android.presentation.core.ThemeProviderImpl
 import com.github.aivanovski.testswithme.android.presentation.core.ViewModelFactory
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.model.BottomSheetUiEvent
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class BottomSheetMenuFragment : BottomSheetDialogFragment() {
+
+    private val themeProvider: ThemeProvider by inject()
 
     private val viewModel: BottomSheetMenuViewModel by lazy {
         ViewModelProvider(
@@ -43,19 +45,16 @@ class BottomSheetMenuFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = BottomSheetBinding.inflate(inflater, container, false)
+        val binding = ComposeViewBinding.inflate(inflater, container, false)
 
         binding.composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val themeProvider = ThemeProviderImpl(LocalContext.current)
                 val eventCollector = rememberCallback { event: BottomSheetUiEvent ->
                     handleEvent(event)
                 }
 
-                AppTheme(
-                    theme = themeProvider.getCurrentTheme()
-                ) {
+                AppTheme(theme = themeProvider.theme) {
                     BottomSheetMenuScreen(
                         viewModel = viewModel,
                         eventCollector = eventCollector

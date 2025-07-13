@@ -10,6 +10,7 @@ object OptionDialogFactory {
 
     const val ACTION_OPEN_DOWNLOADS_PAGE = 1001
     const val ACTION_OPEN_WEBSITE = 1002
+    const val ACTION_REQUEST_SYNC = 1003
 
     const val ACTION_RESET_PROGRESS = 2001
 
@@ -29,6 +30,15 @@ object OptionDialogFactory {
                 Pair(
                     resourceProvider.getString(R.string.open_project_website),
                     ACTION_OPEN_WEBSITE
+                )
+            )
+        }
+
+        if (project?.repositoryUrl != null) {
+            optionsAndActions.add(
+                Pair(
+                    resourceProvider.getString(R.string.request_sync_with_repository),
+                    ACTION_REQUEST_SYNC
                 )
             )
         }

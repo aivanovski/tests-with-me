@@ -5,7 +5,7 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.entity.AppVersion
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
-import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
@@ -16,6 +16,8 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.model.T
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TitleWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.dialogFactories.OptionDialogFactory
 import com.github.aivanovski.testswithme.android.presentation.core.dialogFactories.OptionDialogFactory.createProgressOptionDialog
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -46,6 +48,7 @@ import com.github.aivanovski.testswithme.utils.mutableStateFlow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -58,7 +61,7 @@ class ProjectDashboardViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: ProjectDashboardScreenArgs
-) : MviViewModel<ProjectDashboardState, ProjectDashboardIntent>(
+) : CellsMviViewModel<ProjectDashboardState, ProjectDashboardIntent>(
     initialState = ProjectDashboardState(terminalState = TerminalState.Loading),
     initialIntent = ProjectDashboardIntent.Initialize
 ) {
@@ -111,8 +114,9 @@ class ProjectDashboardViewModel(
             }
 
             ProjectDashboardIntent.OnDismissOptionDialog -> dismissOptionDialog()
-
+            is ProjectDashboardIntent.OnDismissMessageDialog -> dismissMessageDialog()
             is ProjectDashboardIntent.OnOptionDialogClick -> handleDialogAction(intent.action)
+            is ProjectDashboardIntent.OnMessageDialogClick -> handleDialogAction(intent.action)
         }
     }
 
@@ -165,21 +169,65 @@ class ProjectDashboardViewModel(
     }
 
     private fun handleDialogAction(action: DialogAction): Flow<ProjectDashboardState> {
-        when (action.actionId) {
+        return when (action.actionId) {
             OptionDialogFactory.ACTION_RESET_PROGRESS -> {
                 navigateToResetRunsScreen()
+                dismissOptionDialog()
             }
 
             OptionDialogFactory.ACTION_OPEN_DOWNLOADS_PAGE -> {
                 navigateToProjectDownloadsPage()
+                dismissOptionDialog()
+            }
+
+            OptionDialogFactory.ACTION_REQUEST_SYNC -> {
+                onRequestSyncClicked()
             }
 
             OptionDialogFactory.ACTION_OPEN_WEBSITE -> {
                 navigateToProjectWebsitePage()
+                dismissOptionDialog()
             }
-        }
 
-        return dismissOptionDialog()
+            ACTION_OK -> {
+                dismissMessageDialog()
+            }
+
+            ACTION_CANCEL -> {
+                dismissMessageDialog()
+            }
+
+            else -> dismissOptionDialog()
+        }
+    }
+
+    private fun onRequestSyncClicked(): Flow<ProjectDashboardState> {
+        val projectUid = data?.project?.uid ?: return emptyFlow()
+
+        return flow {
+            emit(state.value.copy(optionDialogState = null))
+
+            val requestSyncResult = interactor.requestProjectSync(projectUid)
+            if (requestSyncResult.isLeft()) {
+                val terminalState = requestSyncResult.toTerminalState(resourceProvider)
+                emit(state.value.copy(terminalState = terminalState))
+                return@flow
+            }
+
+            emit(
+                state.value.copy(
+                    messageDialogState = MessageDialogState(
+                        title = null,
+                        message = resourceProvider.getString(R.string.sync_request_success_message),
+                        isCancellable = true,
+                        actionButton = MessageDialogButton.ActionButton(
+                            title = resourceProvider.getString(R.string.ok),
+                            actionId = ACTION_OK
+                        )
+                    )
+                )
+            )
+        }
     }
 
     private fun onHeaderCellClicked(cellId: String) {
@@ -367,13 +415,11 @@ class ProjectDashboardViewModel(
         )
     }
 
-    private fun dismissOptionDialog(): Flow<ProjectDashboardState> {
-        return flowOf(
-            state.value.copy(
-                optionDialogState = null
-            )
-        )
-    }
+    private fun dismissOptionDialog(): Flow<ProjectDashboardState> =
+        flowOf(state.value.copy(optionDialogState = null))
+
+    private fun dismissMessageDialog(): Flow<ProjectDashboardState> =
+        flowOf(state.value.copy(messageDialogState = null))
 
     private fun findGroupByUid(groupUid: String): GroupEntry? {
         return data?.allGroups?.firstOrNull { group -> group.uid == groupUid }
@@ -392,5 +438,11 @@ class ProjectDashboardViewModel(
             title = args.screenTitle,
             isBackVisible = true
         )
+    }
+
+    companion object {
+
+        private const val ACTION_OK = 101
+        private const val ACTION_CANCEL = 102
     }
 }

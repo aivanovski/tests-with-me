@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.android.presentation.screens.testConte
 
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
@@ -32,7 +32,7 @@ class TestContentViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: TestContentArgs
-) : MviViewModel<TestContentState, TestContentIntent>(
+) : CellsMviViewModel<TestContentState, TestContentIntent>(
     initialState = TestContentState(TerminalState.Loading),
     initialIntent = TestContentIntent.Initialize
 ) {

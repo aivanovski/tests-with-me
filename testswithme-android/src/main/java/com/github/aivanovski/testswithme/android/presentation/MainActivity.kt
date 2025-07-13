@@ -5,11 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.platform.LocalContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
 import com.github.aivanovski.testswithme.android.extensions.getParcelableCompat
-import com.github.aivanovski.testswithme.android.presentation.core.ThemeProviderImpl
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreen
@@ -34,9 +32,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         setContent {
-            val themeProvider = ThemeProviderImpl(LocalContext.current)
-
-            AppTheme(theme = themeProvider.getCurrentTheme()) {
+            AppTheme(theme = themeProvider.theme) {
                 RootScreen(
                     rootComponent = component
                 )

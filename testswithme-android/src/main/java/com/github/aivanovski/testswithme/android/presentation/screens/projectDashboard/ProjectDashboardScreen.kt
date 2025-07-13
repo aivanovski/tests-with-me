@@ -29,8 +29,10 @@ import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newT
 import com.github.aivanovski.testswithme.android.presentation.core.cells.ui.newTextChipRowCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.compose.AppIcons
 import com.github.aivanovski.testswithme.android.presentation.core.compose.ThemedScreenPreview
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.MessageDialog
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.OptionDialog
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
+import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogIntent
 import com.github.aivanovski.testswithme.android.presentation.core.compose.events.SingleEventEffect
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberCallback
 import com.github.aivanovski.testswithme.android.presentation.core.compose.rememberOnClickedCallback
@@ -48,7 +50,9 @@ import com.github.aivanovski.testswithme.android.presentation.screens.projectDas
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.cells.ui.newLargeBarCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.cells.viewModel.LargeBarCellViewModel
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent
+import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnDismissMessageDialog
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnDismissOptionDialog
+import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnMessageDialogClick
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardIntent.OnOptionDialogClick
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardState
 import com.github.aivanovski.testswithme.android.presentation.screens.projectDashboard.model.ProjectDashboardUiEvent
@@ -130,6 +134,23 @@ private fun ProjectDashboardScreen(
                 state = state.optionDialogState,
                 onDismiss = onDismiss,
                 onClick = onClick
+            )
+        }
+
+        if (state.messageDialogState != null) {
+            val onDialogIntent = rememberCallback { intent: MessageDialogIntent ->
+                when (intent) {
+                    is MessageDialogIntent.OnDismiss ->
+                        onIntent.invoke(OnDismissMessageDialog)
+
+                    is MessageDialogIntent.OnActionButtonClick ->
+                        onIntent.invoke(OnMessageDialogClick(DialogAction(intent.actionId)))
+                }
+            }
+
+            MessageDialog(
+                state = state.messageDialogState,
+                onIntent = onDialogIntent
             )
         }
     }

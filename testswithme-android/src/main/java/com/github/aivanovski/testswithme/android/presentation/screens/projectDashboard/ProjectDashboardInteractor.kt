@@ -138,4 +138,8 @@ class ProjectDashboardInteractor(
             versionsFromRuns
         }
     }
+
+    suspend fun requestProjectSync(projectUid: String): Either<AppException, Unit> =
+        projectRepository.requestSync(projectUid)
+            .map { }
 }

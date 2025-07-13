@@ -47,6 +47,7 @@ import com.github.aivanovski.testswithme.android.domain.usecases.GetExternalAppl
 import com.github.aivanovski.testswithme.android.domain.usecases.ParseFlowFileUseCase
 import com.github.aivanovski.testswithme.android.presentation.StartArgs
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProviderImpl
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenu
 import com.github.aivanovski.testswithme.android.presentation.screens.bottomSheetMenu.BottomSheetMenuViewModel
@@ -109,7 +110,7 @@ object AndroidAppModule {
         single<DataCipherProvider> { DataCipherProviderImpl(get()) }
         single<ResourceProvider> { ResourceProviderImpl(get()) }
         single<FileCache> { FileCacheImpl(get()) }
-        singleOf(::ThemeProvider)
+        single<ThemeProvider> { ThemeProviderImpl() }
         singleOf(::VersionParser)
         singleOf(::JsonSerializer)
         singleOf(::ReferenceResolver)

@@ -11,6 +11,7 @@ import com.github.aivanovski.testswithme.android.entity.exception.FailedToFindEn
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
+import com.github.aivanovski.testswithme.web.api.response.RequestProjectSyncResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -100,4 +101,7 @@ class ProjectRepository(
     fun clear() {
         projectDao.removeAll()
     }
+
+    suspend fun requestSync(projectUid: String): Either<AppException, RequestProjectSyncResponse> =
+        api.requestProjectSync(projectUid)
 }
