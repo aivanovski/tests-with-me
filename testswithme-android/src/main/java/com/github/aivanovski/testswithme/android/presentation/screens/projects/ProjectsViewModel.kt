@@ -69,9 +69,7 @@ class ProjectsViewModel(
         }
     }
 
-    override fun handleIntent(
-        intent: ProjectsIntent,
-    ): Flow<ProjectsState> {
+    override fun handleIntent(intent: ProjectsIntent): Flow<ProjectsState> {
         return when (intent) {
             ProjectsIntent.Initialize -> loadData()
             ProjectsIntent.ReloadData -> loadData()

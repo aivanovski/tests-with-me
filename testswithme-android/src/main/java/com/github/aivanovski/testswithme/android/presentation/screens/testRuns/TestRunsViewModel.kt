@@ -73,9 +73,7 @@ class TestRunsViewModel(
         }
     }
 
-    override fun handleIntent(
-        intent: TestRunsIntent,
-    ): Flow<TestRunsState> {
+    override fun handleIntent(intent: TestRunsIntent): Flow<TestRunsState> {
         return when (intent) {
             TestRunsIntent.Initialize -> loadData()
             TestRunsIntent.ReloadData -> loadData()

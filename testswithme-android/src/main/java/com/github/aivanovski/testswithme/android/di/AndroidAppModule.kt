@@ -110,7 +110,7 @@ object AndroidAppModule {
         single<DataCipherProvider> { DataCipherProviderImpl(get()) }
         single<ResourceProvider> { ResourceProviderImpl(get()) }
         single<FileCache> { FileCacheImpl(get()) }
-        single<ThemeProvider> { ThemeProviderImpl()}
+        single<ThemeProvider> { ThemeProviderImpl() }
         singleOf(::VersionParser)
         singleOf(::JsonSerializer)
         singleOf(::ReferenceResolver)

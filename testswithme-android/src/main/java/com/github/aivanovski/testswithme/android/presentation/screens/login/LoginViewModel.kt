@@ -4,7 +4,6 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.extensions.asFlow
 import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.UnshapedChipRowCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState

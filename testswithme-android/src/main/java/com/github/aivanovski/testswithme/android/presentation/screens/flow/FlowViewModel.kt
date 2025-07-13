@@ -6,7 +6,6 @@ import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvid
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
 import com.github.aivanovski.testswithme.android.extensions.asFlow
 import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
-import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
@@ -228,9 +227,7 @@ class FlowViewModel(
         sendIntent(FlowIntent.OnFlowClick(flowUid = cellId))
     }
 
-    private fun startFlowGroup(
-        intent: FlowIntent.RunFlows
-    ): Flow<FlowState> {
+    private fun startFlowGroup(intent: FlowIntent.RunFlows): Flow<FlowState> {
         val state = state.value
 
         val isDriverRunning = interactor.isDriverServiceRunning()
@@ -273,9 +270,7 @@ class FlowViewModel(
         }
     }
 
-    private fun startFlow(
-        intent: FlowIntent.RunFlow
-    ): Flow<FlowState> {
+    private fun startFlow(intent: FlowIntent.RunFlow): Flow<FlowState> {
         val state = state.value
 
         val isDriverRunning = interactor.isDriverServiceRunning()
@@ -431,9 +426,7 @@ class FlowViewModel(
         return emptyFlow()
     }
 
-    private fun onFlowClicked(
-        intent: FlowIntent.OnFlowClick
-    ): Flow<FlowState> {
+    private fun onFlowClicked(intent: FlowIntent.OnFlowClick): Flow<FlowState> {
         router.navigateTo(
             Screen.Flow(
                 FlowScreenArgs(

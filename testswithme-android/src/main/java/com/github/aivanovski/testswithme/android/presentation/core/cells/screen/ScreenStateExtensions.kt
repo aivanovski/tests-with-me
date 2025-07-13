@@ -8,5 +8,4 @@ fun ErrorMessage.toTerminalState(): TerminalState.Error {
     )
 }
 
-fun CellsScreenState.isLoading(): Boolean =
-    this.terminalState == TerminalState.Loading
+fun CellsScreenState.isLoading(): Boolean = this.terminalState == TerminalState.Loading

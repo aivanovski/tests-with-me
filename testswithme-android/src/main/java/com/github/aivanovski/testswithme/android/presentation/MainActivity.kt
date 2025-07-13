@@ -8,8 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.arkivanov.decompose.defaultComponentContext
 import com.github.aivanovski.testswithme.android.di.GlobalInjector.inject
 import com.github.aivanovski.testswithme.android.extensions.getParcelableCompat
-import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.AppTheme
+import com.github.aivanovski.testswithme.android.presentation.core.compose.theme.ThemeProvider
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreen
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootScreenComponent
 

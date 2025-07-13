@@ -102,8 +102,6 @@ class ProjectRepository(
         projectDao.removeAll()
     }
 
-    suspend fun requestSync(
-        projectUid: String
-    ): Either<AppException, RequestProjectSyncResponse> =
+    suspend fun requestSync(projectUid: String): Either<AppException, RequestProjectSyncResponse> =
         api.requestProjectSync(projectUid)
 }

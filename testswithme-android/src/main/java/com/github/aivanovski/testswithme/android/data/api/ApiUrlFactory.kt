@@ -22,9 +22,8 @@ class ApiUrlFactory(
 
     fun projects(): String = getServerUrl() + "/$PROJECT"
 
-    fun requestProjectSync(
-        projectUid: String
-    ): String = getServerUrl() + "/$REQUEST_PROJECT_SYNC/$projectUid"
+    fun requestProjectSync(projectUid: String): String =
+        getServerUrl() + "/$REQUEST_PROJECT_SYNC/$projectUid"
 
     fun flowRuns(): String = getServerUrl() + "/$FLOW_RUN"
 

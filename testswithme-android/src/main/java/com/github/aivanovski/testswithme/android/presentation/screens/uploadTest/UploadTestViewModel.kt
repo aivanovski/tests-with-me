@@ -54,9 +54,7 @@ class UploadTestViewModel(
         rootViewModel.sendIntent(SetTopBarState(createInitialTopBarState()))
     }
 
-    override fun handleIntent(
-        intent: UploadTestIntent
-    ): Flow<UploadTestState> {
+    override fun handleIntent(intent: UploadTestIntent): Flow<UploadTestState> {
         return when (intent) {
             UploadTestIntent.Initialize -> loadData()
             UploadTestIntent.OnUploadButtonClick -> uploadTest(state.value)

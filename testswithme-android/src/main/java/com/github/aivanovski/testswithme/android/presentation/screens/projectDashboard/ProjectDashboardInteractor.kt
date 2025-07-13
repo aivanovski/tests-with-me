@@ -139,9 +139,7 @@ class ProjectDashboardInteractor(
         }
     }
 
-    suspend fun requestProjectSync(
-        projectUid: String
-    ): Either<AppException, Unit> =
+    suspend fun requestProjectSync(projectUid: String): Either<AppException, Unit> =
         projectRepository.requestSync(projectUid)
             .map { }
 }
