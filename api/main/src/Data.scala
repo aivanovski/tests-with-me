@@ -1,7 +1,8 @@
 import model.User
 import utils.printResponse
+import utils.readFileBytes
 
-import java.io.FileInputStream
+import java.io.{ByteArrayInputStream}
 import java.util.Properties
 
 object Data {
@@ -45,12 +46,9 @@ object Data {
 
   def readDefaultUser(): User = {
     val debugPropertiesPath = "$HOME/dev/tests-with-me/dev-data/debug.properties"
-      .replace("$HOME", System.getProperty("user.home"))
 
     val properties = new Properties()
-    val inputStream = new FileInputStream(debugPropertiesPath)
-    properties.load(inputStream)
-    inputStream.close()
+    properties.load(ByteArrayInputStream(readFileBytes(debugPropertiesPath)))
 
     val username = properties.getProperty("username")
     val password = properties.getProperty("password")
