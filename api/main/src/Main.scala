@@ -1,5 +1,6 @@
 
 import utils.printResponse
+import utils.readFile
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -25,6 +26,8 @@ object Main {
       case "sign-up" => api.signUp(user.username, user.password, user.email)
       case "flow" => api.getFlows()
       case s"flow $uid" => api.getFlow(uid = uid)
+      case s"post-flow $path $file" => api.postFlow(path = path, content = readFile(file))
+      case s"put-flow $uid $file" => api.putFlow(flowUid = uid, content = readFile(file))
       case s"delete-flow $uid" => api.deleteFlow(uid = uid)
       case "user" => api.getUsers()
       case "project" => api.getProjects()
@@ -74,6 +77,8 @@ def printHelp(): Unit = {
       |delete-group [UID]                                    Deletes group by its UID
       |flow                                                  Get all flows
       |flow [UID]                                            Get flow by UID
+      |post-flow [PATH] [FILE]                               Creates new flow at project and group specified in PATH
+      |put-flow [UID] [FILE]                                 Updates flow by UID
       |delete-flow [UID]                                     Deletes flow by UID
       |flow-run                                              Get all flow runs
       |flow-run [UID]                                        Get flow run by UID

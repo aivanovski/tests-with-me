@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.web.domain
 import arrow.core.Either
 import arrow.core.raise.either
 import com.github.aivanovski.testswithme.flow.reference.ReferenceResolverUtils.resolveGroupsAndName
-import com.github.aivanovski.testswithme.web.api.EntityReference
+import com.github.aivanovski.testswithme.web.api.dto.EntityReferenceDto
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
@@ -64,7 +64,7 @@ class ReferenceResolver(
         }
 
     fun parseProjectAndGroup(
-        reference: EntityReference,
+        reference: EntityReferenceDto,
         user: User
     ): Either<AppException, Pair<Project, Group>> =
         either {

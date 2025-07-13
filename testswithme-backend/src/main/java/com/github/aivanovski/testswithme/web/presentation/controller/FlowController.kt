@@ -9,15 +9,19 @@ import com.github.aivanovski.testswithme.extensions.sha256
 import com.github.aivanovski.testswithme.extensions.trimLines
 import com.github.aivanovski.testswithme.flow.yaml.YamlParser
 import com.github.aivanovski.testswithme.utils.Base64Utils
-import com.github.aivanovski.testswithme.web.api.dto.FlowItemDto
+import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.dto.FlowsItemDto
 import com.github.aivanovski.testswithme.web.api.dto.Sha256HashDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
+import com.github.aivanovski.testswithme.web.api.request.UpdateFlowRequest
 import com.github.aivanovski.testswithme.web.api.response.DeleteFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowResponse
 import com.github.aivanovski.testswithme.web.api.response.FlowsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
+import com.github.aivanovski.testswithme.web.api.response.UpdateFlowResponse
 import com.github.aivanovski.testswithme.web.data.repository.FlowRepository
+import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
+import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository
 import com.github.aivanovski.testswithme.web.domain.AccessResolver
 import com.github.aivanovski.testswithme.web.domain.ReferenceResolver
 import com.github.aivanovski.testswithme.web.entity.Flow
@@ -28,14 +32,16 @@ import com.github.aivanovski.testswithme.web.entity.User
 import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.entity.exception.BadRequestException
 import com.github.aivanovski.testswithme.web.entity.exception.EntityAlreadyExistsException
-import com.github.aivanovski.testswithme.web.entity.exception.EntityNotFoundByUidException
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidBase64String
 import com.github.aivanovski.testswithme.web.entity.exception.InvalidParameterException
 import com.github.aivanovski.testswithme.web.entity.exception.ParsingException
+import com.github.aivanovski.testswithme.web.extensions.toDto
 import com.github.aivanovski.testswithme.web.presentation.routes.Api.ID
 
 class FlowController(
     private val flowRepository: FlowRepository,
+    private val projectRepository: ProjectRepository,
+    private val groupRepository: GroupRepository,
     private val referenceResolver: ReferenceResolver,
     private val accessResolver: AccessResolver
 ) {
@@ -45,10 +51,8 @@ class FlowController(
         request: PostFlowRequest
     ): Either<AppException, PostFlowResponse> =
         either {
-            val (project, group) = referenceResolver.resolveProjectAndGroup(
-                path = request.path,
-                projectUid = request.projectId,
-                groupUid = request.groupId,
+            val (project, group) = referenceResolver.parseProjectAndGroup(
+                reference = request.parent,
                 user = user
             ).bind()
 
@@ -59,7 +63,7 @@ class FlowController(
                 .mapLeft { exception -> ParsingException(cause = exception) }
                 .bind()
 
-            validateFlowName(
+            validaNewFlowName(
                 name = parsedFlow.name,
                 user = user,
                 project = project,
@@ -89,35 +93,91 @@ class FlowController(
             )
         }
 
-    fun getFlow(
+    fun updateFlow(
         user: User,
-        rawUid: String
-    ): Either<AppException, FlowResponse> =
+        uid: String,
+        request: UpdateFlowRequest
+    ): Either<AppException, UpdateFlowResponse> =
         either {
-            val uid = Uid.parse(rawUid).getOrNull()
+            val flowUid = Uid.parse(uid).getOrNull()
                 ?: raise(InvalidParameterException(ID))
+            val newParent = request.parent
+            val newBase64Content = request.base64Content ?: StringUtils.EMPTY
 
-            val allFlows = flowRepository.getFlowsByUserUid(user.uid).bind()
+            accessResolver.canModifyFlow(user, flowUid).bind()
 
-            val flows = allFlows.filter { flow -> flow.uid == uid }
-            if (flows.isEmpty()) {
-                raise(EntityNotFoundByUidException(Flow::class, uid))
+            val oldFlow = flowRepository.getByUid(flowUid).bind()
+            val oldContent = flowRepository.getFlowContent(flowUid).bind()
+
+            val (project, group) = if (newParent != null) {
+                referenceResolver.parseProjectAndGroup(
+                    reference = newParent,
+                    user = user
+                ).bind()
+            } else {
+                val project = projectRepository.getByUid(oldFlow.projectUid).bind()
+                val group = groupRepository.getByUid(oldFlow.groupUid).bind()
+
+                (project to group)
             }
 
-            val flow = flows.first()
-            val rawContent = flowRepository.getFlowContent(flow.uid).bind()
-            val hash = rawContent.trimLines().sha256()
+            val (content, name) = if (newBase64Content.isNotBlank()) {
+                val newContent = Base64Utils.decode(newBase64Content).getOrNull()
+                    ?: raise(InvalidBase64String())
 
-            FlowResponse(
-                FlowItemDto(
-                    id = flow.uid.toString(),
-                    projectId = flow.projectUid.toString(),
-                    groupId = flow.groupUid.toString(),
-                    name = flow.name,
-                    base64Content = Base64Utils.encode(rawContent),
-                    contentHash = hash.toDto()
-                )
+                val parsedFlow = YamlParser().parse(newContent)
+                    .mapLeft { exception -> ParsingException(cause = exception) }
+                    .bind()
+
+                validateFlowContentChanged(
+                    oldContent = oldContent,
+                    newContent = newContent
+                ).bind()
+
+                validateFlowNameUpdate(
+                    name = parsedFlow.name,
+                    flowUid = flowUid
+                ).bind()
+
+                validateInnerReferences(
+                    flow = parsedFlow,
+                    project = project
+                ).bind()
+
+                (newContent to parsedFlow.name)
+            } else {
+                (oldContent to oldFlow.name)
+            }
+
+            val newFlow = oldFlow.copy(
+                projectUid = project.uid,
+                groupUid = group.uid,
+                name = name,
+                contentHash = content.trimLines().sha256()
             )
+
+            flowRepository.update(
+                flow = newFlow,
+                content = content
+            )
+
+            UpdateFlowResponse(newFlow.toDto(content = content))
+        }
+
+    fun getFlow(
+        user: User,
+        uid: String
+    ): Either<AppException, FlowResponse> =
+        either {
+            val flowUid = Uid.parse(uid).getOrNull()
+                ?: raise(InvalidParameterException(ID))
+
+            accessResolver.canReadFlow(user, flowUid).bind()
+
+            val flow = flowRepository.getByUid(flowUid).bind()
+            val content = flowRepository.getFlowContent(flow.uid).bind()
+
+            FlowResponse(flow.toDto(content = content))
         }
 
     fun getFlows(user: User): Either<AppException, FlowsResponse> =
@@ -158,11 +218,11 @@ class FlowController(
             )
         }
 
-    private fun validateFlowName(
+    private fun validaNewFlowName(
         name: String,
         user: User,
         project: Project,
-        group: Group?
+        group: Group
     ): Either<AppException, Unit> =
         either {
             if (name.isBlank()) {
@@ -172,12 +232,50 @@ class FlowController(
             val flowsInGroup = flowRepository.getFlowsByProjectAndGroup(
                 userUid = user.uid,
                 projectUid = project.uid,
-                groupUid = group?.uid
+                groupUid = group.uid
             ).bind()
 
             val hasTheSameName = flowsInGroup.any { flow -> flow.name == name }
             if (hasTheSameName) {
                 raise(EntityAlreadyExistsException(name))
+            }
+        }
+
+    private fun validateFlowNameUpdate(
+        name: String,
+        flowUid: Uid
+    ): Either<AppException, Unit> =
+        either {
+            val flow = flowRepository.getByUid(flowUid).bind()
+            if (name == flow.name) {
+                return@either
+            }
+
+            val project = projectRepository.getByUid(flow.projectUid).bind()
+            val group = groupRepository.getByUid(flow.groupUid).bind()
+
+            val otherFlowNames = flowRepository.getFlowsByProjectAndGroup(
+                userUid = project.userUid,
+                projectUid = project.uid,
+                groupUid = group.uid
+            )
+                .bind()
+                .filter { fl -> fl.uid != flowUid }
+                .map { fl -> fl.name }
+                .toSet()
+
+            if (otherFlowNames.contains(name)) {
+                raise(BadRequestException("Flow with same name already exists: $name"))
+            }
+        }
+
+    private fun validateFlowContentChanged(
+        oldContent: String,
+        newContent: String
+    ): Either<AppException, Unit> =
+        either {
+            if (oldContent.trimLines() == newContent.trimLines()) {
+                raise(BadRequestException("No changes in flow content"))
             }
         }
 

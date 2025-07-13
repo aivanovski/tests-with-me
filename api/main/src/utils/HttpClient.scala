@@ -24,6 +24,19 @@ object HttpClient {
     client.newCall(request.build()).execute()
   }
 
+  def put(url: String, body: String, authToken: Option[String] = None): Response = {
+    val request = Request.Builder()
+      .url(url)
+      .header("Content-Type", "application/json")
+      .put(RequestBody.create(body.getBytes()))
+
+    if (authToken.orNull() != null) {
+      request.header("Authorization", s"Bearer ${authToken.get}")
+    }
+
+    client.newCall(request.build()).execute()
+  }
+
   def delete(url: String, authToken: Option[String]): Response = {
     val request = Request.Builder()
       .url(url)

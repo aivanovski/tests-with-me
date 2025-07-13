@@ -25,6 +25,7 @@ import com.github.aivanovski.testswithme.android.utils.formatErrorMessage
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.StringUtils
+import com.github.aivanovski.testswithme.web.api.dto.EntityReferenceDto
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -170,9 +171,11 @@ class UploadTestViewModel(
             emit(initialState.copy(terminalState = TerminalState.Loading))
 
             val request = PostFlowRequest(
-                projectId = project.uid,
-                groupId = group?.uid,
-                path = null,
+                parent = EntityReferenceDto(
+                    projectId = project.uid,
+                    groupId = group?.uid,
+                    path = null
+                ),
                 base64Content = data.base64Content
             )
 
