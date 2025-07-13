@@ -62,8 +62,8 @@ class GetSslKeyStoreUseCase(
         }
 
     companion object {
-        private const val DEV_KEY_STORE_PATH = "data/dev-keystore.jks"
-        private const val DEV_PROPERTIES_PATH = "data/dev-keystore.properties"
+        private const val DEV_KEY_STORE_PATH = "dev-data/dev-keystore.jks"
+        private const val DEV_PROPERTIES_PATH = "dev-data/dev-keystore.properties"
 
         private const val PROPERTY_ALIAS = "alias"
         private const val PROPERTY_PASSWORD = "password"
