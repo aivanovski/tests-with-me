@@ -5,11 +5,12 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.data.api.ApiUrlFactory
 import com.github.aivanovski.testswithme.android.data.settings.Settings
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.CellViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.isLoading
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.OptionDialogState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -30,16 +31,12 @@ import com.github.aivanovski.testswithme.android.presentation.screens.settings.m
 import com.github.aivanovski.testswithme.android.presentation.screens.settings.model.SettingsUiEvent
 import com.github.aivanovski.testswithme.android.utils.infiniteRepeatFlow
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -50,19 +47,17 @@ class SettingsViewModel(
     private val resourceProvider: ResourceProvider,
     private val rootViewModel: RootViewModel,
     private val router: Router
-) : BaseViewModel() {
-
-    val state = MutableStateFlow(SettingsState(terminalState = TerminalState.Loading))
+) : CellsMviViewModel<SettingsState, SettingsIntent>(
+    initialState = SettingsState(terminalState = TerminalState.Loading),
+    initialIntent = SettingsIntent.Initialize
+) {
 
     private val _events = Channel<SettingsUiEvent>(capacity = Channel.BUFFERED)
     val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()
 
-    private var isSubscribed = false
-
     private var isGatewaySwitchEnabled = MutableStateFlow(true)
     private var isDriverRunning = MutableStateFlow(interactor.isDriverRunning())
     private var isGatewayRunning = MutableStateFlow(interactor.isGatewayRunning())
-    private val intents = Channel<SettingsIntent>()
 
     override fun start() {
         super.start()
@@ -71,19 +66,7 @@ class SettingsViewModel(
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
         rootViewModel.sendIntent(SetBottomBarState(BottomBarState.HIDDEN))
 
-        if (!isSubscribed) {
-            isSubscribed = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(SettingsIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-
+        doOnceWhenStarted {
             viewModelScope.launch {
                 infiniteRepeatFlow(1000.milliseconds)
                     .collect {
@@ -92,10 +75,10 @@ class SettingsViewModel(
                         }
                     }
             }
-        } else {
-            if (isDataChanged()) {
-                sendIntent(SettingsIntent.ReloadData)
-            }
+        }
+
+        if (isDataChanged() && !state.value.isLoading()) {
+            sendIntent(SettingsIntent.ReloadData)
         }
     }
 
@@ -123,11 +106,7 @@ class SettingsViewModel(
         }
     }
 
-    fun sendIntent(intent: SettingsIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(intent: SettingsIntent): Flow<SettingsState> {
+    override fun handleIntent(intent: SettingsIntent): Flow<SettingsState> {
         return when (intent) {
             is SettingsIntent.Initialize -> loadData()
             is SettingsIntent.ReloadData -> loadData()

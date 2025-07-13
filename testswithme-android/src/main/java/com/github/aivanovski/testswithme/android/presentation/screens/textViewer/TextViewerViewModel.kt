@@ -1,7 +1,8 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.textViewer
 
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.root.RootViewModel
@@ -21,7 +22,7 @@ class TextViewerViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: TextViewerArgs
-) : MviViewModel<TextViewerState, TextViewerIntent>(
+) : CellsMviViewModel<TextViewerState, TextViewerIntent>(
     initialState = TextViewerState(terminalState = TerminalState.Loading),
     initialIntent = TextViewerIntent.Initialize
 ) {
@@ -39,6 +40,9 @@ class TextViewerViewModel(
         when (intent) {
             TextViewerIntent.Initialize -> loadData()
         }
+
+    override fun handleCellIntent(intent: BaseCellIntent) {
+    }
 
     private fun loadData(): Flow<TextViewerState> {
         return flow {

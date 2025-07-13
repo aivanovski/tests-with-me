@@ -6,7 +6,7 @@ import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.db.GroupEntry
 import com.github.aivanovski.testswithme.android.entity.exception.AppException
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.DeprecatedBaseViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
 import com.github.aivanovski.testswithme.android.presentation.screens.Screen
 import com.github.aivanovski.testswithme.android.presentation.screens.groupEditor.model.GroupEditorIntent
@@ -40,7 +40,7 @@ class GroupEditorViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: GroupEditorScreenArgs
-) : BaseViewModel() {
+) : DeprecatedBaseViewModel() {
 
     val state = MutableStateFlow(GroupEditorState(isLoading = true))
     private val intents = Channel<GroupEditorIntent>()

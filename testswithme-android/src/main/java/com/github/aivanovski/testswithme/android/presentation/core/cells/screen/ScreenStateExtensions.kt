@@ -7,3 +7,6 @@ fun ErrorMessage.toTerminalState(): TerminalState.Error {
         message = this
     )
 }
+
+fun CellsScreenState.isLoading(): Boolean =
+    this.terminalState == TerminalState.Loading

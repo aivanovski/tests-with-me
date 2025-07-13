@@ -1,9 +1,8 @@
 package com.github.aivanovski.testswithme.android.presentation.screens.resetRuns
 
-import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.toTerminalState
 import com.github.aivanovski.testswithme.android.presentation.core.navigation.Router
@@ -18,17 +17,10 @@ import com.github.aivanovski.testswithme.android.utils.formatErrorMessage
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
 import com.github.aivanovski.testswithme.utils.StringUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 
 class ResetRunsViewModel(
     private val interactor: ResetRunsInteractor,
@@ -36,35 +28,20 @@ class ResetRunsViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: ResetRunsScreenArgs
-) : BaseViewModel() {
+) : MviViewModel<ResetRunsState, ResetRunsIntent>(
+    initialState = ResetRunsState(),
+    initialIntent = ResetRunsIntent.Initialize
+) {
 
-    val state = MutableStateFlow(ResetRunsState())
-    private val intents = Channel<ResetRunsIntent>()
     private val data = MutableStateFlow<ResetRunsData?>(null)
 
     override fun start() {
         super.start()
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
-
-        doOnceWhenStarted {
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(ResetRunsIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-        }
     }
 
-    fun sendIntent(intent: ResetRunsIntent) {
-        intents.trySend(intent)
-    }
-
-    private fun handleIntent(intent: ResetRunsIntent): Flow<ResetRunsState> {
+    override fun handleIntent(intent: ResetRunsIntent): Flow<ResetRunsState> {
         return when (intent) {
             ResetRunsIntent.Initialize -> loadData()
             ResetRunsIntent.OnResetButtonClick -> onResetButtonClicked()

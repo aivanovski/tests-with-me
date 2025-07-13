@@ -4,15 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.github.aivanovski.testswithme.android.R
 import com.github.aivanovski.testswithme.android.domain.resources.ResourceProvider
 import com.github.aivanovski.testswithme.android.entity.db.FlowEntry
-import com.github.aivanovski.testswithme.android.entity.db.ProjectEntry
 import com.github.aivanovski.testswithme.android.extensions.asFlow
-import com.github.aivanovski.testswithme.android.presentation.core.BaseViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.CellsMviViewModel
+import com.github.aivanovski.testswithme.android.presentation.core.MviViewModel
 import com.github.aivanovski.testswithme.android.presentation.core.cells.BaseCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.ButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.HeaderCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.LabeledTextWithIconCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.model.TextButtonCellIntent
 import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.TerminalState
+import com.github.aivanovski.testswithme.android.presentation.core.cells.screen.isLoading
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.DialogAction
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogButton
 import com.github.aivanovski.testswithme.android.presentation.core.compose.dialogs.model.MessageDialogState
@@ -47,17 +48,12 @@ import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.utils.StringUtils
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -72,40 +68,26 @@ class FlowViewModel(
     private val rootViewModel: RootViewModel,
     private val router: Router,
     private val args: FlowScreenArgs
-) : BaseViewModel() {
-
-    val state = MutableStateFlow(FlowState(terminalState = TerminalState.Loading))
+) : CellsMviViewModel<FlowState, FlowIntent>(
+    initialState = FlowState(terminalState = TerminalState.Loading),
+    initialIntent = FlowIntent.Initialize
+) {
 
     private val _events = Channel<FlowUiEvent>(capacity = Channel.BUFFERED)
     val events: Flow<FlowUiEvent> = _events.receiveAsFlow()
 
-    private val intents = Channel<FlowIntent>()
     private val startedJobUids = mutableListOf<String>()
-    private var isSubscribed = false
     private var data: FlowData? = null
     private var appData: ExternalAppData? = null
     private var isDriverRunning = interactor.isDriverServiceRunning()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
         super.start()
 
         rootViewModel.sendIntent(SetTopBarState(createTopBarState()))
         rootViewModel.sendIntent(SetMenuState(MenuState.HIDDEN))
 
-        if (!isSubscribed) {
-            isSubscribed = true
-
-            viewModelScope.launch {
-                intents.receiveAsFlow()
-                    .onStart { emit(FlowIntent.Initialize) }
-                    .flatMapLatest { intent -> handleIntent(intent, state.value) }
-                    .flowOn(Dispatchers.IO)
-                    .collect { newState ->
-                        state.value = newState
-                    }
-            }
-
+        doOnceWhenStarted {
             viewModelScope.launch {
                 infiniteRepeatFlow(1000.milliseconds)
                     .collect {
@@ -114,14 +96,15 @@ class FlowViewModel(
                         }
                     }
             }
-        } else {
+        }
+
+        if (!state.value.isLoading()) {
             sendIntent(FlowIntent.ReBuildState)
         }
     }
 
     override fun handleCellIntent(intent: BaseCellIntent) {
         val cellId = when (intent) {
-            // is ButtonCellIntent.OnClick -> onButtonCellClicked(intent.cellId)
             is HistoryItemCellIntent.OnItemClick -> intent.cellId
             is FlowCellIntent.OnClick -> intent.cellId
             is ButtonCellIntent.OnClick -> intent.cellId
@@ -159,29 +142,22 @@ class FlowViewModel(
         }
     }
 
-    fun sendIntent(intent: FlowIntent) {
-        intents.trySend(intent)
-    }
-
     private fun sendUiEvent(event: FlowUiEvent) {
         _events.trySend(event)
     }
 
-    private fun handleIntent(
-        intent: FlowIntent,
-        state: FlowState
-    ): Flow<FlowState> {
+    override fun handleIntent(intent: FlowIntent): Flow<FlowState> {
         return when (intent) {
             FlowIntent.Initialize -> loadData()
             FlowIntent.ReBuildState -> rebuildState()
-            FlowIntent.OnDismissErrorDialog -> onDismissErrorDialog(state)
-            FlowIntent.OnDismissFlowDialog -> onDismissFlowDialog(state)
+            FlowIntent.OnDismissErrorDialog -> onDismissErrorDialog()
+            FlowIntent.OnDismissFlowDialog -> onDismissFlowDialog()
             FlowIntent.OnUploadButtonClick -> onAddButtonClick()
             FlowIntent.OnDismissOptionDialog -> dismissOptionDialog()
-            is FlowIntent.OnFlowDialogActionClick -> onFlowDialogActionClick(intent, state)
-            is FlowIntent.OnFlowClick -> onFlowClicked(intent, state)
-            is FlowIntent.RunFlow -> startFlow(intent, state)
-            is FlowIntent.RunFlows -> startFlowGroup(intent, state)
+            is FlowIntent.OnFlowDialogActionClick -> onFlowDialogActionClick(intent)
+            is FlowIntent.OnFlowClick -> onFlowClicked(intent)
+            is FlowIntent.RunFlow -> startFlow(intent)
+            is FlowIntent.RunFlows -> startFlowGroup(intent)
             is FlowIntent.OnOptionDialogClick -> handleOptionDialogAction(intent.action)
         }
     }
@@ -253,9 +229,10 @@ class FlowViewModel(
     }
 
     private fun startFlowGroup(
-        intent: FlowIntent.RunFlows,
-        state: FlowState
+        intent: FlowIntent.RunFlows
     ): Flow<FlowState> {
+        val state = state.value
+
         val isDriverRunning = interactor.isDriverServiceRunning()
         if (!isDriverRunning) {
             return flowOf(
@@ -297,9 +274,10 @@ class FlowViewModel(
     }
 
     private fun startFlow(
-        intent: FlowIntent.RunFlow,
-        state: FlowState
+        intent: FlowIntent.RunFlow
     ): Flow<FlowState> {
+        val state = state.value
+
         val isDriverRunning = interactor.isDriverServiceRunning()
         if (!isDriverRunning) {
             return flowOf(
@@ -427,15 +405,15 @@ class FlowViewModel(
         }
     }
 
-    private fun onDismissErrorDialog(state: FlowState): Flow<FlowState> {
+    private fun onDismissErrorDialog(): Flow<FlowState> {
         return flowOf(
-            state.copy(errorDialogMessage = null)
+            state.value.copy(errorDialogMessage = null)
         )
     }
 
-    private fun onDismissFlowDialog(state: FlowState): Flow<FlowState> {
+    private fun onDismissFlowDialog(): Flow<FlowState> {
         return flowOf(
-            state.copy(flowDialogState = null)
+            state.value.copy(flowDialogState = null)
         )
     }
 
@@ -454,8 +432,7 @@ class FlowViewModel(
     }
 
     private fun onFlowClicked(
-        intent: FlowIntent.OnFlowClick,
-        state: FlowState
+        intent: FlowIntent.OnFlowClick
     ): Flow<FlowState> {
         router.navigateTo(
             Screen.Flow(
@@ -470,8 +447,7 @@ class FlowViewModel(
     }
 
     private fun onFlowDialogActionClick(
-        intent: FlowIntent.OnFlowDialogActionClick,
-        state: FlowState
+        intent: FlowIntent.OnFlowDialogActionClick
     ): Flow<FlowState> {
         return when (intent.actionId) {
             DIALOG_ACTION_LAUNCH_SERVICES -> {
@@ -627,10 +603,6 @@ class FlowViewModel(
         }
     }
 
-    private fun getProjectOrNull(): ProjectEntry? {
-        return data?.project
-    }
-
     private fun FlowState.isInDataState(): Boolean {
         return viewModels.isNotEmpty() && terminalState == null
     }
@@ -638,7 +610,5 @@ class FlowViewModel(
     companion object {
         private const val DIALOG_ACTION_CANCEL_FLOW = 1
         private const val DIALOG_ACTION_LAUNCH_SERVICES = 2
-        // private const val DIALOG_ACTION_OPEN_WEBSITE = 3
-        // private const val DIALOG_ACTION_OPEN_DOWNLOADS = 4
     }
 }
