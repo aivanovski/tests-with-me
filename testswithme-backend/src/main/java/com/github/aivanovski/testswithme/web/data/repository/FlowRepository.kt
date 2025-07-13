@@ -44,8 +44,14 @@ class FlowRepository(
 
     fun getByUid(uid: Uid): Either<AppException, Flow> =
         either {
-            findByUid(uid).bind()
+            val flow = findByUid(uid).bind()
                 ?: raise(EntityNotFoundByUidException(Flow::class, uid))
+
+            if (flow.isDeleted) {
+                raise(DeletedEntityAccessException(Flow::class))
+            }
+
+            flow
         }
 
     fun getFlowsByProjectUid(projectUid: Uid): Either<AppException, List<Flow>> =

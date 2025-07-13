@@ -16,6 +16,19 @@ class AccessResolver(
     private val flowRepository: FlowRepository
 ) {
 
+    fun canReadFlow(
+        user: User,
+        flowUid: Uid
+    ): Either<AppException, Unit> =
+        either {
+            val flow = flowRepository.getByUid(flowUid).bind()
+            val project = projectRepository.getByUid(flow.projectUid).bind()
+
+            if (project.userUid != user.uid) {
+                raise(InvalidAccessException("Unable to access Flow with uid: $flowUid"))
+            }
+        }
+
     fun canModifyFlow(
         user: User,
         flowUid: Uid
