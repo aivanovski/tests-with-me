@@ -11,6 +11,7 @@ import com.github.aivanovski.testswithme.android.entity.db.UserEntry
 import com.github.aivanovski.testswithme.android.entity.exception.ApiException
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
 import com.github.aivanovski.testswithme.utils.Base64Utils
+import com.github.aivanovski.testswithme.utils.StringUtils
 import com.github.aivanovski.testswithme.web.api.request.LoginRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRequest
 import com.github.aivanovski.testswithme.web.api.request.PostFlowRunRequest
@@ -32,6 +33,7 @@ import com.github.aivanovski.testswithme.web.api.response.PostFlowResponse
 import com.github.aivanovski.testswithme.web.api.response.PostFlowRunResponse
 import com.github.aivanovski.testswithme.web.api.response.PostGroupResponse
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
+import com.github.aivanovski.testswithme.web.api.response.RequestProjectSyncResponse
 import com.github.aivanovski.testswithme.web.api.response.ResetFlowRunsResponse
 import com.github.aivanovski.testswithme.web.api.response.SignUpResponse
 import com.github.aivanovski.testswithme.web.api.response.UpdateGroupResponse
@@ -79,6 +81,14 @@ class ApiClient(
         executor.post<PostProjectResponse>(
             url = urlFactory.projects(),
             body = jsonSerializer.serialize(request)
+        )
+
+    suspend fun requestProjectSync(
+        projectUid: String
+    ): Either<ApiException, RequestProjectSyncResponse> =
+        executor.post<RequestProjectSyncResponse>(
+            url = urlFactory.requestProjectSync(projectUid),
+            body = StringUtils.EMPTY
         )
 
     suspend fun postGroup(request: PostGroupRequest): Either<ApiException, PostGroupResponse> =

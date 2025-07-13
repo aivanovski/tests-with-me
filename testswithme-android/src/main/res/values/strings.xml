@@ -57,6 +57,8 @@
 
     <!-- Groups screen -->
     <string name="this_group_is_empty">This group is empty</string>
+    <string name="add_test">Add Test</string>
+    <string name="add_group">Add Group</string>
 
     <!-- Flow screen -->
     <string name="groups">Groups</string>
@@ -96,6 +98,7 @@
     <string name="show_more_with_str">Show %s more</string>
     <string name="open_downloads_page">Open downloads page</string>
     <string name="open_project_website">Open project website</string>
+    <string name="request_sync_with_repository">Request sync with repository</string>
 
     <!-- Test Content screen -->
     <string name="view_error">View Error</string>
@@ -116,6 +119,7 @@
     <string name="empty_project_message">This project doesn\'t have any tests yet</string>
     <string name="reset_progress">Reset progress</string>
     <string name="not_installed">Not installed</string>
+    <string name="sync_request_success_message">Tests inside project will be synchronized soon</string>
 
     <!-- Project Editor -->
     <string name="create_project">Create Project</string>

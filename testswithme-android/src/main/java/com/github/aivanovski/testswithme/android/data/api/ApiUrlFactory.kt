@@ -7,6 +7,7 @@ import com.github.aivanovski.testswithme.web.api.Endpoints.FLOW_RUN
 import com.github.aivanovski.testswithme.web.api.Endpoints.GROUP
 import com.github.aivanovski.testswithme.web.api.Endpoints.LOGIN
 import com.github.aivanovski.testswithme.web.api.Endpoints.PROJECT
+import com.github.aivanovski.testswithme.web.api.Endpoints.REQUEST_PROJECT_SYNC
 import com.github.aivanovski.testswithme.web.api.Endpoints.RESET_FLOW_RUN
 import com.github.aivanovski.testswithme.web.api.Endpoints.SIGN_UP
 import com.github.aivanovski.testswithme.web.api.Endpoints.USER
@@ -20,6 +21,10 @@ class ApiUrlFactory(
     fun flows(): String = getServerUrl() + "/$FLOW"
 
     fun projects(): String = getServerUrl() + "/$PROJECT"
+
+    fun requestProjectSync(
+        projectUid: String
+    ): String = getServerUrl() + "/$REQUEST_PROJECT_SYNC/$projectUid"
 
     fun flowRuns(): String = getServerUrl() + "/$FLOW_RUN"
 
