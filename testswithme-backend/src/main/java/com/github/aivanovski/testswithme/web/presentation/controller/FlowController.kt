@@ -243,7 +243,7 @@ class FlowController(
 
     private fun validateFlowNameUpdate(
         name: String,
-        flowUid: Uid,
+        flowUid: Uid
     ): Either<AppException, Unit> =
         either {
             val flow = flowRepository.getByUid(flowUid).bind()

@@ -20,9 +20,7 @@ fun Hash.toDto(): Sha256HashDto =
         HashType.SHA_256 -> Sha256HashDto(value)
     }
 
-fun Flow.toDto(
-    content: String
-): FlowItemDto =
+fun Flow.toDto(content: String): FlowItemDto =
     FlowItemDto(
         id = uid.toString(),
         projectId = projectUid.toString(),

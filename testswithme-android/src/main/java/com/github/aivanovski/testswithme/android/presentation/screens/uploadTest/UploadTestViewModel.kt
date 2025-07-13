@@ -174,7 +174,7 @@ class UploadTestViewModel(
                 parent = EntityReferenceDto(
                     projectId = project.uid,
                     groupId = group?.uid,
-                    path = null,
+                    path = null
                 ),
                 base64Content = data.base64Content
             )
