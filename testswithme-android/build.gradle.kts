@@ -19,7 +19,7 @@ fun getVersionCode(): Int {
 }
 
 fun readDebugCredentials(): List<Pair<String, String>> {
-    val propertiesFile = File(project.rootProject.rootDir, "data/debug.properties")
+    val propertiesFile = File(project.rootProject.rootDir, "dev-data/debug.properties")
     if (!propertiesFile.exists()) {
         return emptyList()
     }
@@ -40,7 +40,7 @@ fun readDebugCredentials(): List<Pair<String, String>> {
 }
 
 fun readSigningCredentials(): SigningData? {
-    val propertiesFile = File(project.rootProject.rootDir, "data/signing.properties")
+    val propertiesFile = File(project.rootProject.rootDir, "dev-data/signing.properties")
     if (!propertiesFile.exists()) {
         return null
     }

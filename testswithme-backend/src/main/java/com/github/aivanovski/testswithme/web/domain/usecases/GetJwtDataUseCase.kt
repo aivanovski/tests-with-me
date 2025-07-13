@@ -40,6 +40,6 @@ class GetJwtDataUseCase(
         }
 
     companion object {
-        private const val JWT_PROPERTIES_PATH = "data/jwt.properties"
+        private const val JWT_PROPERTIES_PATH = "dev-data/jwt.properties"
     }
 }

@@ -69,4 +69,5 @@ kls_database.db
 out/
 
 # Debug data
-data/
+dev-data/
+bin/

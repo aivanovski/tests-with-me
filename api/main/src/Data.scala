@@ -44,7 +44,7 @@ object Data {
   }
 
   def readDefaultUser(): User = {
-    val debugPropertiesPath = "$HOME/dev/tests-with-me/data/debug.properties"
+    val debugPropertiesPath = "$HOME/dev/tests-with-me/dev-data/debug.properties"
       .replace("$HOME", System.getProperty("user.home"))
 
     val properties = new Properties()
