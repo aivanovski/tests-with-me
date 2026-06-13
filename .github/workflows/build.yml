@@ -17,7 +17,7 @@ jobs:
 
       - name: Download ktlint binary
         run: |
-          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.2.1/ktlint
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint
           chmod +x ktlint
 
       - name: Run ktlint
