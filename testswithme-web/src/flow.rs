@@ -2,7 +2,7 @@ use crate::{
     api::client::get_flow,
     session::{Session, clear_session},
 };
-use backend_api::FlowItemDto;
+use testswithme_api_rust::FlowItemDto;
 use base64::{Engine, engine::general_purpose::STANDARD};
 use leptos::{prelude::*, task::spawn_local};
 use leptos_router::{

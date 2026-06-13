@@ -1,4 +1,4 @@
-use backend_api::LoginResponse;
+use testswithme_api_rust::LoginResponse;
 
 const AUTH_TOKEN_KEY: &str = "testswithme.auth_token";
 const USER_ID_KEY: &str = "testswithme.user_id";

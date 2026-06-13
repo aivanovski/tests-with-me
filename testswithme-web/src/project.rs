@@ -4,7 +4,7 @@ use crate::{
     api::client::{get_flows, get_groups, get_projects},
     session::{Session, clear_session},
 };
-use backend_api::{FlowsItemDto, GroupItemDto, ProjectsItemDto};
+use testswithme_api_rust::{FlowsItemDto, GroupItemDto, ProjectsItemDto};
 use leptos::{prelude::*, task::spawn_local};
 use leptos_router::{
     NavigateOptions,

@@ -19,10 +19,7 @@ fn run() -> Result<(), String> {
     let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .ok_or_else(|| "Unable to locate the Cargo workspace".to_owned())?;
-    let repository = workspace
-        .parent()
-        .ok_or_else(|| "Unable to locate the repository root".to_owned())?;
-    let default_input = repository.join(DEFAULT_INPUT_DIRECTORY);
+    let default_input = workspace.join(DEFAULT_INPUT_DIRECTORY);
     let default_output = workspace.join(DEFAULT_OUTPUT_FILE);
     let mut input = default_input.clone();
     let mut output = default_output.clone();
@@ -56,7 +53,7 @@ fn run() -> Result<(), String> {
         }
     }
 
-    let generated_count = codegen::generate(&input, &output)?;
+    let generated_count = testswithme_api_codegen::generate(&input, &output)?;
     println!(
         "Generated {generated_count} declarations in {}",
         output.display()

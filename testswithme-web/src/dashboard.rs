@@ -2,7 +2,7 @@ use crate::{
     api::client::get_projects,
     session::{Session, clear_session},
 };
-use backend_api::ProjectsItemDto;
+use testswithme_api_rust::ProjectsItemDto;
 use leptos::{prelude::*, task::spawn_local};
 use leptos_router::{NavigateOptions, components::A, hooks::use_navigate};
 
