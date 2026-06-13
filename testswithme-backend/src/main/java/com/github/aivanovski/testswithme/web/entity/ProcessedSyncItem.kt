@@ -21,7 +21,7 @@ import jakarta.persistence.Table
 @Table(name = TABLE_NAME)
 data class ProcessedSyncItem(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
     @Column(name = ITEM_INDEX)

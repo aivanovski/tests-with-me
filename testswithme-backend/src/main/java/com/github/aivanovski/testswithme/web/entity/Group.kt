@@ -19,7 +19,7 @@ import jakarta.persistence.Table
 @Table(name = TABLE_NAME)
 data class Group(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
     @Column(name = UID)

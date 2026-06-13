@@ -18,7 +18,7 @@ import jakarta.persistence.Table
 @Table(name = TABLE_NAME)
 data class TextChunk(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
     @Column(name = ENTITY_UID)

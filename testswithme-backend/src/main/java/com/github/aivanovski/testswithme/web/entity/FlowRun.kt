@@ -25,7 +25,7 @@ import jakarta.persistence.Table
 @Table(name = TABLE_NAME)
 data class FlowRun(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(name = UID)
