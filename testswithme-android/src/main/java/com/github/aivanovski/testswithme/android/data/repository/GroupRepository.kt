@@ -62,7 +62,7 @@ class GroupRepository(
             val remoteGroups = getRemoteGroupsResult.unwrap()
 
             mergeEntities(
-                localEntities = localGroups,
+                onLoadLocalEntities = { groupDao.getAll() },
                 remoteEntities = remoteGroups,
                 entityToUidMapper = { group -> group.uid },
                 onInsert = { group -> groupDao.insert(group) },
@@ -81,7 +81,7 @@ class GroupRepository(
             }
 
             mergeEntities(
-                localEntities = groupDao.getAll(),
+                onLoadLocalEntities = { groupDao.getAll() },
                 remoteEntities = api.getGroups().bind(),
                 entityToUidMapper = { group -> group.uid },
                 onInsert = { group -> groupDao.insert(group) },
