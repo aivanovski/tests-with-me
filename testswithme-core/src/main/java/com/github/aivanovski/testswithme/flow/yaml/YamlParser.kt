@@ -1036,7 +1036,9 @@ class YamlParser {
         ) : AttributeValue
     }
 
-    enum class AnchorType(val key: String) {
+    enum class AnchorType(
+        val key: String
+    ) {
         NAME("name"),
         PROJECT("project"),
         GROUP("group"),
@@ -1052,7 +1054,9 @@ class YamlParser {
         PRESS_KEY("pressKey")
     }
 
-    enum class AttributeType(val key: String) {
+    enum class AttributeType(
+        val key: String
+    ) {
         TEXT("text"),
         CONTENT_DESCRIPTION("contentDescription"),
         HAS_TEXT("hasText"),

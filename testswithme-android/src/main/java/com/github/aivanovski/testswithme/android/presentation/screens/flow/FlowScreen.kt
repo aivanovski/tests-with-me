@@ -121,7 +121,8 @@ private fun FlowScreen(
             if (state.errorDialogMessage != null) {
                 ErrorDialog(
                     message = state.errorDialogMessage,
-                    onDismiss = { // TODO: optimize
+                    onDismiss = {
+                        // TODO: optimize
                         onIntent.invoke(FlowIntent.OnDismissErrorDialog)
                     }
                 )
@@ -160,7 +161,8 @@ private fun FlowDialogContent(
 ) {
     MessageDialog(
         state = state,
-        onIntent = { dialogIntent -> // TODO: optimize
+        onIntent = { dialogIntent ->
+            // TODO: optimize
             when (dialogIntent) {
                 is MessageDialogIntent.OnDismiss -> {
                     onIntent.invoke(FlowIntent.OnDismissFlowDialog)

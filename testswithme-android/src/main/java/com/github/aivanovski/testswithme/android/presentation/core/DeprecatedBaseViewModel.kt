@@ -8,7 +8,9 @@ import kotlinx.coroutines.cancel
 
 // TODO: remove class
 @Deprecated("Should be removed")
-abstract class DeprecatedBaseViewModel : ViewModel(), ScreenViewModel {
+abstract class DeprecatedBaseViewModel :
+    ViewModel(),
+    ScreenViewModel {
 
     private val isStarted = AtomicBoolean(false)
     private val blocks = mutableListOf<() -> Unit>()

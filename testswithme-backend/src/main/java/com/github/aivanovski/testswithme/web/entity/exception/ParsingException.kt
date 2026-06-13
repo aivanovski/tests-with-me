@@ -5,9 +5,10 @@ open class ParsingException(
     cause: Exception? = null
 ) : AppException(message, cause)
 
-class InvalidBase64String : ParsingException(
-    message = "Invalid Base64 string"
-)
+class InvalidBase64String :
+    ParsingException(
+        message = "Invalid Base64 string"
+    )
 
 class InvalidUidString(
     uid: String

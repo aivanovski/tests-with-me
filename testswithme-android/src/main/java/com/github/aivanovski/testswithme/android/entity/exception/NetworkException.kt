@@ -19,6 +19,7 @@ class InvalidHttpStatusCodeException(
     message = message
 )
 
-class NoAccountDataException : ApiException(
-    message = "No account data found"
-)
+class NoAccountDataException :
+    ApiException(
+        message = "No account data found"
+    )

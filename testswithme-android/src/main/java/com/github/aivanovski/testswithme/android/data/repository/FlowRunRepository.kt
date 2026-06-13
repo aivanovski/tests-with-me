@@ -47,7 +47,7 @@ class FlowRunRepository(
             val remoteRuns = getRemoteRuns.unwrap()
 
             mergeEntities(
-                localEntities = localRuns,
+                onLoadLocalEntities = { flowRunDao.getAll() },
                 remoteEntities = remoteRuns,
                 entityToUidMapper = { run -> run.uid },
                 onInsert = { run -> flowRunDao.insert(run) },

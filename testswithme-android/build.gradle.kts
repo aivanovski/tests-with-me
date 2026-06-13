@@ -9,7 +9,10 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-data class SigningData(val alias: String, val password: String)
+data class SigningData(
+    val alias: String,
+    val password: String
+)
 
 fun getVersionName(): String = libs.versions.appVersion.get()
 

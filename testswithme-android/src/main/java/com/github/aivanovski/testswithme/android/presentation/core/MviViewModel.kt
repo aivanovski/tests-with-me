@@ -18,7 +18,8 @@ import kotlinx.coroutines.launch
 abstract class MviViewModel<State, Intent>(
     initialState: State,
     private val initialIntent: Intent
-) : ViewModel(), ScreenViewModel {
+) : ViewModel(),
+    ScreenViewModel {
 
     val state = MutableStateFlow(initialState)
     private val intents = Channel<Intent>(capacity = Channel.BUFFERED)

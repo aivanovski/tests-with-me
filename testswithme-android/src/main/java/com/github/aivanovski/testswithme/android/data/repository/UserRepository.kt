@@ -40,7 +40,7 @@ class UserRepository(
             val remoteUsers = getUsersResult.unwrap()
 
             mergeEntities(
-                localEntities = localUsers,
+                onLoadLocalEntities = { userDao.getAll() },
                 remoteEntities = remoteUsers,
                 entityToUidMapper = { user -> user.uid },
                 onInsert = { user -> userDao.insert(user) },

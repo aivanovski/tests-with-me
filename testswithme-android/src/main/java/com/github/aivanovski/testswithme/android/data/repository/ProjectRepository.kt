@@ -12,8 +12,12 @@ import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
 import com.github.aivanovski.testswithme.web.api.response.RequestProjectSyncResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.shareIn
 
 class ProjectRepository(
     private val api: ApiClient,
@@ -52,7 +56,7 @@ class ProjectRepository(
             val remoteProjects = getProjectsResult.unwrap()
 
             mergeEntities(
-                localEntities = localProjects,
+                onLoadLocalEntities = { projectDao.getAll() },
                 remoteEntities = remoteProjects,
                 entityToUidMapper = { project -> project.uid },
                 onInsert = { project -> projectDao.insert(project) },
