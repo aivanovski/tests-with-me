@@ -6,5 +6,7 @@ sealed interface TestState {
     data object Failed : TestState
     data object Sending : TestState
     data object Running : TestState
-    data class Error(val message: String) : TestState
+    data class Error(
+        val message: String
+    ) : TestState
 }

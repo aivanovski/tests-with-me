@@ -6,10 +6,14 @@ import kotlinx.serialization.Serializable
 sealed interface Duration {
 
     @Serializable
-    data class Seconds(val seconds: Int) : Duration
+    data class Seconds(
+        val seconds: Int
+    ) : Duration
 
     @Serializable
-    data class Milliseconds(val milliseconds: Long) : Duration
+    data class Milliseconds(
+        val milliseconds: Long
+    ) : Duration
 
     companion object {
 

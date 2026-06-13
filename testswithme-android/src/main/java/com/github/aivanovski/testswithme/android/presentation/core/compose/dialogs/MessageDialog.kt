@@ -21,7 +21,8 @@ fun MessageDialog(
     val actionButton = state.actionButton as? MessageDialogButton.ActionButton
 
     AlertDialog(
-        onDismissRequest = { // TODO: optimize
+        onDismissRequest = {
+            // TODO: optimize
             onIntent.invoke(MessageDialogIntent.OnDismiss)
         },
         title = if (state.title != null) {
@@ -43,7 +44,8 @@ fun MessageDialog(
         confirmButton = {
             if (actionButton != null) {
                 Button(
-                    onClick = { // TODO: optimize
+                    onClick = {
+                        // TODO: optimize
                         val intent = MessageDialogIntent.OnActionButtonClick(
                             actionId = state.actionButton.actionId
                         )
