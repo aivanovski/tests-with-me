@@ -1,0 +1,3 @@
+[workspace]
+members = ["testswithme-api-rust", "testswithme-api-codegen", "testswithme-web"]
+resolver = "3"

@@ -1,4 +1,4 @@
-use backend_api::{
+use testswithme_api_rust::{
     FlowResponse, FlowsResponse, GetProjectsResponse, GroupsResponse, LoginRequest, LoginResponse,
 };
 use gloo_net::http::{Request, Response};

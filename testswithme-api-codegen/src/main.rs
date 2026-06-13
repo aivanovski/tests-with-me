@@ -5,7 +5,7 @@ use std::{
 };
 
 const DEFAULT_INPUT_DIRECTORY: &str = "testswithme-backend-api";
-const DEFAULT_OUTPUT_FILE: &str = "backend-api/src/lib.rs";
+const DEFAULT_OUTPUT_FILE: &str = "testswithme-api-rust/src/lib.rs";
 
 fn main() {
     if let Err(error) = run() {

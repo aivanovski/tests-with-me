@@ -1,3 +1,14 @@
-[workspace]
-members = ["backend-api", "codegen", "web"]
-resolver = "3"
+[package]
+name = "testswithme-web"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+testswithme-api-rust = { path = "../testswithme-api-rust" }
+base64 = "0.22"
+gloo-net = "0.6.0"
+leptos = { version = "0.8.19", features = ["csr"] }
+leptos_router = "0.8.11"
+serde = { version = "1.0", features = ["derive"] }
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["Storage", "Window"] }
