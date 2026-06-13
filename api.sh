@@ -1,7 +1,14 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
-cd api
+set -eu
 
-output=$(mill main.assembly 2> /dev/null)
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+API_DIR="$SCRIPT_DIR/api"
+JAR_PATH="$API_DIR/target/api-client.jar"
 
-java -jar ./out/main/assembly.dest/out.jar "$@"
+cd "$API_DIR"
+if [ ! -f "$JAR_PATH" ]; then
+  sbt --batch --error assembly
+fi
+
+exec java -jar "$JAR_PATH" "$@"
