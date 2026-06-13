@@ -13,6 +13,8 @@ import com.github.aivanovski.testswithme.web.presentation.configureAuthenticatio
 import com.github.aivanovski.testswithme.web.presentation.jobs.configureJobScheduler
 import com.github.aivanovski.testswithme.web.presentation.routes.configureRoutes
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.engine.applicationEngineEnvironment
@@ -21,6 +23,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.engine.sslConnector
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
@@ -69,6 +72,18 @@ fun main(args: Array<String>) {
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun Application.configureApplication(jwtData: JwtData) {
+    install(CORS) {
+        anyHost()
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Delete)
+        allowMethod(HttpMethod.Options)
+    }
     install(ContentNegotiation) {
         json(
             Json {

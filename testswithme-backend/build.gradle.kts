@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.ktor.server.negotiation)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authjwt)
+    implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.keysore)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)

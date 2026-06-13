@@ -1,0 +1,3 @@
+[workspace]
+members = ["backend-api", "codegen", "web"]
+resolver = "3"

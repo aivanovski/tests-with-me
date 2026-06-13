@@ -12,7 +12,6 @@ import com.github.aivanovski.testswithme.web.entity.exception.AppException
 import com.github.aivanovski.testswithme.web.extensions.transformError
 import com.github.aivanovski.testswithme.web.presentation.Errors.ERROR_HAS_BEEN_OCCURRED
 import com.github.aivanovski.testswithme.web.presentation.Errors.INVALID_OR_EXPIRED_TOKEN
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -72,16 +71,6 @@ suspend inline fun <reified T : Any> ApplicationCall.sendResponse(
     }
 
     if (response.isRight()) {
-        val originHeader = request.headers[HttpHeaders.Origin]
-
-        if (!originHeader.isNullOrBlank()) {
-            this.response.headers.apply {
-                append(HttpHeaders.AccessControlAllowOrigin, originHeader)
-                append(HttpHeaders.AccessControlAllowCredentials, "true")
-                append(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.AccessControlAllowOrigin)
-            }
-        }
-
         @Suppress("UNCHECKED_CAST")
         val responseWrapper = response.unwrap() as? Response<T>
 

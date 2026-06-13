@@ -5,7 +5,6 @@ import io.ktor.server.routing.routing
 
 fun Application.configureRoutes() {
     routing {
-        corsRoutes()
         loginRoutes()
         userRoutes()
         projectRoutes()

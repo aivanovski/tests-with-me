@@ -33,7 +33,6 @@ import com.github.aivanovski.testswithme.web.domain.usecases.GetRemoteRepository
 import com.github.aivanovski.testswithme.web.domain.usecases.GetSslKeyStoreUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.GetTestSourcesToSyncUseCase
 import com.github.aivanovski.testswithme.web.domain.usecases.ParseGithubRepositoryUrlUseCase
-import com.github.aivanovski.testswithme.web.presentation.controller.CORSController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowController
 import com.github.aivanovski.testswithme.web.presentation.controller.FlowRunController
 import com.github.aivanovski.testswithme.web.presentation.controller.GroupController
@@ -97,7 +96,6 @@ object WebAppModule {
         singleOf(::AuthService)
 
         // Controllers
-        singleOf(::CORSController)
         singleOf(::LoginController)
         singleOf(::SignUpController)
         singleOf(::FlowController)
