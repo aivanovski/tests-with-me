@@ -9,7 +9,7 @@ import com.github.aivanovski.testswithme.web.api.dto.SyncResultDto
 import com.github.aivanovski.testswithme.web.api.request.PostProjectRequest
 import com.github.aivanovski.testswithme.web.api.response.GetProjectsResponse
 import com.github.aivanovski.testswithme.web.api.response.PostProjectResponse
-import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
+import com.github.aivanovski.testswithme.web.api.dto.ProjectsItemDto
 import com.github.aivanovski.testswithme.web.api.response.RequestProjectSyncResponse
 import com.github.aivanovski.testswithme.web.data.repository.GroupRepository
 import com.github.aivanovski.testswithme.web.data.repository.ProjectRepository

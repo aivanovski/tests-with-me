@@ -14,7 +14,7 @@ import com.github.aivanovski.testswithme.web.api.dto.FlowsItemDto
 import com.github.aivanovski.testswithme.web.api.dto.GroupItemDto
 import com.github.aivanovski.testswithme.web.api.dto.Sha256HashDto
 import com.github.aivanovski.testswithme.web.api.dto.UserItemDto
-import com.github.aivanovski.testswithme.web.api.response.ProjectsItemDto
+import com.github.aivanovski.testswithme.web.api.dto.ProjectsItemDto
 
 fun List<FlowsItemDto>.toFlows(): List<FlowEntry> {
     return map { item ->

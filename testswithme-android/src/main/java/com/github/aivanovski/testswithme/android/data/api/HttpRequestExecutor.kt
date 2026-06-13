@@ -10,7 +10,7 @@ import com.github.aivanovski.testswithme.android.entity.exception.InvalidHttpSta
 import com.github.aivanovski.testswithme.android.entity.exception.NetworkException
 import com.github.aivanovski.testswithme.android.entity.exception.NoAccountDataException
 import com.github.aivanovski.testswithme.data.json.JsonSerializer
-import com.github.aivanovski.testswithme.web.api.response.ErrorMessage
+import com.github.aivanovski.testswithme.web.api.dto.ErrorMessageDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
@@ -150,7 +150,7 @@ class HttpRequestExecutor(
                     (status != HttpStatusCode.OK && status != HttpStatusCode.Unauthorized)
                 ) {
                     val errorBody = response.bodyAsText()
-                    val errorResponse = jsonSerializer.deserialize<ErrorMessage>(errorBody)
+                    val errorResponse = jsonSerializer.deserialize<ErrorMessageDto>(errorBody)
                     val message = errorResponse.getOrNull()
 
                     if (message != null) {

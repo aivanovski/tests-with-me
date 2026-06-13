@@ -3,7 +3,7 @@ package com.github.aivanovski.testswithme.web.presentation
 import arrow.core.Either
 import com.github.aivanovski.testswithme.extensions.unwrap
 import com.github.aivanovski.testswithme.extensions.unwrapError
-import com.github.aivanovski.testswithme.web.api.response.ErrorMessage
+import com.github.aivanovski.testswithme.web.api.dto.ErrorMessageDto
 import com.github.aivanovski.testswithme.web.domain.service.AuthService
 import com.github.aivanovski.testswithme.web.entity.ErrorResponse
 import com.github.aivanovski.testswithme.web.entity.Response
@@ -32,7 +32,7 @@ suspend inline fun <reified T : Any> handleResponseWithUser(
     if (principal == null) {
         call.respond(
             status = HttpStatusCode.Unauthorized,
-            message = ErrorMessage(message = INVALID_OR_EXPIRED_TOKEN)
+            message = ErrorMessageDto(message = INVALID_OR_EXPIRED_TOKEN)
         )
         return
     }
@@ -117,8 +117,8 @@ fun ApplicationCall.formatRequestLogMessage(response: Either<ErrorResponse, Any>
     }
 }
 
-fun ErrorResponse.toErrorMessage(): ErrorMessage {
-    return ErrorMessage(
+fun ErrorResponse.toErrorMessage(): ErrorMessageDto {
+    return ErrorMessageDto(
         message = message ?: ERROR_HAS_BEEN_OCCURRED
     )
 }

@@ -1,6 +1,5 @@
-package com.github.aivanovski.testswithme.web.api.response
+package com.github.aivanovski.testswithme.web.api.dto
 
-import com.github.aivanovski.testswithme.web.api.dto.SyncResultDto
 import kotlinx.serialization.Serializable
 
 @Serializable

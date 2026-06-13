@@ -2,7 +2,7 @@ package com.github.aivanovski.testswithme.web.presentation
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.github.aivanovski.testswithme.web.api.response.ErrorMessage
+import com.github.aivanovski.testswithme.web.api.dto.ErrorMessageDto
 import com.github.aivanovski.testswithme.web.entity.JwtData
 import com.github.aivanovski.testswithme.web.presentation.Errors.INVALID_OR_EXPIRED_TOKEN
 import io.ktor.http.HttpStatusCode
@@ -34,7 +34,7 @@ fun Application.configureAuthentication(jwtData: JwtData) {
             challenge { _, _ ->
                 call.respond(
                     status = HttpStatusCode.Unauthorized,
-                    message = ErrorMessage(INVALID_OR_EXPIRED_TOKEN)
+                    message = ErrorMessageDto(INVALID_OR_EXPIRED_TOKEN)
                 )
             }
         }
