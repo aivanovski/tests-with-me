@@ -43,6 +43,8 @@ object Data {
       () => api.postGroup("KeePassVault/Root", "Common"),
       () => api.postGroup("KeePassVault/Root", "Screens"),
       () => api.postGroup("KeePassVault/Root/Screens", "Unlock"),
+      () => api.postGroup("KeePassVault/Root/Screens", "Group"),
+      () => api.postGroup("KeePassVault/Root/Screens", "New Database"),
 
       // Upload flows
       () => api.postFlow("KeePassVault/Root/Common", Flows.ResetData),
