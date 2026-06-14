@@ -1,6 +1,6 @@
 use crate::{
     api::client::{get_flow, update_flow},
-    flow::{decode_content, yaml_file_name},
+    flow::{decode_content, line_numbers, yaml_file_name},
     session::{Session, clear_session},
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
@@ -24,6 +24,7 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     let (success, set_success) = signal(None::<String>);
     let (is_loading, set_is_loading) = signal(true);
     let (is_saving, set_is_saving) = signal(false);
+    let (editor_scroll_top, set_editor_scroll_top) = signal(0);
     let navigate = use_navigate();
     let active_session = session
         .get_untracked()
@@ -115,7 +116,7 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </div>
             </header>
 
-            <section class="dashboard-content project-content">
+            <section class="dashboard-content editor-content">
                 <A href=flow_url.clone() attr:class="back-link">
                     <span aria-hidden="true">"←"</span>
                     "Flow file"
@@ -169,17 +170,35 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                 }}
                             </span>
                         </div>
-                        <textarea
-                            class="flow-editor"
-                            aria-label="Flow YAML content"
-                            spellcheck="false"
-                            prop:value=move || content.get()
-                            on:input=move |event| {
-                                set_content.set(event_target_value(&event));
-                                set_error.set(None);
-                                set_success.set(None);
-                            }
-                        ></textarea>
+                        <div class="flow-editor-container">
+                            <div class="flow-editor-line-numbers" aria-hidden="true">
+                                <pre style=move || {
+                                    format!(
+                                        "transform: translateY(-{}px)",
+                                        editor_scroll_top.get()
+                                    )
+                                }>
+                                    {move || line_numbers(&content.get())}
+                                </pre>
+                            </div>
+                            <textarea
+                                class="flow-editor"
+                                aria-label="Flow YAML content"
+                                spellcheck="false"
+                                prop:value=move || content.get()
+                                on:input=move |event| {
+                                    set_content.set(event_target_value(&event));
+                                    set_error.set(None);
+                                    set_success.set(None);
+                                }
+                                on:scroll=move |event| {
+                                    set_editor_scroll_top.set(
+                                        event_target::<web_sys::HtmlTextAreaElement>(&event)
+                                            .scroll_top(),
+                                    );
+                                }
+                            ></textarea>
+                        </div>
                     </div>
 
                     <div class="editor-actions">

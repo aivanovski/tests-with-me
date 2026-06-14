@@ -409,7 +409,7 @@ button:disabled {
 }
 
 .dashboard-content {
-  width: min(1180px, calc(100% - 48px));
+  width: calc(100% - 64px);
   margin: 0 auto;
   padding: 64px 0;
 }
@@ -580,7 +580,7 @@ button:disabled {
 }
 
 .project-content {
-  width: min(980px, calc(100% - 48px));
+  width: 100%;
 }
 
 .back-link {
@@ -827,34 +827,104 @@ button:disabled {
   content: "";
 }
 
-.flow-content {
+.flow-code {
+  display: grid;
   min-height: 320px;
   max-height: calc(100vh - 300px);
   overflow: auto;
-  margin: 0;
-  padding: 24px;
-  color: #26334a;
+  grid-template-columns: auto minmax(max-content, 1fr);
   background: #fff;
+}
+
+.flow-line-numbers,
+.flow-content {
+  margin: 0;
+  padding-top: 24px;
+  padding-bottom: 24px;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.86rem;
   line-height: 1.65;
-  tab-size: 2;
   white-space: pre;
+}
+
+.flow-line-numbers {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 54px;
+  padding-right: 14px;
+  padding-left: 14px;
+  border-right: 1px solid #eceef4;
+  color: #9aa3b4;
+  background: #fafbfe;
+  text-align: right;
+  user-select: none;
+}
+
+.flow-content {
+  min-height: 320px;
+  min-width: 100%;
+  padding-right: 24px;
+  padding-left: 20px;
+  color: #26334a;
+  background: #fff;
+  tab-size: 2;
 }
 
 .editor-form {
   gap: 20px;
 }
 
+.editor-content {
+  width: 100%;
+  padding-right: clamp(24px, 5vw, 72px);
+  padding-left: clamp(24px, 5vw, 72px);
+}
+
 .editor-form-hidden {
   display: none;
 }
 
+.flow-editor-container {
+  display: grid;
+  width: 100%;
+  min-height: max(560px, calc(100vh - 320px));
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.flow-editor-container:focus-within {
+  box-shadow: inset 0 0 0 2px #7259f2;
+}
+
+.flow-editor-line-numbers {
+  position: relative;
+  min-width: 54px;
+  overflow: hidden;
+  padding: 24px 14px;
+  border-right: 1px solid #eceef4;
+  color: #9aa3b4;
+  background: #fafbfe;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  text-align: right;
+  user-select: none;
+}
+
+.flow-editor-line-numbers pre {
+  position: absolute;
+  top: 24px;
+  right: 14px;
+  left: 14px;
+  margin: 0;
+  font: inherit;
+  line-height: inherit;
+}
+
 .flow-editor {
   display: block;
-  width: 100%;
-  min-height: 480px;
-  max-height: calc(100vh - 300px);
+  min-width: 0;
+  min-height: inherit;
   resize: vertical;
   margin: 0;
   padding: 24px;
@@ -870,7 +940,7 @@ button:disabled {
 }
 
 .flow-editor:focus {
-  box-shadow: inset 0 0 0 2px #7259f2;
+  box-shadow: none;
 }
 
 .editor-actions {
@@ -964,6 +1034,12 @@ button:disabled {
   .dashboard-content {
     width: calc(100% - 32px);
     padding: 40px 0;
+  }
+
+  .editor-content {
+    width: 100%;
+    padding-right: 16px;
+    padding-left: 16px;
   }
 
   .project-page-title {

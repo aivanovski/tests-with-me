@@ -4,13 +4,13 @@ use crate::{
     api::client::{get_flows, get_groups, get_projects},
     session::{Session, clear_session},
 };
-use testswithme_api_rust::{FlowsItemDto, GroupItemDto, ProjectsItemDto};
 use leptos::{prelude::*, task::spawn_local};
 use leptos_router::{
     NavigateOptions,
     components::A,
     hooks::{use_navigate, use_params_map},
 };
+use testswithme_api_rust::{FlowsItemDto, GroupItemDto, ProjectsItemDto};
 
 #[derive(Clone, PartialEq)]
 enum TreeEntryKind {
@@ -91,7 +91,7 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     };
 
     view! {
-        <main class="dashboard-page">
+        <main class="dashboard-page project-content">
             <header class="dashboard-header">
                 <A href="/dashboard" attr:class="dashboard-brand">
                     <span class="brand-mark" aria-hidden="true">
@@ -110,7 +110,7 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </div>
             </header>
 
-            <section class="dashboard-content project-content">
+            <section class="dashboard-content">
                 <A href="/dashboard" attr:class="back-link">
                     <span aria-hidden="true">"←"</span>
                     "All projects"
@@ -124,7 +124,7 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                 project
                                     .get()
                                     .map(|project| project.name)
-                                    .unwrap_or_else(|| "Project".to_owned())
+                                    .unwrap_or_else(|| "".to_owned())
                             }}
                         </h1>
                         <p>
@@ -132,7 +132,7 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                 project
                                     .get()
                                     .map(|project| project.package_name)
-                                    .unwrap_or_default()
+                                    .unwrap_or_else(|| "".to_owned())
                             }}
                         </p>
                     </div>

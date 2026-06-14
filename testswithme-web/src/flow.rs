@@ -74,7 +74,7 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </div>
             </header>
 
-            <section class="dashboard-content project-content">
+            <section class="dashboard-content">
                 <A
                     href=move || {
                         flow.get()
@@ -137,7 +137,12 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                     }}
                                 </span>
                             </div>
-                            <pre class="flow-content"><code>{move || content.get()}</code></pre>
+                            <div class="flow-code">
+                                <pre class="flow-line-numbers" aria-hidden="true">
+                                    {move || line_numbers(&content.get())}
+                                </pre>
+                                <pre class="flow-content"><code>{move || content.get()}</code></pre>
+                            </div>
                         </div>
                     </Show>
                 </Show>
@@ -159,4 +164,11 @@ pub(crate) fn yaml_file_name(name: &str) -> String {
     } else {
         format!("{name}.yaml")
     }
+}
+
+pub(crate) fn line_numbers(content: &str) -> String {
+    (1..=content.split('\n').count())
+        .map(|line_number| line_number.to_string())
+        .collect::<Vec<_>>()
+        .join("\n")
 }
