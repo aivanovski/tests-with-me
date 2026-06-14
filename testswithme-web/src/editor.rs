@@ -1,6 +1,7 @@
 use crate::{
     api::client::{get_flow, update_flow},
     flow::{decode_content, line_numbers, yaml_file_name},
+    project::ProjectNavigation,
     session::{Session, clear_session},
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
@@ -15,8 +16,7 @@ use testswithme_api_rust::FlowItemDto;
 #[component]
 pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     let params = use_params_map();
-    let flow_id = params.get_untracked().get("id").unwrap_or_default();
-    let flow_url = format!("/flow/{flow_id}");
+    let flow_id = Memo::new(move |_| params.get().get("id").unwrap_or_default());
     let (flow, set_flow) = signal(None::<FlowItemDto>);
     let (content, set_content) = signal(String::new());
     let (saved_content, set_saved_content) = signal(String::new());
@@ -30,25 +30,42 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
         .get_untracked()
         .expect("EditorPage requires an authenticated session");
 
+    let navigation_token = active_session.token.clone();
     let token = active_session.token.clone();
-    let requested_flow_id = flow_id.clone();
-    spawn_local(async move {
-        match get_flow(&token, &requested_flow_id).await {
-            Ok(response) => match decode_content(&response.flow.base64_content) {
-                Ok(decoded_content) => {
-                    set_saved_content.set(decoded_content.clone());
-                    set_content.set(decoded_content);
-                    set_flow.set(Some(response.flow));
-                }
-                Err(content_error) => set_error.set(Some(content_error)),
-            },
-            Err(flow_error) => set_error.set(Some(flow_error)),
-        }
-        set_is_loading.set(false);
+    Effect::new(move |_| {
+        let requested_flow_id = flow_id.get();
+        set_flow.set(None);
+        set_content.set(String::new());
+        set_saved_content.set(String::new());
+        set_error.set(None);
+        set_success.set(None);
+        set_is_loading.set(true);
+        set_is_saving.set(false);
+        set_editor_scroll_top.set(0);
+
+        let token = token.clone();
+        spawn_local(async move {
+            let result = get_flow(&token, &requested_flow_id).await;
+            if flow_id.get_untracked() != requested_flow_id {
+                return;
+            }
+
+            match result {
+                Ok(response) => match decode_content(&response.flow.base64_content) {
+                    Ok(decoded_content) => {
+                        set_saved_content.set(decoded_content.clone());
+                        set_content.set(decoded_content);
+                        set_flow.set(Some(response.flow));
+                    }
+                    Err(content_error) => set_error.set(Some(content_error)),
+                },
+                Err(flow_error) => set_error.set(Some(flow_error)),
+            }
+            set_is_loading.set(false);
+        });
     });
 
     let token = active_session.token.clone();
-    let flow_id_for_save = flow_id.clone();
     let save = move |event: SubmitEvent| {
         event.prevent_default();
 
@@ -67,18 +84,26 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
         set_is_saving.set(true);
 
         let token = token.clone();
-        let flow_id = flow_id_for_save.clone();
+        let requested_flow_id = flow_id.get_untracked();
         spawn_local(async move {
             let encoded_content = STANDARD.encode(updated_content.as_bytes());
-            match update_flow(&token, &flow_id, encoded_content).await {
+            match update_flow(&token, &requested_flow_id, encoded_content).await {
                 Ok(response) => {
-                    set_flow.set(Some(response.flow));
-                    set_saved_content.set(updated_content);
-                    set_success.set(Some("Flow file saved.".to_owned()));
+                    if flow_id.get_untracked() == requested_flow_id {
+                        set_flow.set(Some(response.flow));
+                        set_saved_content.set(updated_content);
+                        set_success.set(Some("Flow file saved.".to_owned()));
+                    }
                 }
-                Err(update_error) => set_error.set(Some(update_error)),
+                Err(update_error) => {
+                    if flow_id.get_untracked() == requested_flow_id {
+                        set_error.set(Some(update_error));
+                    }
+                }
             }
-            set_is_saving.set(false);
+            if flow_id.get_untracked() == requested_flow_id {
+                set_is_saving.set(false);
+            }
         });
     };
 
@@ -97,7 +122,7 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     };
 
     view! {
-        <main class="dashboard-page">
+        <main class="dashboard-page project-workspace-page">
             <header class="dashboard-header">
                 <A href="/dashboard" attr:class="dashboard-brand">
                     <span class="brand-mark" aria-hidden="true">
@@ -116,118 +141,126 @@ pub fn EditorPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </div>
             </header>
 
-            <section class="dashboard-content editor-content">
-                <A href=flow_url.clone() attr:class="back-link">
-                    <span aria-hidden="true">"←"</span>
-                    "Flow file"
-                </A>
+            <section class="project-workspace">
+                <ProjectNavigation
+                    project_id=Signal::derive(move || {
+                        flow.get().map(|flow| flow.project_id)
+                    })
+                    token=navigation_token
+                    active_flow_id=Signal::derive(move || Some(flow_id.get()))
+                />
 
-                <div class="flow-page-title">
-                    <div>
-                        <p class="eyebrow">"Edit flow file"</p>
-                        <h1>
-                            {move || {
-                                flow.get()
-                                    .map(|flow| yaml_file_name(&flow.name))
-                                    .unwrap_or_else(|| "Flow".to_owned())
-                            }}
-                        </h1>
-                    </div>
-                </div>
-
-                <Show when=move || error.get().is_some()>
-                    <p class="form-error dashboard-error" role="alert">
-                        {move || error.get().unwrap_or_default()}
-                    </p>
-                </Show>
-
-                <Show when=move || success.get().is_some()>
-                    <p class="form-success dashboard-success" role="status">
-                        {move || success.get().unwrap_or_default()}
-                    </p>
-                </Show>
-
-                <Show when=move || is_loading.get()>
-                    <div class="dashboard-loading" role="status">
-                        <span class="loader"></span>
-                        <span>"Loading flow file..."</span>
-                    </div>
-                </Show>
-
-                <form
-                    class="editor-form"
-                    class:editor-form-hidden=move || flow.get().is_none()
-                    on:submit=save
-                >
-                    <div class="flow-file">
-                        <div class="flow-file-header">
-                            <span class="tree-icon" aria-hidden="true"></span>
-                            <span>
+                <section class="workspace-main editor-content">
+                    <div class="flow-page-title">
+                        <div>
+                            <p class="eyebrow">"Edit flow file"</p>
+                            <h1>
                                 {move || {
                                     flow.get()
                                         .map(|flow| yaml_file_name(&flow.name))
-                                        .unwrap_or_default()
+                                        .unwrap_or_else(|| "Flow".to_owned())
                                 }}
-                            </span>
-                        </div>
-                        <div class="flow-editor-container">
-                            <div class="flow-editor-line-numbers" aria-hidden="true">
-                                <pre style=move || {
-                                    format!(
-                                        "transform: translateY(-{}px)",
-                                        editor_scroll_top.get()
-                                    )
-                                }>
-                                    {move || line_numbers(&content.get())}
-                                </pre>
-                            </div>
-                            <textarea
-                                class="flow-editor"
-                                aria-label="Flow YAML content"
-                                spellcheck="false"
-                                prop:value=move || content.get()
-                                on:input=move |event| {
-                                    set_content.set(event_target_value(&event));
-                                    set_error.set(None);
-                                    set_success.set(None);
-                                }
-                                on:scroll=move |event| {
-                                    set_editor_scroll_top.set(
-                                        event_target::<web_sys::HtmlTextAreaElement>(&event)
-                                            .scroll_top(),
-                                    );
-                                }
-                            ></textarea>
+                            </h1>
                         </div>
                     </div>
 
-                    <div class="editor-actions">
-                        <A href=flow_url.clone() attr:class="editor-cancel">
-                            "Cancel"
-                        </A>
-                        <button
-                            class="editor-save"
-                            type="submit"
-                            disabled=move || {
-                                is_saving.get() || content.get() == saved_content.get()
-                            }
-                        >
-                            <Show
-                                when=move || !is_saving.get()
-                                fallback=|| {
-                                    view! {
-                                        <span
-                                            class="loader"
-                                            aria-label="Saving flow file"
-                                        ></span>
+                    <Show when=move || error.get().is_some()>
+                        <p class="form-error dashboard-error" role="alert">
+                            {move || error.get().unwrap_or_default()}
+                        </p>
+                    </Show>
+
+                    <Show when=move || success.get().is_some()>
+                        <p class="form-success dashboard-success" role="status">
+                            {move || success.get().unwrap_or_default()}
+                        </p>
+                    </Show>
+
+                    <Show when=move || is_loading.get()>
+                        <div class="dashboard-loading" role="status">
+                            <span class="loader"></span>
+                            <span>"Loading flow file..."</span>
+                        </div>
+                    </Show>
+
+                    <form
+                        class="editor-form"
+                        class:editor-form-hidden=move || flow.get().is_none()
+                        on:submit=save
+                    >
+                        <div class="flow-file">
+                            <div class="flow-file-header">
+                                <span class="tree-icon" aria-hidden="true"></span>
+                                <span>
+                                    {move || {
+                                        flow.get()
+                                            .map(|flow| yaml_file_name(&flow.name))
+                                            .unwrap_or_default()
+                                    }}
+                                </span>
+                            </div>
+                            <div class="flow-editor-container">
+                                <div class="flow-editor-line-numbers" aria-hidden="true">
+                                    <pre style=move || {
+                                        format!(
+                                            "transform: translateY(-{}px)",
+                                            editor_scroll_top.get()
+                                        )
+                                    }>
+                                        {move || line_numbers(&content.get())}
+                                    </pre>
+                                </div>
+                                <textarea
+                                    class="flow-editor"
+                                    aria-label="Flow YAML content"
+                                    spellcheck="false"
+                                    prop:value=move || content.get()
+                                    on:input=move |event| {
+                                        set_content.set(event_target_value(&event));
+                                        set_error.set(None);
+                                        set_success.set(None);
                                     }
+                                    on:scroll=move |event| {
+                                        set_editor_scroll_top.set(
+                                            event_target::<web_sys::HtmlTextAreaElement>(&event)
+                                                .scroll_top(),
+                                        );
+                                    }
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div class="editor-actions">
+                            <A
+                                href=move || format!("/flow/{}", flow_id.get())
+                                attr:class="editor-cancel"
+                            >
+                                "Cancel"
+                            </A>
+                            <button
+                                class="editor-save"
+                                type="submit"
+                                disabled=move || {
+                                    is_saving.get() || content.get() == saved_content.get()
                                 }
                             >
-                                "Save changes"
-                            </Show>
-                        </button>
-                    </div>
-                </form>
+                                <Show
+                                    when=move || !is_saving.get()
+                                    fallback=|| {
+                                        view! {
+                                            <span
+                                                class="loader"
+                                                aria-label="Saving flow file"
+                                            ></span>
+                                        }
+                                    }
+                                >
+                                    "Save changes"
+                                </Show>
+                            </button>
+                        </div>
+                    </form>
+                </section>
             </section>
         </main>
     }

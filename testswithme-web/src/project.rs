@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
     api::client::{get_flows, get_groups, get_projects},
+    flow::yaml_file_name,
     session::{Session, clear_session},
 };
 use leptos::{prelude::*, task::spawn_local};
@@ -31,50 +32,15 @@ struct TreeEntry {
 pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     let params = use_params_map();
     let project_id = params.get_untracked().get("id").unwrap_or_default();
-    let (project, set_project) = signal(None::<ProjectsItemDto>);
-    let (entries, set_entries) = signal(Vec::<TreeEntry>::new());
-    let (open_groups, set_open_groups) = signal(HashSet::<String>::new());
     let (error, set_error) = signal(None::<String>);
-    let (is_loading, set_is_loading) = signal(true);
     let navigate = use_navigate();
     let active_session = session
         .get_untracked()
         .expect("ProjectPage requires an authenticated session");
-
-    let token = active_session.token;
-    let requested_project_id = project_id.clone();
-    spawn_local(async move {
-        let result = async {
-            let projects = get_projects(&token).await?;
-            let selected_project = projects
-                .projects
-                .into_iter()
-                .find(|project| project.id == requested_project_id)
-                .ok_or_else(|| "Project not found.".to_owned())?;
-            let groups = get_groups(&token).await?;
-            let flows = get_flows(&token).await?;
-            let project_entries = build_tree(&selected_project, groups.groups, flows.flows);
-
-            Ok::<_, String>((selected_project, project_entries))
-        }
-        .await;
-
-        match result {
-            Ok((selected_project, project_entries)) => {
-                set_open_groups.set(
-                    project_entries
-                        .iter()
-                        .filter(|entry| entry.kind == TreeEntryKind::Group)
-                        .map(|entry| entry.id.clone())
-                        .collect(),
-                );
-                set_project.set(Some(selected_project));
-                set_entries.set(project_entries);
-            }
-            Err(project_error) => set_error.set(Some(project_error)),
-        }
-        set_is_loading.set(false);
-    });
+    let project_id_for_navigation = project_id.clone();
+    let project_id = Signal::derive(move || Some(project_id_for_navigation.clone()));
+    let active_flow_id = Signal::derive(|| None);
+    let navigation_token = active_session.token.clone();
 
     let logout = move |_| match clear_session() {
         Ok(()) => {
@@ -91,7 +57,7 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     };
 
     view! {
-        <main class="dashboard-page project-content">
+        <main class="dashboard-page project-workspace-page">
             <header class="dashboard-header">
                 <A href="/dashboard" attr:class="dashboard-brand">
                     <span class="brand-mark" aria-hidden="true">
@@ -110,101 +76,175 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </div>
             </header>
 
-            <section class="dashboard-content">
-                <A href="/dashboard" attr:class="back-link">
-                    <span aria-hidden="true">"←"</span>
-                    "All projects"
-                </A>
+            <Show when=move || error.get().is_some()>
+                <p class="form-error workspace-global-error" role="alert">
+                    {move || error.get().unwrap_or_default()}
+                </p>
+            </Show>
 
-                <div class="project-page-title">
-                    <div>
-                        <p class="eyebrow">"Project flows"</p>
-                        <h1>
-                            {move || {
-                                project
-                                    .get()
-                                    .map(|project| project.name)
-                                    .unwrap_or_else(|| "".to_owned())
-                            }}
-                        </h1>
-                        <p>
-                            {move || {
-                                project
-                                    .get()
-                                    .map(|project| project.package_name)
-                                    .unwrap_or_else(|| "".to_owned())
-                            }}
-                        </p>
-                    </div>
-                    <span class="flow-count">
-                        {move || {
-                            let flow_count = entries
-                                .get()
-                                .iter()
-                                .filter(|entry| entry.kind == TreeEntryKind::Flow)
-                                .count();
-                            format!("{flow_count} flow{}", if flow_count == 1 { "" } else { "s" })
-                        }}
-                    </span>
-                </div>
+            <section class="project-workspace">
+                <ProjectNavigation project_id token=navigation_token active_flow_id />
+                <section
+                    class="workspace-main workspace-main-empty"
+                    aria-label="Flow content"
+                ></section>
+            </section>
+        </main>
+    }
+}
 
-                <Show when=move || error.get().is_some()>
-                    <p class="form-error dashboard-error" role="alert">
-                        {move || error.get().unwrap_or_default()}
-                    </p>
-                </Show>
+#[component]
+pub fn ProjectNavigation(
+    project_id: Signal<Option<String>>,
+    token: String,
+    active_flow_id: Signal<Option<String>>,
+) -> impl IntoView {
+    let project_id = Memo::new(move |_| project_id.get());
+    let (project, set_project) = signal(None::<ProjectsItemDto>);
+    let (entries, set_entries) = signal(Vec::<TreeEntry>::new());
+    let (open_groups, set_open_groups) = signal(HashSet::<String>::new());
+    let (error, set_error) = signal(None::<String>);
+    let (is_loading, set_is_loading) = signal(true);
 
+    Effect::new(move |_| {
+        let Some(requested_project_id) = project_id.get() else {
+            return;
+        };
+
+        set_project.set(None);
+        set_entries.set(Vec::new());
+        set_error.set(None);
+        set_is_loading.set(true);
+
+        let token = token.clone();
+        spawn_local(async move {
+            let result = async {
+                let projects = get_projects(&token).await?;
+                let selected_project = projects
+                    .projects
+                    .into_iter()
+                    .find(|project| project.id == requested_project_id)
+                    .ok_or_else(|| "Project not found.".to_owned())?;
+                let groups = get_groups(&token).await?;
+                let flows = get_flows(&token).await?;
+                let project_entries = build_tree(&selected_project, groups.groups, flows.flows);
+
+                Ok::<_, String>((selected_project, project_entries))
+            }
+            .await;
+
+            match result {
+                Ok((selected_project, project_entries)) => {
+                    set_open_groups.set(
+                        project_entries
+                            .iter()
+                            .filter(|entry| entry.kind == TreeEntryKind::Group)
+                            .map(|entry| entry.id.clone())
+                            .collect(),
+                    );
+                    set_project.set(Some(selected_project));
+                    set_entries.set(project_entries);
+                }
+                Err(project_error) => set_error.set(Some(project_error)),
+            }
+            set_is_loading.set(false);
+        });
+    });
+
+    view! {
+        <aside class="workspace-sidebar">
+            <A href="/dashboard" attr:class="back-link workspace-back-link">
+                <span aria-hidden="true">"←"</span>
+                "All projects"
+            </A>
+
+            <div class="workspace-project-title">
+                <p class="eyebrow">"Project flows"</p>
+                <h1>
+                    {move || {
+                        project
+                            .get()
+                            .map(|project| project.name)
+                            .unwrap_or_default()
+                    }}
+                </h1>
+                <p>
+                    {move || {
+                        project
+                            .get()
+                            .map(|project| project.package_name)
+                            .unwrap_or_default()
+                    }}
+                </p>
+                <span class="flow-count">
+                    {move || {
+                        let flow_count = entries
+                            .get()
+                            .iter()
+                            .filter(|entry| entry.kind == TreeEntryKind::Flow)
+                            .count();
+                        format!("{flow_count} flow{}", if flow_count == 1 { "" } else { "s" })
+                    }}
+                </span>
+            </div>
+
+            <Show when=move || error.get().is_some()>
+                <p class="form-error dashboard-error" role="alert">
+                    {move || error.get().unwrap_or_default()}
+                </p>
+            </Show>
+
+            <Show
+                when=move || !is_loading.get()
+                fallback=|| {
+                    view! {
+                        <div class="workspace-navigation-state" role="status">
+                            <span class="loader"></span>
+                            <span>"Loading project flows..."</span>
+                        </div>
+                    }
+                }
+            >
                 <Show
-                    when=move || !is_loading.get()
-                    fallback=|| {
-                        view! {
-                            <div class="dashboard-loading" role="status">
-                                <span class="loader"></span>
-                                <span>"Loading project flows..."</span>
-                            </div>
-                        }
+                    when=move || error.get().is_none() && !entries.get().is_empty()
+                    fallback=move || {
+                        error.get().is_none().then(|| {
+                            view! {
+                                <div class="workspace-navigation-state">
+                                    <strong>"No flows yet"</strong>
+                                    <span>"This project does not contain any flow files."</span>
+                                </div>
+                            }
+                        })
                     }
                 >
-                    <Show
-                        when=move || error.get().is_none() && !entries.get().is_empty()
-                        fallback=move || {
-                            error.get().is_none().then(|| {
-                                view! {
-                                    <div class="empty-projects">
-                                        <h2>"No flows yet"</h2>
-                                        <p>"This project does not contain any flow files."</p>
-                                    </div>
-                                }
-                            })
-                        }
-                    >
-                        <div class="flow-tree" role="tree" aria-label="Project flow files">
-                            <For
-                                each=move || {
-                                    let open_groups = open_groups.get();
-                                    entries
-                                        .get()
-                                        .into_iter()
-                                        .filter(|entry| {
-                                            entry
-                                                .ancestor_group_ids
-                                                .iter()
-                                                .all(|group_id| open_groups.contains(group_id))
-                                        })
-                                        .collect::<Vec<_>>()
-                                }
-                                key=|entry| {
-                                    let kind = match entry.kind {
-                                        TreeEntryKind::Group => "group",
-                                        TreeEntryKind::Flow => "flow",
-                                    };
-                                    format!("{kind}-{}", entry.id)
-                                }
-                                children=move |entry| {
+                    <div class="flow-tree" role="tree" aria-label="Project flow files">
+                        <For
+                            each=move || {
+                                let open_groups = open_groups.get();
+                                entries
+                                    .get()
+                                    .into_iter()
+                                    .filter(|entry| {
+                                        entry
+                                            .ancestor_group_ids
+                                            .iter()
+                                            .all(|group_id| open_groups.contains(group_id))
+                                    })
+                                    .collect::<Vec<_>>()
+                            }
+                            key=|entry| {
+                                let kind = match entry.kind {
+                                    TreeEntryKind::Group => "group",
+                                    TreeEntryKind::Flow => "flow",
+                                };
+                                format!("{kind}-{}", entry.id)
+                            }
+                            children=move |entry| {
                                     let indentation = format!(
                                         "--tree-indent: {}px; --connector-left: {}px",
-                                        20 + entry.depth * 26,
-                                        30 + entry.depth.saturating_sub(1) * 26,
+                                        16 + entry.depth * 24,
+                                        26 + entry.depth.saturating_sub(1) * 24,
                                     );
                                     let is_group = entry.kind == TreeEntryKind::Group;
                                     let is_nested = entry.depth > 0;
@@ -247,6 +287,8 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                         }
                                             .into_any()
                                     } else {
+                                        let flow_id = entry.id.clone();
+                                        let flow_id_for_current = flow_id.clone();
                                         let flow_url = format!("/flow/{}", entry.id);
                                         let flow_class = if is_nested {
                                             "tree-entry tree-flow tree-nested"
@@ -257,8 +299,17 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                             <A
                                                 href=flow_url
                                                 attr:class=flow_class
+                                                class:tree-flow-active=move || {
+                                                    active_flow_id.get().as_deref()
+                                                        == Some(flow_id.as_str())
+                                                }
                                                 attr:style=indentation
                                                 attr:role="treeitem"
+                                                attr:aria-current=move || {
+                                                    (active_flow_id.get().as_deref()
+                                                        == Some(flow_id_for_current.as_str()))
+                                                        .then_some("page")
+                                                }
                                             >
                                                 <span class="tree-connector" aria-hidden="true"></span>
                                                 <span class="tree-chevron-spacer" aria-hidden="true"></span>
@@ -268,13 +319,12 @@ pub fn ProjectPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                                         }
                                             .into_any()
                                     }
-                                }
-                            />
-                        </div>
-                    </Show>
+                            }
+                        />
+                    </div>
                 </Show>
-            </section>
-        </main>
+            </Show>
+        </aside>
     }
 }
 
@@ -360,12 +410,4 @@ fn append_group_children(
         kind: TreeEntryKind::Flow,
         ancestor_group_ids: ancestor_group_ids.to_vec(),
     }));
-}
-
-fn yaml_file_name(name: &str) -> String {
-    if name.ends_with(".yaml") || name.ends_with(".yml") {
-        name.to_owned()
-    } else {
-        format!("{name}.yaml")
-    }
 }

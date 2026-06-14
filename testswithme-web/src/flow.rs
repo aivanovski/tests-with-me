@@ -1,5 +1,6 @@
 use crate::{
     api::client::get_flow,
+    project::ProjectNavigation,
     session::{Session, clear_session},
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
@@ -14,7 +15,7 @@ use testswithme_api_rust::FlowItemDto;
 #[component]
 pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     let params = use_params_map();
-    let flow_id = params.get_untracked().get("id").unwrap_or_default();
+    let flow_id = Memo::new(move |_| params.get().get("id").unwrap_or_default());
     let (flow, set_flow) = signal(None::<FlowItemDto>);
     let (content, set_content) = signal(String::new());
     let (error, set_error) = signal(None::<String>);
@@ -24,20 +25,34 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
         .get_untracked()
         .expect("FlowPage requires an authenticated session");
 
+    let navigation_token = active_session.token.clone();
     let token = active_session.token;
-    let requested_flow_id = flow_id.clone();
-    spawn_local(async move {
-        match get_flow(&token, &requested_flow_id).await {
-            Ok(response) => match decode_content(&response.flow.base64_content) {
-                Ok(decoded_content) => {
-                    set_content.set(decoded_content);
-                    set_flow.set(Some(response.flow));
-                }
-                Err(content_error) => set_error.set(Some(content_error)),
-            },
-            Err(flow_error) => set_error.set(Some(flow_error)),
-        }
-        set_is_loading.set(false);
+    Effect::new(move |_| {
+        let requested_flow_id = flow_id.get();
+        set_flow.set(None);
+        set_content.set(String::new());
+        set_error.set(None);
+        set_is_loading.set(true);
+
+        let token = token.clone();
+        spawn_local(async move {
+            let result = get_flow(&token, &requested_flow_id).await;
+            if flow_id.get_untracked() != requested_flow_id {
+                return;
+            }
+
+            match result {
+                Ok(response) => match decode_content(&response.flow.base64_content) {
+                    Ok(decoded_content) => {
+                        set_content.set(decoded_content);
+                        set_flow.set(Some(response.flow));
+                    }
+                    Err(content_error) => set_error.set(Some(content_error)),
+                },
+                Err(flow_error) => set_error.set(Some(flow_error)),
+            }
+            set_is_loading.set(false);
+        });
     });
 
     let logout = move |_| match clear_session() {
@@ -55,7 +70,7 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     };
 
     view! {
-        <main class="dashboard-page">
+        <main class="dashboard-page project-workspace-page">
             <header class="dashboard-header">
                 <A href="/dashboard" attr:class="dashboard-brand">
                     <span class="brand-mark" aria-hidden="true">
@@ -74,78 +89,76 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </div>
             </header>
 
-            <section class="dashboard-content">
-                <A
-                    href=move || {
-                        flow.get()
-                            .map(|flow| format!("/project/{}", flow.project_id))
-                            .unwrap_or_else(|| "/dashboard".to_owned())
-                    }
-                    attr:class="back-link"
-                >
-                    <span aria-hidden="true">"←"</span>
-                    "Project flows"
-                </A>
+            <section class="project-workspace">
+                <ProjectNavigation
+                    project_id=Signal::derive(move || {
+                        flow.get().map(|flow| flow.project_id)
+                    })
+                    token=navigation_token
+                    active_flow_id=Signal::derive(move || Some(flow_id.get()))
+                />
 
-                <div class="flow-page-title">
-                    <div>
-                        <p class="eyebrow">"Flow file"</p>
-                        <h1>
-                            {move || {
-                                flow.get()
-                                    .map(|flow| yaml_file_name(&flow.name))
-                                    .unwrap_or_else(|| "Flow".to_owned())
-                            }}
-                        </h1>
-                    </div>
-                    <Show when=move || flow.get().is_some()>
-                        <A
-                            href=format!("/flow/{flow_id}/edit")
-                            attr:class="flow-edit-link"
-                        >
-                            "Edit"
-                        </A>
-                    </Show>
-                </div>
-
-                <Show when=move || error.get().is_some()>
-                    <p class="form-error dashboard-error" role="alert">
-                        {move || error.get().unwrap_or_default()}
-                    </p>
-                </Show>
-
-                <Show
-                    when=move || !is_loading.get()
-                    fallback=|| {
-                        view! {
-                            <div class="dashboard-loading" role="status">
-                                <span class="loader"></span>
-                                <span>"Loading flow file..."</span>
-                            </div>
-                        }
-                    }
-                >
-                    <Show when=move || error.get().is_none()>
-                        <div class="flow-file">
-                            <div class="flow-file-header">
-                                <span class="tree-icon" aria-hidden="true"></span>
-                                <span>
-                                    {move || {
-                                        flow.get()
-                                            .map(|flow| yaml_file_name(&flow.name))
-                                            .unwrap_or_default()
-                                    }}
-                                </span>
-                            </div>
-                            <div class="flow-code">
-                                <pre class="flow-line-numbers" aria-hidden="true">
-                                    {move || line_numbers(&content.get())}
-                                </pre>
-                                <pre class="flow-content"><code>{move || content.get()}</code></pre>
-                            </div>
+                <section class="workspace-main">
+                    <div class="flow-page-title">
+                        <div>
+                            <p class="eyebrow">"Flow file"</p>
+                            <h1>
+                                {move || {
+                                    flow.get()
+                                        .map(|flow| yaml_file_name(&flow.name))
+                                        .unwrap_or_else(|| "Flow".to_owned())
+                                }}
+                            </h1>
                         </div>
+                        <Show when=move || flow.get().is_some()>
+                            <A
+                                href=move || format!("/flow/{}/edit", flow_id.get())
+                                attr:class="flow-edit-link"
+                            >
+                                "Edit"
+                            </A>
+                        </Show>
+                    </div>
+
+                    <Show when=move || error.get().is_some()>
+                        <p class="form-error dashboard-error" role="alert">
+                            {move || error.get().unwrap_or_default()}
+                        </p>
                     </Show>
-                </Show>
+
+                    <Show
+                        when=move || !is_loading.get()
+                        fallback=|| {
+                            view! {
+                                <div class="dashboard-loading" role="status">
+                                    <span class="loader"></span>
+                                    <span>"Loading flow file..."</span>
+                                </div>
+                            }
+                        }
+                    >
+                        <Show when=move || error.get().is_none()>
+                            <div class="flow-file">
+                                <div class="flow-file-header">
+                                    <span class="tree-icon" aria-hidden="true"></span>
+                                    <span>
+                                        {move || {
+                                            flow.get()
+                                                .map(|flow| yaml_file_name(&flow.name))
+                                                .unwrap_or_default()
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="flow-code">
+                                    <pre class="flow-line-numbers" aria-hidden="true">
+                                        {move || line_numbers(&content.get())}
+                                    </pre>
+                                    <pre class="flow-content"><code>{move || content.get()}</code></pre>
+                                </div>
+                            </div>
+                        </Show>
+                    </Show>
+                </section>
             </section>
         </main>
     }
