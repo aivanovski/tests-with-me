@@ -52,5 +52,6 @@ class ApiUrlFactory(
     companion object {
         const val PROD_URL = "https://testswithme.org"
         const val DEBUG_URL = "https://10.0.2.2:8443"
+        const val DEBUG_LOCAL_URL = "http://10.0.2.2:8080"
     }
 }
