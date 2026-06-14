@@ -18,7 +18,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -302,6 +303,16 @@ input:focus {
   line-height: 1.45;
 }
 
+.form-success {
+  margin: 14px 0 0;
+  padding: 11px 13px;
+  border-radius: 9px;
+  color: #177454;
+  background: #eaf9f3;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
 button {
   display: grid;
   width: 100%;
@@ -428,6 +439,10 @@ button:disabled {
 }
 
 .dashboard-error {
+  margin: 0 0 24px;
+}
+
+.dashboard-success {
   margin: 0 0 24px;
 }
 
@@ -734,6 +749,10 @@ button:disabled {
 }
 
 .flow-page-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
   margin-bottom: 32px;
 }
 
@@ -747,6 +766,27 @@ button:disabled {
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.14;
   letter-spacing: -0.045em;
+}
+
+.flow-edit-link {
+  display: inline-grid;
+  min-width: 92px;
+  height: 44px;
+  margin-bottom: 4px;
+  padding: 0 20px;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, #765cf2, #5a43d8);
+  box-shadow: 0 10px 20px rgb(90 67 216 / 20%);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.flow-edit-link:hover {
+  text-decoration: none;
+  box-shadow: 0 13px 25px rgb(90 67 216 / 26%);
+  transform: translateY(-1px);
 }
 
 .flow-file {
@@ -800,6 +840,69 @@ button:disabled {
   line-height: 1.65;
   tab-size: 2;
   white-space: pre;
+}
+
+.editor-form {
+  gap: 20px;
+}
+
+.editor-form-hidden {
+  display: none;
+}
+
+.flow-editor {
+  display: block;
+  width: 100%;
+  min-height: 480px;
+  max-height: calc(100vh - 300px);
+  resize: vertical;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  outline: none;
+  color: #26334a;
+  background: #fff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.flow-editor:focus {
+  box-shadow: inset 0 0 0 2px #7259f2;
+}
+
+.editor-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.editor-cancel {
+  display: inline-grid;
+  height: 44px;
+  padding: 0 20px;
+  place-items: center;
+  border: 1px solid #d9ddea;
+  border-radius: 10px;
+  color: #59657a;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.editor-cancel:hover {
+  border-color: #cbc3f8;
+  text-decoration: none;
+}
+
+.editor-save {
+  width: auto;
+  min-width: 142px;
+  height: 44px;
+  margin: 0;
+  padding: 0 20px;
 }
 
 @keyframes spin {
@@ -867,6 +970,10 @@ button:disabled {
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
+  }
+
+  .flow-page-title {
+    align-items: flex-start;
   }
 
   .flow-count {

@@ -2,7 +2,6 @@ use crate::{
     api::client::get_flow,
     session::{Session, clear_session},
 };
-use testswithme_api_rust::FlowItemDto;
 use base64::{Engine, engine::general_purpose::STANDARD};
 use leptos::{prelude::*, task::spawn_local};
 use leptos_router::{
@@ -10,6 +9,7 @@ use leptos_router::{
     components::A,
     hooks::{use_navigate, use_params_map},
 };
+use testswithme_api_rust::FlowItemDto;
 
 #[component]
 pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
@@ -25,8 +25,9 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
         .expect("FlowPage requires an authenticated session");
 
     let token = active_session.token;
+    let requested_flow_id = flow_id.clone();
     spawn_local(async move {
-        match get_flow(&token, &flow_id).await {
+        match get_flow(&token, &requested_flow_id).await {
             Ok(response) => match decode_content(&response.flow.base64_content) {
                 Ok(decoded_content) => {
                     set_content.set(decoded_content);
@@ -87,14 +88,24 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
                 </A>
 
                 <div class="flow-page-title">
-                    <p class="eyebrow">"Flow file"</p>
-                    <h1>
-                        {move || {
-                            flow.get()
-                                .map(|flow| yaml_file_name(&flow.name))
-                                .unwrap_or_else(|| "Flow".to_owned())
-                        }}
-                    </h1>
+                    <div>
+                        <p class="eyebrow">"Flow file"</p>
+                        <h1>
+                            {move || {
+                                flow.get()
+                                    .map(|flow| yaml_file_name(&flow.name))
+                                    .unwrap_or_else(|| "Flow".to_owned())
+                            }}
+                        </h1>
+                    </div>
+                    <Show when=move || flow.get().is_some()>
+                        <A
+                            href=format!("/flow/{flow_id}/edit")
+                            attr:class="flow-edit-link"
+                        >
+                            "Edit"
+                        </A>
+                    </Show>
                 </div>
 
                 <Show when=move || error.get().is_some()>
@@ -135,14 +146,14 @@ pub fn FlowPage(session: RwSignal<Option<Session>>) -> impl IntoView {
     }
 }
 
-fn decode_content(base64_content: &str) -> Result<String, String> {
+pub(crate) fn decode_content(base64_content: &str) -> Result<String, String> {
     let bytes = STANDARD
         .decode(base64_content)
         .map_err(|_| "The flow file contains invalid Base64 content.".to_owned())?;
     String::from_utf8(bytes).map_err(|_| "The flow file content is not valid UTF-8.".to_owned())
 }
 
-fn yaml_file_name(name: &str) -> String {
+pub(crate) fn yaml_file_name(name: &str) -> String {
     if name.ends_with(".yaml") || name.ends_with(".yml") {
         name.to_owned()
     } else {

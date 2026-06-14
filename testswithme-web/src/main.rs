@@ -1,5 +1,6 @@
 mod api;
 mod dashboard;
+mod editor;
 mod flow;
 mod login;
 mod project;
@@ -7,6 +8,7 @@ mod session;
 
 use crate::{
     dashboard::DashboardPage,
+    editor::EditorPage,
     flow::FlowPage,
     login::LoginPage,
     project::ProjectPage,
@@ -45,6 +47,10 @@ fn App() -> impl IntoView {
                 <Route
                     path=path!("/flow/:id")
                     view=move || view! { <FlowRoute session /> }
+                />
+                <Route
+                    path=path!("/flow/:id/edit")
+                    view=move || view! { <EditorRoute session /> }
                 />
             </Routes>
         </Router>
@@ -91,6 +97,15 @@ fn ProjectRoute(session: RwSignal<Option<Session>>) -> impl IntoView {
 fn FlowRoute(session: RwSignal<Option<Session>>) -> impl IntoView {
     if session.get_untracked().is_some() {
         view! { <FlowPage session /> }.into_any()
+    } else {
+        view! { <Redirect path="/login" /> }.into_any()
+    }
+}
+
+#[component]
+fn EditorRoute(session: RwSignal<Option<Session>>) -> impl IntoView {
+    if session.get_untracked().is_some() {
+        view! { <EditorPage session /> }.into_any()
     } else {
         view! { <Redirect path="/login" /> }.into_any()
     }
