@@ -25,8 +25,7 @@ object Data {
           "description" -> "KeePass client app for Android",
           "imageUrl" -> "https://raw.githubusercontent.com/aivanovski/keepassvault/master/fastlane/metadata/android/en-US/images/icon.png",
           "downloadUrl" -> "https://github.com/aivanovski/keepassvault/releases",
-          "siteUrl" -> "https://github.com/aivanovski/keepassvault",
-          "repositoryUrl" -> "https://github.com/aivanovski/keepassvault-tests.git"
+          "siteUrl" -> "https://github.com/aivanovski/keepassvault"
         )
       ),
       () => api.postProject(
@@ -39,6 +38,16 @@ object Data {
           "siteUrl" -> "https://f-droid.org",
         )
       ),
+
+      // Setup groups
+      () => api.postGroup("KeePassVault/Root", "Common"),
+      () => api.postGroup("KeePassVault/Root", "Screens"),
+      () => api.postGroup("KeePassVault/Root/Screens", "Unlock"),
+
+      // Upload flows
+      () => api.postFlow("KeePassVault/Root/Common", Flows.ResetData),
+      () => api.postFlow("KeePassVault/Root/Common", Flows.SetupBasicKdbxDatabase),
+      () => api.postFlow("KeePassVault/Root/Screens/Unlock", Flows.UnlockDatabaseWithPassword),
     )
 
     for (response <- requests) printResponse(response.apply())

@@ -6,7 +6,7 @@ import java.util.Base64
 
 enum ServerUrl(val value: String):
   case Prod extends ServerUrl("https://testswithme.org")
-  case Local extends ServerUrl("https://127.0.0.1:8443")
+  case Local extends ServerUrl("http://127.0.0.1:8080")
 
 class ApiClient(private val baseServerUrl: String) {
 
