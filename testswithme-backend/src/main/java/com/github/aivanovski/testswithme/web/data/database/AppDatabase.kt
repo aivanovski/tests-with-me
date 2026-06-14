@@ -72,9 +72,20 @@ class AppDatabase(
     fun <T> execTransaction(block: Session.() -> T): T {
         return sessionFactory.openSession().use { session ->
             val transaction = session.beginTransaction()
-            val result = block.invoke(session)
-            transaction.commit()
-            result
+
+            try {
+                val result = block.invoke(session)
+                transaction.commit()
+                result
+            } catch (error: Throwable) {
+                if (transaction.isActive) {
+                    runCatching {
+                        transaction.rollback()
+                    }.exceptionOrNull()?.let(error::addSuppressed)
+                }
+
+                throw error
+            }
         }
     }
 }

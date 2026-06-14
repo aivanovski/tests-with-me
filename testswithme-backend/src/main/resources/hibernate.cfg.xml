@@ -7,8 +7,11 @@
         <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
         <property name="hibernate.connection.url">jdbc:sqlite:./app-data/db/testswithme.sqlite3</property>
 
-        <!-- SQLite supports one writer at a time. -->
-        <property name="hibernate.connection.pool_size">1</property>
+        <!-- WAL allows concurrent readers while SQLite serializes writes. -->
+        <property name="hibernate.connection.journal_mode">WAL</property>
+        <property name="hibernate.connection.synchronous">NORMAL</property>
+        <property name="hibernate.connection.busy_timeout">10000</property>
+        <property name="hibernate.connection.pool_size">10</property>
 
         <!-- SQL dialect -->
         <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
