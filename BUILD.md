@@ -8,16 +8,12 @@ Run the code generator from the repository root:
 cargo run -p testswithme-api-codegen
 ```
 
-The generator reads Kotlin DTOs, requests, and responses from
-`testswithme-backend-api` and writes the generated Rust declarations to
-`testswithme-api-rust/src/lib.rs`.
-
 To use custom paths:
 
 ```shell
 cargo run -p testswithme-api-codegen -- \
-  --input <kotlin-source-directory> \
-  --output <rust-output-file>
+  --input <kotlin-source-path> \
+  --output <rust-output-path>
 ```
 
 Check that the generated Rust crate compiles:
