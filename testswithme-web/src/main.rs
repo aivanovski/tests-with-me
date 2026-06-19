@@ -1,19 +1,10 @@
-mod api;
-mod dashboard;
-mod editor;
-mod flow;
-mod login;
-mod project;
-mod session;
+use testswithme_web::dashboard::DashboardPage;
+use testswithme_web::editor::EditorPage;
+use testswithme_web::flow::FlowPage;
+use testswithme_web::login::LoginPage;
+use testswithme_web::project::ProjectPage;
+use testswithme_web::session::{Session, load_session};
 
-use crate::{
-    dashboard::DashboardPage,
-    editor::EditorPage,
-    flow::FlowPage,
-    login::LoginPage,
-    project::ProjectPage,
-    session::{Session, load_session},
-};
 use leptos::prelude::*;
 use leptos_router::{components::*, path};
 

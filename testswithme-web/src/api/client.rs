@@ -1,20 +1,16 @@
 use gloo_net::http::{Request, Response};
 use serde::Deserialize;
 use testswithme_api_rust::{
-    FlowResponse, FlowsResponse, GetProjectsResponse, GroupsResponse, LoginRequest, LoginResponse,
-    UpdateFlowRequest, UpdateFlowResponse,
+    ErrorMessageDto, FlowResponse, FlowsResponse, GetProjectsResponse, GroupsResponse,
+    LoginRequest, LoginResponse, UpdateFlowRequest, UpdateFlowResponse,
 };
 
 const API_URL: &str = "http://127.0.0.1:8080";
 
-#[derive(Deserialize)]
-pub struct ErrorResponse {
-    message: String,
-}
-
 pub async fn login(username: String, password: String) -> Result<LoginResponse, String> {
     let request = LoginRequest { username, password };
     let url = format!("{}/login", API_URL);
+
     let response = Request::post(&url)
         .header("Content-Type", "application/json")
         .json(&request)
@@ -78,7 +74,7 @@ where
     parse_response(response, request_name).await
 }
 
-async fn parse_response<T>(response: Response, request_name: &str) -> Result<T, String>
+async fn parse_response<T>(response: Response, path: &str) -> Result<T, String>
 where
     T: for<'de> Deserialize<'de>,
 {
@@ -86,11 +82,11 @@ where
         response
             .json::<T>()
             .await
-            .map_err(|_| format!("The server returned an invalid {request_name} response."))
+            .map_err(|_| format!("The server returned an invalid {path} response."))
     } else {
         let status = response.status();
         let message = response
-            .json::<ErrorResponse>()
+            .json::<ErrorMessageDto>()
             .await
             .map(|error| error.message)
             .unwrap_or_else(|_| format!("Request failed with status {status}."));
