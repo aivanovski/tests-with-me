@@ -2,10 +2,10 @@ use clap::Parser;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
-use testswithme_api_codegen::{
-    RustType, collect_kotlin_files, parse_kotlin_file, read_file, serialize_lib_rs,
-    serialize_rust_types, transform, write_file,
-};
+use testswithme_api_codegen::io::{collect_kotlin_files, read_file, write_file};
+use testswithme_api_codegen::model::RustType;
+use testswithme_api_codegen::serializer::{serialize_lib_rs, serialize_rust_types};
+use testswithme_api_codegen::transpiler::{parse_kotlin_file, transform};
 
 #[derive(Debug, Parser)]
 #[command(name = "codegen")]

@@ -10,6 +10,8 @@ pub fn serialize_rust_types(types: &Vec<RustType>) -> String {
     output.push_str("use serde::{Deserialize, Serialize};\n");
 
     for rust_type in types {
+        output.push_str("\n");
+
         match &rust_type.declaration {
             RustDeclaration::Struct { fields } => {
                 output.push_str("#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]\n");
